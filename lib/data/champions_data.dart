@@ -1,6 +1,8 @@
 // DATOS: Contiene la lista completa de campeones de Wild Rift
 // Cada campeón tiene su nombre, rol y URL de imagen EXACTA de Data Dragon
 
+import 'dart:io';
+
 import '../models/champion.dart';
 
 class ChampionsData {
@@ -27,7 +29,7 @@ class ChampionsData {
       ),
       Champion(
         name: 'Akshan',
-        roles: ['MID, TOP'],
+        roles: ['MID', 'TOP'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Akshan.png',
       ),
       Champion(
@@ -42,7 +44,7 @@ class ChampionsData {
       ),
       Champion(
         name: 'Annie',
-        roles: ['MID, SUPP'],
+        roles: ['MID', 'SUPP'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Annie.png',
       ),
       Champion(
@@ -251,6 +253,11 @@ class ChampionsData {
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Lillia.png',
       ),
       Champion(
+        name: 'Lissandra', 
+        roles: ['MID', 'TOP', 'SUPP'], 
+        imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Lissandra.png'
+      ),
+      Champion(
         name: 'Lucian',
         roles: ['ADC', 'MID'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Lucian.png',
@@ -311,6 +318,11 @@ class ChampionsData {
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Nautilus.png',
       ),
       Champion(
+        name: 'Nocturne', 
+        roles: ['JG'], 
+        imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Nocturne.png'
+        ),
+      Champion(
         name: 'Nunu y Willump',
         roles: ['JG'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Nunu.png',
@@ -369,6 +381,11 @@ class ChampionsData {
         name: 'Samira',
         roles: ['ADC'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Samira.png',
+      ),
+      Champion(
+       name: 'Shen', 
+       roles: ['TOP', 'JG', 'SUPP'], 
+       imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Shen.png'
       ),
       Champion(
         name: 'Senna',

@@ -1,5 +1,5 @@
 // PANTALLA PRINCIPAL: Con selector de modo Aliado/Enemigo
-// Tocar un campeón lo agrega según el modo activo
+// Y selector de rol del jugador para recomendaciones filtradas
 
 import 'package:flutter/material.dart';
 import '../models/champion.dart';
@@ -28,7 +28,10 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<String> _roleOrder = ['TOP', 'JG', 'MID', 'ADC', 'SUPP'];
 
   // MODO ACTUAL: 'aliado' o 'enemigo'
-  String _modoActual = 'aliado'; // Por defecto: Aliado
+  String _modoActual = 'aliado';
+
+  // ROL SELECCIONADO del jugador
+  String _selectedRole = 'TOP'; // Por defecto: TOP
 
   @override
   void initState() {
@@ -125,6 +128,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final championsByRole = _getChampionsByRole();
+    // Obtener recomendaciones de counters filtradas por el rol seleccionado
+    final recomendaciones = _draftService.obtenerCountersPorRol(_selectedRole);
     
     return Scaffold(
       appBar: AppBar(
@@ -172,6 +177,11 @@ class _HomeScreenState extends State<HomeScreen> {
               _updateUI();
             },
           ),
+
+          const SizedBox(height: 8),
+
+          // SELECTOR DE ROL DEL JUGADOR
+          _buildRoleSelector(),
 
           const SizedBox(height: 8),
 
@@ -365,6 +375,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
           const SizedBox(height: 4),
 
+          // ========== RECOMENDACIONES ==========
+          if (recomendaciones.isNotEmpty)
+            _buildRecomendacionesSection(recomendaciones: recomendaciones),
+
           // GRID CON SEPARACIÓN POR ROLES
           Expanded(
             child: ListView(
@@ -379,6 +393,231 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Construye el selector de rol del jugador
+  Widget _buildRoleSelector() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Título
+          Row(
+            children: [
+              Icon(_getRoleIcon(_selectedRole), color: _getRoleColor(_selectedRole), size: 14),
+              const SizedBox(width: 4),
+              Text(
+                'MI ROL: $_selectedRole',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: _getRoleColor(_selectedRole),
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          // Botones de roles
+          Row(
+            children: _roleOrder.map((rol) {
+              final isActive = _selectedRole == rol;
+              final roleColor = _getRoleColor(rol);
+              
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedRole = rol;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                    decoration: BoxDecoration(
+                      color: isActive ? roleColor.withValues(alpha: 0.3) : const Color(0xFF21262D),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: isActive ? roleColor : Colors.grey[700]!,
+                        width: isActive ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(
+                          _getRoleIcon(rol),
+                          color: isActive ? roleColor : Colors.grey[500],
+                          size: 16,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          rol,
+                          style: TextStyle(
+                            fontSize: 8,
+                            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                            color: isActive ? roleColor : Colors.grey[500],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Construye la sección de recomendaciones de counters
+  Widget _buildRecomendacionesSection({
+    required List<Champion> recomendaciones,
+  }) {
+    if (recomendaciones.isEmpty) return const SizedBox.shrink();
+    
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1F2E),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Colors.amber.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Título
+          Row(
+            children: [
+              const Icon(Icons.tips_and_updates, color: Colors.amber, size: 16),
+              const SizedBox(width: 6),
+              Text(
+                'RECOMENDACIONES PARA $_selectedRole',
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.amber,
+                  letterSpacing: 1,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '${recomendaciones.length}',
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.amber,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          
+          // Lista de recomendaciones horizontal
+          SizedBox(
+            height: 60,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: recomendaciones.length,
+              separatorBuilder: (context, index) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                final campeon = recomendaciones[index];
+                return _buildRecomendacionCard(campeon);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Construye una card de recomendación individual
+  Widget _buildRecomendacionCard(Champion campeon) {
+    return GestureDetector(
+      onTap: () => _seleccionarCampeon(campeon),
+      child: Container(
+        width: 50,
+        decoration: BoxDecoration(
+          color: const Color(0xFF21262D),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: Colors.amber.withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Imagen pequeña
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: Image.network(
+                campeon.imageUrl,
+                height: 30,
+                width: 30,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Container(
+                    height: 30,
+                    width: 30,
+                    color: Colors.grey[800],
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 1.5,
+                        color: Colors.amber,
+                      ),
+                    ),
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: 30,
+                    width: 30,
+                    color: Colors.grey[800],
+                    child: Center(
+                      child: Text(
+                        campeon.initials,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red[300],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 2),
+            // Nombre
+            Text(
+              campeon.name,
+              style: const TextStyle(
+                fontSize: 6,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+            ),
+          ],
+        ),
       ),
     );
   }
