@@ -59,36 +59,38 @@ class DraftService {
   /// Formato: 'NombreCampeón_Rol': ['Counter1', 'Counter2', ...]
   final Map<String, List<String>> _countersMap = {
     // TOP
-    'Aatrox_TOP': ['Fiora', 'Renekton', 'Irelia', 'Tryndamere'],
-    'Camille_TOP': ['Darius', 'Renekton', 'Fiora', 'Jax'],
+    'Aatrox_TOP': ['Fiora', 'Gwen', 'Jax', 'Vayne'],
+    'Aurora_TOP': ['Irelia', 'Poppy', 'Vladimir', 'Singed'],
+    'Camille_TOP': ['Renekton', 'Darius', 'Fiora', 'Jax'],
     'Darius_TOP': ['Renekton', 'Fiora', 'Tryndamere', 'Wukong'],
-    'Dr. Mundo_TOP': ['Fiora', 'Renekton', 'Tryndamere', 'Darius'],
-    'Fiora_TOP': ['Malphite', 'Renekton', 'Nasus', 'Camille'],
-    'Garen_TOP': ['Darius', 'Fiora', 'Camille', 'Renekton'],
-    'Gnar_TOP': ['Darius', 'Renekton', 'Fiora', 'Irelia'],
-    'Gwen_TOP': ['Renekton', 'Darius', 'Fiora', 'Tryndamere'],
-    'Irelia_TOP': ['Malphite', 'Renekton', 'Jax', 'Fiora'],
-    'Jax_TOP': ['Malphite', 'Renekton', 'Darius', 'Sett'],
-    'Jayce_TOP': ['Malphite', 'Renekton', 'Irelia', 'Fiora'],
-    'K\'Sante_TOP': ['Fiora', 'Renekton', 'Darius', 'Tryndamere'],
-    'Kayle_TOP': ['Renekton', 'Darius', 'Fiora', 'Tryndamere'],
-    'Kennen_TOP': ['Malphite', 'Renekton', 'Irelia', 'Fiora'],
-    'Malphite_TOP': ['Darius', 'Fiora', 'Camille', 'Sett'],
-    'Mordekaiser_TOP': ['Fiora', 'Renekton', 'Darius', 'Tryndamere'],
-    'Nasus_TOP': ['Darius', 'Renekton', 'Tryndamere', 'Fiora'],
-    'Ornn_TOP': ['Fiora', 'Renekton', 'Darius', 'Tryndamere'],
+    'Dr.Mundo_TOP': ['Fiora', 'Renekton', 'Tryndamere', 'Darius'],
+    'Fiora_TOP': ['Malphite', 'Jax', 'Renekton', 'Pantheon'],
+    'Garen_TOP': ['Vayne', 'Fiora', 'Camille', 'Darius'],
+    'Gnar_TOP': ['Malphite', 'Irelia', 'Ornn', 'Teemo'],
+    'Gwen_TOP': ['Pantheon', 'Darius', 'Fiora', 'Tryndamere'],
+    'Irelia_TOP': ['Pantheon', 'Renekton', 'Jax', 'Fiora'],
+    'Jax_TOP': ['Garen', 'Teemo', 'Pantheon', 'Sett'],
+    'Jayce_TOP': ['Malphite', 'Pantheon', 'Irelia', 'Fiora'],
+    'K\'Sante_TOP': ['Garen', 'Rumble', 'Fiora', 'Kayle'],
+    'Kayle_TOP': ['Pantheon', 'Renekton', 'Fiora', 'Tryndamere'],
+    'Kennen_TOP': ['Malphite', 'Nasus', 'Dr.Mundo', 'Galio'],
+    'Malphite_TOP': ['Singed', 'Ornn', 'Dr.Mundo', 'Sion'],
+    'Mordekaiser_TOP': ['Fiora', 'Olaf', 'Darius', 'Tryndamere'],
+    'Nasus_TOP': ['Garen', 'Renekton', "K\'Sante", 'Fiora'],
+    'Ornn_TOP': ['Singed', 'Garen', 'Darius', 'Olaf'],
     'Poppy_TOP': ['Darius', 'Renekton', 'Sett', 'Fiora'],
-    'Renekton_TOP': ['Darius', 'Fiora', 'Gnar', 'Pantheon'],
-    'Riven_TOP': ['Malphite', 'Renekton', 'Darius', 'Garen'],
-    'Sett_TOP': ['Darius', 'Fiora', 'Renekton', 'Vayne'],
+    'Renekton_TOP': ['Dr.Mundo', 'Darius', 'Gnar', 'Pantheon'],
+    'Riven_TOP': ['Renekton', 'Poppy', 'Kennen', 'Garen'],
+    'Rumble_TOP':['Galio', 'Ryze', 'Aurora', 'Kayle'],
+    'Sett_TOP': ['Pantheon', 'Darius', 'Vayne', 'Singed'],
     'Shen_TOP': ['Darius', 'Mordekaiser', 'Sett', 'Teemo'],
-    'Singed_TOP': ['Darius', 'Renekton', 'Fiora', 'Tryndamere'],
-    'Sion_TOP': ['Fiora', 'Renekton', 'Darius', 'Nasus'],
-    'Teemo_TOP': ['Malphite', 'Renekton', 'Darius', 'Fiora'],
-    'Tryndamere_TOP': ['Malphite', 'Renekton', 'Nasus', 'Darius'],
-    'Urgot_TOP': ['Fiora', 'Renekton', 'Darius', 'Tryndamere'],
-    'Volibear_TOP': ['Darius', 'Fiora', 'Renekton', 'Tryndamere'],
-    'Wukong_TOP': ['Darius', 'Renekton', 'Fiora', 'Sett'],
+    'Singed_TOP': ['Vayne', 'Jayce', 'Nasus', 'Ryze'],
+    'Sion_TOP': ['Darius', 'Shen', 'Singed', 'Irelia'],
+    'Teemo_TOP': ['Rumble', 'Akali', 'Ryze', 'Olaf'],
+    'Tryndamere_TOP': ['Malphite', 'Teemo', 'Jax', 'Volibear'],
+    'Urgot_TOP': ['Olaf', 'Kayle', 'Sion', 'Tryndamere'],
+    'Volibear_TOP': ['Jax', 'Fiora', 'Teemo', 'Urgot'],
+    'Wukong_TOP': ['Mordekaiser', 'Ornn', 'Poppy', 'Sett'],
 
     // JG
     'Amumu_JG': ['Lee Sin', 'Xin Zhao', 'Graves', 'Olaf'],
@@ -103,7 +105,7 @@ class DraftService {
     'Lillia_JG': ['Lee Sin', 'Xin Zhao', 'Graves', 'Olaf'],
     'Maokai_JG': ['Lee Sin', 'Xin Zhao', 'Graves', 'Olaf'],
     'Master Yi_JG': ['Rammus', 'Amumu', 'Jax', 'Warwick'],
-    'Nocturne_JG': ['Rammus', 'Warwick', 'Trundle'],
+    'Nocturne_JG': ['Rammus', 'Warwick', 'Evelynn', 'Lillia'],
     'Nunu y Willump_JG': ['Lee Sin', 'Xin Zhao', 'Graves', 'Olaf'],
     'Olaf_JG': ['Lee Sin', 'Xin Zhao', 'Jarvan IV', 'Graves'],
     'Pantheon_JG': ['Lee Sin', 'Xin Zhao', 'Jarvan IV', 'Vi'],
@@ -115,12 +117,14 @@ class DraftService {
     'Taliyah_JG': ['Lee Sin', 'Xin Zhao', 'Graves', 'Olaf'],
     'Talon_JG': ['Lee Sin', 'Xin Zhao', 'Warwick', 'Graves'],
     'Vi_JG': ['Lee Sin', 'Xin Zhao', 'Jarvan IV', 'Graves'],
+    'Viego_JG': ['Rammus', 'Olaf', 'Taliyah', 'Amumu'],
     'Warwick_JG': ['Lee Sin', 'Xin Zhao', 'Graves', 'Olaf'],
     'Xin Zhao_JG': ['Lee Sin', 'Jarvan IV', 'Vi', 'Graves'],
     'Zed_JG': ['Lee Sin', 'Xin Zhao', 'Warwick', 'Graves'],
 
     // MID
     'Ahri_MID': ['Fizz', 'Zed', 'Yasuo'],
+    'Aurora_MID': ['Aurelion Sol', 'Veigar', 'Syndra', 'Katarina'],
     'Akali_MID': ['Zed', 'Fizz', 'Yasuo'],
     'Akshan_MID': ['Annie', 'Malphite', 'Pantheon', 'Irelia'],
     'Annie_MID': ['Fizz', 'Zed', 'Akali'],
@@ -135,7 +139,10 @@ class DraftService {
     'Lucian_MID': ['Fizz', 'Zed', 'Akali', 'Yasuo'],
     'Lux_MID': ['Fizz', 'Zed', 'Akali'],
     'Morgana_MID': ['Fizz', 'Zed', 'Akali'],
+    'Norra_MID': ['Ekko', 'Zoe', 'Ahri', 'Kassadin'],
     'Orianna_MID': ['Fizz', 'Zed', 'Akali'],
+    'Syndra_MID': ['Fizz', 'Zed', 'Katarina', 'Galio'],
+    'Swain_MID': ['Katarina', 'Aurelion Sol', 'Syndra', 'Vel\'Koz'],
     'Taliyah_MID': ['Fizz', 'Zed', 'Akali'],
     'Talon_MID': ['Fizz', 'Zed', 'Akali', 'Yasuo'],
     'Twisted Fate_MID': ['Fizz', 'Zed', 'Akali'],
@@ -160,6 +167,7 @@ class DraftService {
     'Kog\'Maw_ADC': ['Tristana', 'Draven', 'Jhin', 'Samira'],
     'Lucian_ADC': ['Tristana', 'Draven', 'Jhin', 'Samira'],
     'Miss Fortune_ADC': ['Tristana', 'Draven', 'Jhin', 'Samira'],
+    'Nilah_ADC': ['Veigar', 'Brand', 'Swain', 'Vladimir'],
     'Samira_ADC': ['Caitlyn', 'Ashe', 'Jhin', 'Vayne'],
     'Senna_ADC': ['Tristana', 'Draven', 'Jhin', 'Samira'],
     'Sivir_ADC': ['Tristana', 'Draven', 'Jhin', 'Samira'],
@@ -195,8 +203,10 @@ class DraftService {
     'Morgana_SUPP': ['Blitzcrank', 'Leona', 'Alistar', 'Pyke'],
     'Shen_SUPP': ['Morgana', 'Janna', 'Lulu', 'Zyra', 'Brand' ],
     'Senna_SUPP': ['Blitzcrank', 'Leona', 'Alistar', 'Pyke'],
+    'Swain_SUPP': ['Zilean', 'Janna', 'Seraphine', 'Brand'],
     'Veigar_SUPP': ['Blitzcrank', 'Leona', 'Alistar', 'Pyke'],
     'Vel\'Koz_SUPP': ['Blitzcrank', 'Leona', 'Alistar', 'Pyke'],
+    'Zilean': ['Pyke', 'Janna', 'Nami', 'Soraka'],
     'Zyra_SUPP': ['Blitzcrank', 'Leona', 'Alistar', 'Pyke'],
   };
 
@@ -252,8 +262,8 @@ class DraftService {
     }
     
     // Limitar a máximo 3 recomendaciones
-    if (recomendaciones.length > 3) {
-      recomendaciones = recomendaciones.sublist(0, 3);
+    if (recomendaciones.length > 4) {
+      recomendaciones = recomendaciones.sublist(0, 4);
     }
     
     return recomendaciones;

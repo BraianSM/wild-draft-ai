@@ -1,138 +1,133 @@
-// WIDGET: Tarjeta que muestra cada campeón en el grid
-// Diseño: imagen grande + nombre pequeño + roles
-// Sin botones, sin espacios vacíos
+// WIDGET: Tarjeta individual para cada campeón en el grid
 
 import 'package:flutter/material.dart';
 import '../models/champion.dart';
+import '../theme/app_colors.dart';
 
 class ChampionCard extends StatelessWidget {
   final Champion champion;
   final bool isSelected;
-  final VoidCallback? onTap;
-  final Color? borderColor;
+  final Color borderColor;
+  final VoidCallback onTap;
 
   const ChampionCard({
     super.key,
     required this.champion,
     required this.isSelected,
-    this.onTap,
-    this.borderColor,
+    required this.borderColor,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: isSelected ? null : onTap,
-      child: Card(
-        color: isSelected ? Colors.grey[850] : const Color(0xFF161B22),
-        elevation: isSelected ? 0 : 1,
-        margin: EdgeInsets.zero, // Sin margen extra
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
-          side: BorderSide(
-            color: isSelected 
-                ? Colors.green 
-                : borderColor ?? Colors.transparent,
-            width: isSelected ? 2 : 1.5,
+      onTap: onTap,
+      child: AnimatedScale(
+        scale: isSelected ? 0.95 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isSelected
+                  ? [borderColor.withValues(alpha: 0.2), AppColors.cardDark]
+                  : [AppColors.cardDark, AppColors.surfaceDark],
+            ),
+            border: Border.all(
+              color: isSelected ? borderColor : AppColors.borderDark.withValues(alpha: 0.5),
+              width: isSelected ? 1.5 : 1.0,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: isSelected
+                    ? borderColor.withValues(alpha: 0.15)
+                    : Colors.black.withValues(alpha: 0.3),
+                blurRadius: isSelected ? 8 : 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // IMAGEN GRANDE - ocupa la mayor parte
-            Expanded(
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(5),
-                  topRight: Radius.circular(5),
-                ),
-                child: Image.network(
-                  champion.imageUrl,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Container(
-                      color: Colors.grey[800],
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.amber,
-                        ),
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey[800],
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              champion.initials,
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red[300],
+          padding: const EdgeInsets.all(4),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Imagen del campeón
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.network(
+                        champion.imageUrl,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            color: AppColors.surfaceDark,
+                            child: const Center(
+                              child: SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 1.5,
+                                  color: AppColors.accentGold,
+                                ),
                               ),
                             ),
-                          ],
-                        ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: AppColors.surfaceDark,
+                            child: Center(
+                              child: Text(
+                                champion.initials,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
+                      // Overlay sutil al estar seleccionado
+                      if (isSelected)
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                borderColor.withValues(alpha: 0.1),
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            
-            // NOMBRE + ROLES - pequeño abajo
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-              color: isSelected ? Colors.grey[850] : const Color(0xFF1A1F2E),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Nombre del campeón
-                  Text(
-                    champion.name,
-                    style: const TextStyle(
-                      fontSize: 8, 
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                  ),
-                  
-                  // Roles en una línea
-                  Text(
-                    champion.roles.join(', '),
-                    style: TextStyle(
-                      fontSize: 6,
-                      color: Colors.grey[500],
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                  ),
-                  
-                  // Check si está seleccionado
-                  if (isSelected)
-                    Container(
-                      margin: const EdgeInsets.only(top: 2),
-                      child: Icon(
-                        Icons.check_circle,
-                        color: Colors.green[400],
-                        size: 12,
-                      ),
-                    ),
-                ],
+              const SizedBox(height: 3),
+              // Nombre del campeón
+              Text(
+                champion.name,
+                style: TextStyle(
+                  fontSize: 8,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

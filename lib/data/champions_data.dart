@@ -1,8 +1,6 @@
 // DATOS: Contiene la lista completa de campeones de Wild Rift
 // Cada campeón tiene su nombre, rol y URL de imagen EXACTA de Data Dragon
 
-import 'dart:io';
-
 import '../models/champion.dart';
 
 class ChampionsData {
@@ -57,6 +55,11 @@ class ChampionsData {
         roles: ['MID'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/AurelionSol.png',
       ),
+      Champion(
+        name: 'Aurora', 
+        roles: ['MID', 'TOP'], 
+        imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.14.1/img/champion/Aurora.png'
+        ),
       Champion(
         name: 'Blitzcrank',
         roles: ['SUPP'],
@@ -188,6 +191,11 @@ class ChampionsData {
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Jayce.png',
       ),
       Champion(
+        name: 'Katarina', 
+        roles: ['MID'], 
+        imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Katarina.png'
+        ),
+      Champion(
         name: 'Jhin',
         roles: ['ADC'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Jhin.png',
@@ -318,10 +326,20 @@ class ChampionsData {
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Nautilus.png',
       ),
       Champion(
+        name: 'Nilah', 
+        roles: ['ADC'], 
+        imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.21.1/img/champion/Nilah.png'
+        ),
+      Champion(
         name: 'Nocturne', 
         roles: ['JG'], 
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Nocturne.png'
         ),
+        Champion(
+          name: 'Norra', 
+          roles: ['MID'], 
+          imageUrl: 'https://wiki.leagueoflegends.com/en-us/images/Norra_OriginalSquare.png'
+          ),
       Champion(
         name: 'Nunu y Willump',
         roles: ['JG'],
@@ -363,6 +381,11 @@ class ChampionsData {
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Rammus.png',
       ),
       Champion(
+        name: 'Ryze', 
+        roles: ['MID', 'TOP'], 
+        imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Ryze.png'
+        ),
+      Champion(
         name: 'Renekton',
         roles: ['TOP'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Renekton.png',
@@ -377,6 +400,16 @@ class ChampionsData {
         roles: ['TOP'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Riven.png',
       ),
+      Champion(
+        name: 'Poppy', 
+        roles: ['TOP', 'JG'], 
+        imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Poppy.png'
+        ),
+      Champion(
+        name: 'Rumble', 
+        roles: ['TOP'], 
+        imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.21.1/img/champion/Rumble.png'
+        ),
       Champion(
         name: 'Samira',
         roles: ['ADC'],
@@ -432,6 +465,16 @@ class ChampionsData {
         roles: ['SUPP'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Soraka.png',
       ),
+      Champion(
+        name: 'Swain', 
+        roles: ['MID', 'SUPP'], 
+        imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.21.1/img/champion/Swain.png'
+        ),
+      Champion(
+        name: 'Syndra', 
+        roles: ['MID'], 
+        imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.21.1/img/champion/Syndra.png'
+        ),
       Champion(
         name: 'Taliyah',
         roles: ['MID', 'JG'],
@@ -503,6 +546,11 @@ class ChampionsData {
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Vi.png',
       ),
       Champion(
+        name: 'Viego', 
+        roles: ['JG'], 
+        imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.21.1/img/champion/Viego.png'
+        ),
+      Champion(
         name: 'Vladimir',
         roles: ['MID'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Vladimir.png',
@@ -552,6 +600,11 @@ class ChampionsData {
         roles: ['MID', 'JG'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Zed.png',
       ),
+      Champion(
+        name: 'Zilean', 
+        roles: ['SUPP'], 
+        imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Zilean.png'
+        ),
       Champion(
         name: 'Ziggs',
         roles: ['MID', 'ADC'],

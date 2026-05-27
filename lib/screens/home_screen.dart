@@ -6,6 +6,7 @@ import '../models/champion.dart';
 import '../data/champions_data.dart';
 import '../services/draft_service.dart';
 import '../widgets/champion_card.dart';
+import '../theme/app_colors.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,7 +15,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final DraftService _draftService = DraftService();
   final List<Champion> _allChampions = ChampionsData.getAll();
   
@@ -31,18 +32,28 @@ class _HomeScreenState extends State<HomeScreen> {
   String _modoActual = 'aliado';
 
   // ROL SELECCIONADO del jugador
-  String _selectedRole = 'TOP'; // Por defecto: TOP
+  String _selectedRole = 'TOP';
+
+  // Controlador de animación para el glow del fondo
+  late AnimationController _glowController;
 
   @override
   void initState() {
     super.initState();
     _filteredChampions = _allChampions;
     _searchController.addListener(_filterChampions);
+    
+    // Animación suave para el glow ambiental
+    _glowController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    )..repeat(reverse: true);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _glowController.dispose();
     super.dispose();
   }
 
@@ -103,17 +114,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return rolesMap;
   }
 
-  Color _getRoleColor(String role) {
-    switch (role) {
-      case 'TOP': return Colors.orange;
-      case 'JG': return Colors.green;
-      case 'MID': return Colors.purple;
-      case 'ADC': return Colors.amber;
-      case 'SUPP': return Colors.teal;
-      default: return Colors.grey;
-    }
-  }
-
   IconData _getRoleIcon(String role) {
     switch (role) {
       case 'TOP': return Icons.shield;
@@ -128,269 +128,422 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final championsByRole = _getChampionsByRole();
-    // Obtener recomendaciones de counters filtradas por el rol seleccionado
     final recomendaciones = _draftService.obtenerCountersPorRol(_selectedRole);
     
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Wild Draft AI'),
-        centerTitle: true,
-        backgroundColor: const Color(0xFF161B22),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.amber),
-            tooltip: 'Reiniciar draft',
-            onPressed: () {
-              _draftService.resetDraft();
-              _updateUI();
-            },
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // SECCIÓN: Equipo aliado (azul)
-          _buildTeamSection(
-            title: 'ALIADOS',
-            picks: _draftService.alliedPicks,
-            color: Colors.blue,
-            onRemovePick: (index) {
-              _draftService.removeAllyPick(index);
-              _updateUI();
-            },
-          ),
-
-          // Separador entre equipos
-          Container(
-            height: 2,
-            color: Colors.amber,
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-          ),
-
-          // SECCIÓN: Equipo enemigo (rojo)
-          _buildTeamSection(
-            title: 'ENEMIGOS',
-            picks: _draftService.enemyPicks,
-            color: Colors.red,
-            onRemovePick: (index) {
-              _draftService.removeEnemyPick(index);
-              _updateUI();
-            },
-          ),
-
-          const SizedBox(height: 8),
-
-          // SELECTOR DE ROL DEL JUGADOR
-          _buildRoleSelector(),
-
-          const SizedBox(height: 8),
-
-          // SELECTOR DE MODO: ALIADO / ENEMIGO
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFF161B22),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.amber.withValues(alpha: 0.3),
-                  width: 1,
-                ),
-              ),
-              child: Row(
-                children: [
-                  // Botón ALIADO
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _modoActual = 'aliado';
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        decoration: BoxDecoration(
-                          color: _modoActual == 'aliado' 
-                              ? Colors.blue[700] 
-                              : Colors.transparent,
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(11),
-                            bottomLeft: Radius.circular(11),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.group_add,
-                              color: _modoActual == 'aliado' 
-                                  ? Colors.white 
-                                  : Colors.blue[300],
-                              size: 18,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              'ALIADO',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: _modoActual == 'aliado' 
-                                    ? Colors.white 
-                                    : Colors.blue[300],
-                                letterSpacing: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  
-                  // Separador entre botones
-                  Container(
-                    width: 2,
-                    height: 30,
-                    color: Colors.amber.withValues(alpha: 0.3),
-                  ),
-                  
-                  // Botón ENEMIGO
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _modoActual = 'enemigo';
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        decoration: BoxDecoration(
-                          color: _modoActual == 'enemigo' 
-                              ? Colors.red[700] 
-                              : Colors.transparent,
-                          borderRadius: const BorderRadius.only(
-                            topRight: Radius.circular(11),
-                            bottomRight: Radius.circular(11),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.person_remove,
-                              color: _modoActual == 'enemigo' 
-                                  ? Colors.white 
-                                  : Colors.red[300],
-                              size: 18,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              'ENEMIGO',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: _modoActual == 'enemigo' 
-                                    ? Colors.white 
-                                    : Colors.red[300],
-                                letterSpacing: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.diamond, color: AppColors.accentGold, size: 22),
+            const SizedBox(width: 8),
+            Text(
+              'Wild Draft AI',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary,
+                letterSpacing: 2.0,
+                shadows: [
+                  Shadow(
+                    color: AppColors.accentGold.withValues(alpha: 0.3),
+                    blurRadius: 8,
                   ),
                 ],
               ),
             ),
+          ],
+        ),
+        backgroundColor: AppColors.surfaceDark.withValues(alpha: 0.9),
+        elevation: 0,
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.accentGold.withValues(alpha: 0.3),
+                  blurRadius: 6,
+                ),
+              ],
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.refresh, color: AppColors.accentGold, size: 20),
+              tooltip: 'Reiniciar draft',
+              onPressed: () {
+                _draftService.resetDraft();
+                _updateUI();
+              },
+            ),
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          // FONDO CON GRADIENTE Y GLOW AMBIENTAL
+          Positioned.fill(
+            child: AnimatedBuilder(
+              animation: _glowController,
+              builder: (context, child) {
+                return Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppColors.backgroundDark,
+                        const Color(0xFF0D1321),
+                        const Color(0xFF0F172A),
+                        AppColors.backgroundDark,
+                      ],
+                    ),
+                  ),
+                  child: Stack(
+                    children: [
+                      // Glow azul izquierda (aliados)
+                      Positioned(
+                        left: -100,
+                        top: 0,
+                        child: Container(
+                          width: 250,
+                          height: 250,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              colors: [
+                                AppColors.allyBlue.withValues(alpha: 0.08 * _glowController.value + 0.04),
+                                AppColors.allyBlue.withValues(alpha: 0.02),
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Glow rojo derecha (enemigos)
+                      Positioned(
+                        right: -100,
+                        top: 0,
+                        child: Container(
+                          width: 250,
+                          height: 250,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              colors: [
+                                AppColors.enemyRed.withValues(alpha: 0.08 * _glowController.value + 0.04),
+                                AppColors.enemyRed.withValues(alpha: 0.02),
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
 
-          const SizedBox(height: 8),
+          // CONTENIDO PRINCIPAL
+          Column(
+            children: [
+              SizedBox(height: kToolbarHeight + MediaQuery.of(context).padding.top + 12),
 
-          // BARRA DE BÚSQUEDA
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: TextField(
-              controller: _searchController,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-              decoration: InputDecoration(
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: Colors.grey[500],
-                  size: 20,
-                ),
-                hintText: 'Buscar campeón...',
-                hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
-                filled: true,
-                fillColor: const Color(0xFF21262D),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: Colors.amber, width: 1.5),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
+              // SECCIÓN: Equipo aliado (azul)
+              _buildTeamSection(
+                title: 'ALIADOS',
+                picks: _draftService.alliedPicks,
+                color: AppColors.allyBlue,
+                glowColor: AppColors.allyBlueGlow,
+                onRemovePick: (index) {
+                  _draftService.removeAllyPick(index);
+                  _updateUI();
+                },
+              ),
+
+              // Separador entre equipos
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+                child: Container(
+                  height: 1.5,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.transparent,
+                        AppColors.accentGold.withValues(alpha: 0.4),
+                        AppColors.accentGold.withValues(alpha: 0.6),
+                        AppColors.accentGold.withValues(alpha: 0.4),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
+
+              // SECCIÓN: Equipo enemigo (rojo)
+              _buildTeamSection(
+                title: 'ENEMIGOS',
+                picks: _draftService.enemyPicks,
+                color: AppColors.enemyRed,
+                glowColor: AppColors.enemyRedGlow,
+                onRemovePick: (index) {
+                  _draftService.removeEnemyPick(index);
+                  _updateUI();
+                },
+              ),
+
+              const SizedBox(height: 10),
+
+              // SELECTOR DE ROL DEL JUGADOR
+              _buildRoleSelector(),
+
+              const SizedBox(height: 8),
+
+              // TOGGLE ALIADO / ENEMIGO
+              _buildModeToggle(),
+
+              const SizedBox(height: 8),
+
+              // BARRA DE BÚSQUEDA
+              _buildSearchBar(),
+
+              const SizedBox(height: 6),
+
+              // Indicador de modo activo y contadores
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Icon(
+                      _modoActual == 'aliado' ? Icons.group_add : Icons.person_remove,
+                      color: _modoActual == 'aliado' ? AppColors.allyBlue : AppColors.enemyRed,
+                      size: 14,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Tocando agrega a ${_modoActual == 'aliado' ? 'ALIADOS' : 'ENEMIGOS'}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: _modoActual == 'aliado' 
+                            ? AppColors.allyBlue.withValues(alpha: 0.8) 
+                            : AppColors.enemyRed.withValues(alpha: 0.8),
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      'A: ${_draftService.alliedPicks.length}/5  E: ${_draftService.enemyPicks.length}/5',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 4),
+
+              // RECOMENDACIONES
+              if (recomendaciones.isNotEmpty)
+                _buildRecomendacionesSection(recomendaciones: recomendaciones),
+
+              // GRID CON SEPARACIÓN POR ROLES
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  children: [
+                    for (var entry in championsByRole.entries)
+                      _buildRoleSection(
+                        role: entry.key,
+                        champions: entry.value,
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ),
+        ],
+      ),
+    );
+  }
 
-          const SizedBox(height: 8),
-
-          // Indicador de modo activo
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Icon(
-                  _modoActual == 'aliado' ? Icons.group_add : Icons.person_remove,
-                  color: _modoActual == 'aliado' ? Colors.blue : Colors.red,
-                  size: 14,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Tocando agrega a ${_modoActual == 'aliado' ? 'ALIADOS' : 'ENEMIGOS'}',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: _modoActual == 'aliado' ? Colors.blue[300] : Colors.red[300],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const Spacer(),
-                // Contadores
-                Text(
-                  'A: ${_draftService.alliedPicks.length}/5  E: ${_draftService.enemyPicks.length}/5',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey[400],
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
+  /// Construye la sección de un equipo (aliados o enemigos)
+  Widget _buildTeamSection({
+    required String title,
+    required List<Champion> picks,
+    required Color color,
+    required Color glowColor,
+    required Function(int) onRemovePick,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceDark.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: color.withValues(alpha: 0.2),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: glowColor.withValues(alpha: 0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
           ),
-
-          const SizedBox(height: 4),
-
-          // ========== RECOMENDACIONES ==========
-          if (recomendaciones.isNotEmpty)
-            _buildRecomendacionesSection(recomendaciones: recomendaciones),
-
-          // GRID CON SEPARACIÓN POR ROLES
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              children: [
-                for (var entry in championsByRole.entries)
-                  _buildRoleSection(
-                    role: entry.key,
-                    champions: entry.value,
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 4,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: color,
+                  letterSpacing: 1.5,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: List.generate(5, (index) {
+              if (index < picks.length) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: GestureDetector(
+                    onTap: () => onRemovePick(index),
+                    child: Column(
+                      children: [
+                        Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(18),
+                              child: Image.network(
+                                picks[index].imageUrl,
+                                height: 36,
+                                width: 36,
+                                fit: BoxFit.cover,
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Container(
+                                    height: 36,
+                                    width: 36,
+                                    color: AppColors.surfaceDark,
+                                    child: const Center(
+                                      child: SizedBox(
+                                        width: 14,
+                                        height: 14,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 1.5,
+                                          color: AppColors.accentGold,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    height: 36,
+                                    width: 36,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          color.withValues(alpha: 0.8),
+                                          color.withValues(alpha: 0.4),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      borderRadius: BorderRadius.circular(18),
+                                      border: Border.all(color: color, width: 1.5),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        picks[index].initials,
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.textPrimary,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            Positioned(
+                              top: -2,
+                              right: -2,
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(
+                                  color: Colors.black87,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  size: 10,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        SizedBox(
+                          width: 36,
+                          child: Text(
+                            picks[index].name,
+                            style: TextStyle(
+                              fontSize: 7,
+                              color: AppColors.textSecondary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-              ],
-            ),
+                );
+              } else {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Container(
+                    height: 36,
+                    width: 36,
+                    decoration: BoxDecoration(
+                      color: AppColors.borderDark.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Icon(
+                      Icons.question_mark,
+                      size: 16,
+                      color: AppColors.textMuted,
+                    ),
+                  ),
+                );
+              }
+            }),
           ),
         ],
       ),
@@ -400,32 +553,34 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Construye el selector de rol del jugador
   Widget _buildRoleSelector() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Título
           Row(
             children: [
-              Icon(_getRoleIcon(_selectedRole), color: _getRoleColor(_selectedRole), size: 14),
-              const SizedBox(width: 4),
+              Icon(
+                _getRoleIcon(_selectedRole),
+                color: AppColors.getRoleColor(_selectedRole),
+                size: 14,
+              ),
+              const SizedBox(width: 5),
               Text(
                 'MI ROL: $_selectedRole',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: _getRoleColor(_selectedRole),
-                  letterSpacing: 1,
+                  color: AppColors.getRoleColor(_selectedRole),
+                  letterSpacing: 1.2,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 4),
-          // Botones de roles
           Row(
             children: _roleOrder.map((rol) {
               final isActive = _selectedRole == rol;
-              final roleColor = _getRoleColor(rol);
+              final roleColor = AppColors.getRoleColor(rol);
               
               return Expanded(
                 child: GestureDetector(
@@ -434,22 +589,35 @@ class _HomeScreenState extends State<HomeScreen> {
                       _selectedRole = rol;
                     });
                   },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeInOut,
+                    padding: const EdgeInsets.symmetric(vertical: 7),
                     margin: const EdgeInsets.symmetric(horizontal: 2),
                     decoration: BoxDecoration(
-                      color: isActive ? roleColor.withValues(alpha: 0.3) : const Color(0xFF21262D),
-                      borderRadius: BorderRadius.circular(6),
+                      color: isActive 
+                          ? roleColor.withValues(alpha: 0.2) 
+                          : AppColors.cardDark,
+                      borderRadius: BorderRadius.circular(7),
                       border: Border.all(
-                        color: isActive ? roleColor : Colors.grey[700]!,
+                        color: isActive ? roleColor : AppColors.borderDark.withValues(alpha: 0.6),
                         width: isActive ? 1.5 : 1,
                       ),
+                      boxShadow: isActive
+                          ? [
+                              BoxShadow(
+                                color: roleColor.withValues(alpha: 0.4),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ]
+                          : null,
                     ),
                     child: Column(
                       children: [
                         Icon(
                           _getRoleIcon(rol),
-                          color: isActive ? roleColor : Colors.grey[500],
+                          color: isActive ? roleColor : AppColors.textMuted,
                           size: 16,
                         ),
                         const SizedBox(height: 2),
@@ -457,8 +625,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           rol,
                           style: TextStyle(
                             fontSize: 8,
-                            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                            color: isActive ? roleColor : Colors.grey[500],
+                            fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+                            color: isActive ? roleColor : AppColors.textMuted,
                           ),
                         ),
                       ],
@@ -473,6 +641,155 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /// Construye el toggle de modo aliado/enemigo
+  Widget _buildModeToggle() {
+    final bool isAlly = _modoActual == 'aliado';
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      child: Container(
+        height: 38,
+        decoration: BoxDecoration(
+          color: AppColors.surfaceDark,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppColors.borderDark.withValues(alpha: 0.4),
+          ),
+        ),
+        child: Stack(
+          children: [
+            // Fondo animado que se desliza
+            AnimatedAlign(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeInOut,
+              alignment: isAlly ? Alignment.centerLeft : Alignment.centerRight,
+              child: Container(
+                margin: const EdgeInsets.all(3),
+                width: (MediaQuery.of(context).size.width - 28 - 6) / 2,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: isAlly
+                        ? [AppColors.allyBlue, AppColors.allyBlue.withValues(alpha: 0.7)]
+                        : [AppColors.enemyRed, AppColors.enemyRed.withValues(alpha: 0.7)],
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (isAlly ? AppColors.allyBlue : AppColors.enemyRed).withValues(alpha: 0.4),
+                      blurRadius: 8,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Botones
+            Row(
+              children: [
+                // ALIADO
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _modoActual = 'aliado'),
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.group_add,
+                            color: isAlly ? Colors.white : AppColors.textMuted,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'ALIADO',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: isAlly ? Colors.white : AppColors.textMuted,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                // ENEMIGO
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _modoActual = 'enemigo'),
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.person_remove,
+                            color: !isAlly ? Colors.white : AppColors.textMuted,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'ENEMIGO',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: !isAlly ? Colors.white : AppColors.textMuted,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Construye la barra de búsqueda
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.accentGold.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: TextField(
+          controller: _searchController,
+          style: TextStyle(color: AppColors.textPrimary, fontSize: 13),
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.search, color: AppColors.textMuted, size: 18),
+            hintText: 'Buscar campeón...',
+            hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 13),
+            filled: true,
+            fillColor: AppColors.cardDark.withValues(alpha: 0.9),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: AppColors.accentGold, width: 1.5),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          ),
+        ),
+      ),
+    );
+  }
+
   /// Construye la sección de recomendaciones de counters
   Widget _buildRecomendacionesSection({
     required List<Champion> recomendaciones,
@@ -480,30 +797,35 @@ class _HomeScreenState extends State<HomeScreen> {
     if (recomendaciones.isEmpty) return const SizedBox.shrink();
     
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1F2E),
-        borderRadius: BorderRadius.circular(8),
+        color: AppColors.cardDark.withValues(alpha: 0.8),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: Colors.amber.withValues(alpha: 0.3),
+          color: AppColors.accentGold.withValues(alpha: 0.2),
           width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.accentGold.withValues(alpha: 0.1),
+            blurRadius: 8,
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Título
           Row(
             children: [
-              const Icon(Icons.tips_and_updates, color: Colors.amber, size: 16),
+              const Icon(Icons.tips_and_updates, color: AppColors.accentGold, size: 16),
               const SizedBox(width: 6),
               Text(
                 'RECOMENDACIONES PARA $_selectedRole',
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: Colors.amber,
+                  color: AppColors.accentGold,
                   letterSpacing: 1,
                 ),
               ),
@@ -511,14 +833,14 @@ class _HomeScreenState extends State<HomeScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.2),
+                  color: AppColors.accentGold.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   '${recomendaciones.length}',
                   style: const TextStyle(
                     fontSize: 10,
-                    color: Colors.amber,
+                    color: AppColors.accentGold,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -526,10 +848,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const SizedBox(height: 6),
-          
-          // Lista de recomendaciones horizontal
           SizedBox(
-            height: 60,
+            height: 56,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: recomendaciones.length,
@@ -550,68 +870,59 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () => _seleccionarCampeon(campeon),
       child: Container(
-        width: 50,
+        width: 48,
         decoration: BoxDecoration(
-          color: const Color(0xFF21262D),
+          color: AppColors.surfaceDark,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: Colors.amber.withValues(alpha: 0.3),
+            color: AppColors.selectedPurple.withValues(alpha: 0.4),
             width: 1,
           ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Imagen pequeña
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: Image.network(
                 campeon.imageUrl,
-                height: 30,
-                width: 30,
+                height: 28,
+                width: 28,
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
                   return Container(
-                    height: 30,
-                    width: 30,
-                    color: Colors.grey[800],
+                    height: 28,
+                    width: 28,
+                    color: AppColors.surfaceDark,
                     child: const Center(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 1.5,
-                        color: Colors.amber,
+                      child: SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(strokeWidth: 1.5, color: AppColors.accentGold),
                       ),
                     ),
                   );
                 },
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
-                    height: 30,
-                    width: 30,
-                    color: Colors.grey[800],
+                    height: 28,
+                    width: 28,
+                    color: AppColors.surfaceDark,
                     child: Center(
                       child: Text(
                         campeon.initials,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red[300],
-                        ),
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
                       ),
                     ),
                   );
                 },
               ),
             ),
-            const SizedBox(height: 2),
-            // Nombre
+            const SizedBox(height: 1),
             Text(
               campeon.name,
-              style: const TextStyle(
-                fontSize: 6,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+              style: const TextStyle(fontSize: 6, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               maxLines: 1,
@@ -627,7 +938,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required String role,
     required List<Champion> champions,
   }) {
-    final roleColor = _getRoleColor(role);
+    final roleColor = AppColors.getRoleColor(role);
     final roleIcon = _getRoleIcon(role);
     
     return Column(
@@ -638,12 +949,12 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
           child: Row(
             children: [
-              Icon(roleIcon, color: roleColor, size: 18),
-              const SizedBox(width: 6),
+              Icon(roleIcon, color: roleColor, size: 16),
+              const SizedBox(width: 5),
               Text(
                 role,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                   color: roleColor,
                   letterSpacing: 2,
@@ -653,7 +964,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 decoration: BoxDecoration(
-                  color: roleColor.withValues(alpha: 0.2),
+                  color: roleColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -687,10 +998,9 @@ class _HomeScreenState extends State<HomeScreen> {
             return ChampionCard(
               champion: champion,
               isSelected: isSelected,
-              // Color del borde según modo activo
               borderColor: _modoActual == 'aliado' 
-                  ? Colors.blue.withValues(alpha: 0.5) 
-                  : Colors.red.withValues(alpha: 0.5),
+                  ? AppColors.allyBlue.withValues(alpha: 0.6) 
+                  : AppColors.enemyRed.withValues(alpha: 0.6),
               onTap: () => _seleccionarCampeon(champion),
             );
           },
@@ -698,154 +1008,6 @@ class _HomeScreenState extends State<HomeScreen> {
         
         const SizedBox(height: 4),
       ],
-    );
-  }
-
-  /// Construye la sección de un equipo (aliados o enemigos)
-  Widget _buildTeamSection({
-    required String title,
-    required List<Champion> picks,
-    required Color color,
-    required Function(int) onRemovePick,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(6),
-      color: const Color(0xFF161B22),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: List.generate(5, (index) {
-              if (index < picks.length) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 4),
-                  child: GestureDetector(
-                    onTap: () => onRemovePick(index),
-                    child: Column(
-                      children: [
-                        Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: Image.network(
-                                picks[index].imageUrl,
-                                height: 32,
-                                width: 32,
-                                fit: BoxFit.cover,
-                                loadingBuilder: (context, child, loadingProgress) {
-                                  if (loadingProgress == null) return child;
-                                  return Container(
-                                    height: 32,
-                                    width: 32,
-                                    color: Colors.grey[800],
-                                    child: const Center(
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 1.5,
-                                        color: Colors.amber,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    height: 32,
-                                    width: 32,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          color == Colors.blue
-                                              ? Colors.blue[800]!
-                                              : Colors.red[800]!,
-                                          color == Colors.blue
-                                              ? Colors.blue[900]!
-                                              : Colors.red[900]!,
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
-                                      borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(color: color, width: 1.5),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        picks[index].initials,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            Positioned(
-                              top: 0,
-                              right: 0,
-                              child: Container(
-                                padding: const EdgeInsets.all(1),
-                                decoration: const BoxDecoration(
-                                  color: Colors.black54,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.close,
-                                  size: 8,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 1),
-                        SizedBox(
-                          width: 32,
-                          child: Text(
-                            picks[index].name,
-                            style: const TextStyle(
-                              fontSize: 7,
-                              color: Colors.white,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              } else {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 4),
-                  child: Container(
-                    height: 32,
-                    width: 32,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[700],
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Icon(
-                      Icons.question_mark,
-                      size: 16,
-                      color: Colors.grey[500],
-                    ),
-                  ),
-                );
-              }
-            }),
-          ),
-        ],
-      ),
     );
   }
 }
