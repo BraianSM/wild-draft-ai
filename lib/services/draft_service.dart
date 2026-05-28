@@ -89,6 +89,8 @@ class DraftService {
     'Teemo_TOP': ['Rumble', 'Akali', 'Ryze', 'Olaf'],
     'Tryndamere_TOP': ['Malphite', 'Teemo', 'Jax', 'Volibear'],
     'Urgot_TOP': ['Olaf', 'Kayle', 'Sion', 'Tryndamere'],
+    'Varus_TOP': ['Olaf', 'Yasuo', 'Irelia', 'Nasus'],
+    'Vayne_TOP': ['Teemo', 'Malphite', 'Pantheon', 'Irelia'],
     'Volibear_TOP': ['Jax', 'Fiora', 'Teemo', 'Urgot'],
     'Wukong_TOP': ['Mordekaiser', 'Ornn', 'Poppy', 'Sett'],
 
@@ -206,7 +208,7 @@ class DraftService {
     'Swain_SUPP': ['Zilean', 'Janna', 'Seraphine', 'Brand'],
     'Veigar_SUPP': ['Blitzcrank', 'Leona', 'Alistar', 'Pyke'],
     'Vel\'Koz_SUPP': ['Blitzcrank', 'Leona', 'Alistar', 'Pyke'],
-    'Zilean': ['Pyke', 'Janna', 'Nami', 'Soraka'],
+    'Zilean_SUPP': ['Pyke', 'Janna', 'Nami', 'Soraka'],
     'Zyra_SUPP': ['Blitzcrank', 'Leona', 'Alistar', 'Pyke'],
   };
 

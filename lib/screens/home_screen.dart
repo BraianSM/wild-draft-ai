@@ -22,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   // Controlador para el texto de búsqueda
   final TextEditingController _searchController = TextEditingController();
   
-  // Lista filtrada de campeones (según búsqueda)
+  // Lista filtrada de campeones (según búsqueda y filtro de rol)
   List<Champion> _filteredChampions = [];
 
   // Lista de roles disponibles en orden
@@ -34,14 +34,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   // ROL SELECCIONADO del jugador
   String _selectedRole = 'TOP';
 
+  // FILTRO RÁPIDO de rol (null = mostrar todos)
+  String? _roleFilter;
+
   // Controlador de animación para el glow del fondo
   late AnimationController _glowController;
 
   @override
   void initState() {
     super.initState();
-    _filteredChampions = _allChampions;
-    _searchController.addListener(_filterChampions);
+    _applyFilters(); // inicializa la lista con todos los campeones
+    _searchController.addListener(_onSearchChanged);
     
     // Animación suave para el glow ambiental
     _glowController = AnimationController(
@@ -57,19 +60,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  /// Filtra los campeones según el texto de búsqueda
-  void _filterChampions() {
+  /// Se llama cuando cambia el texto de búsqueda
+  void _onSearchChanged() {
+    _applyFilters();
+  }
+
+  /// Aplica ambos filtros: búsqueda de texto y rol rápido
+  void _applyFilters() {
     final query = _searchController.text.toLowerCase().trim();
     
     setState(() {
-      if (query.isEmpty) {
-        _filteredChampions = _allChampions;
-      } else {
-        _filteredChampions = _allChampions
-            .where((champion) => 
-                champion.name.toLowerCase().contains(query))
-            .toList();
-      }
+      _filteredChampions = _allChampions.where((champion) {
+        bool matchesSearch = query.isEmpty || 
+            champion.name.toLowerCase().contains(query);
+        bool matchesRole = _roleFilter == null || 
+            champion.roles.contains(_roleFilter);
+        return matchesSearch && matchesRole;
+      }).toList();
     });
   }
 
@@ -352,16 +359,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               if (recomendaciones.isNotEmpty)
                 _buildRecomendacionesSection(recomendaciones: recomendaciones),
 
+              // FILTRO RÁPIDO DE ROL
+              _buildRoleQuickFilter(),
+
+              const SizedBox(height: 15), // Reducido para acercar las cards
+
               // GRID CON SEPARACIÓN POR ROLES
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: EdgeInsets.zero,
                   children: [
-                    for (var entry in championsByRole.entries)
-                      _buildRoleSection(
-                        role: entry.key,
-                        champions: entry.value,
-                      ),
+                    if (_roleFilter != null && _filteredChampions.isNotEmpty)
+                      // Mostrar solo el grid sin título cuando hay filtro de rol
+                      _buildRoleGrid(_filteredChampions)
+                    else
+                      for (var entry in championsByRole.entries)
+                        _buildRoleSection(
+                          role: entry.key,
+                          champions: entry.value,
+                        ),
                   ],
                 ),
               ),
@@ -369,6 +385,84 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
         ],
       ),
+    );
+  }
+
+  /// Filtro rápido por rol (botones pequeños arriba de la lista de campeones)
+  Widget _buildRoleQuickFilter() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Row(
+        children: _roleOrder.map((rol) {
+          bool isSelected = _roleFilter == rol;
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                if (_roleFilter == rol) {
+                  _roleFilter = null; // deseleccionar
+                } else {
+                  _roleFilter = rol;
+                }
+              });
+              _applyFilters();
+            },
+            child: Container(
+              margin: const EdgeInsets.only(right: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: isSelected 
+                    ? AppColors.getRoleColor(rol).withValues(alpha: 0.2) 
+                    : AppColors.cardDark,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isSelected 
+                      ? AppColors.getRoleColor(rol) 
+                      : AppColors.borderDark.withValues(alpha: 0.5),
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                rol,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  color: isSelected 
+                      ? AppColors.getRoleColor(rol) 
+                      : AppColors.textSecondary,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  /// Grid simple sin título para cuando se filtra por rol
+  Widget _buildRoleGrid(List<Champion> champions) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 4,
+        childAspectRatio: 0.8,
+        crossAxisSpacing: 6,
+        mainAxisSpacing: 6,
+      ),
+      itemCount: champions.length,
+      itemBuilder: (context, index) {
+        final champion = champions[index];
+        final isSelected = _draftService.isChampionSelected(champion);
+        return ChampionCard(
+          champion: champion,
+          isSelected: isSelected,
+          borderColor: _modoActual == 'aliado' 
+              ? AppColors.allyBlue.withValues(alpha: 0.6) 
+              : AppColors.enemyRed.withValues(alpha: 0.6),
+          onTap: () => _seleccionarCampeon(champion),
+        );
+      },
     );
   }
 
@@ -946,7 +1040,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       children: [
         // TÍTULO DEL ROL
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+          padding: const EdgeInsets.only(top: 2, bottom: 2, left: 8, right: 8),
           child: Row(
             children: [
               Icon(roleIcon, color: roleColor, size: 16),
@@ -984,6 +1078,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.zero, 
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             childAspectRatio: 0.8,
@@ -1006,7 +1101,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           },
         ),
         
-        const SizedBox(height: 4),
+        const SizedBox(height: 1),
       ],
     );
   }

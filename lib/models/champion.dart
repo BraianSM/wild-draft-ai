@@ -1,16 +1,41 @@
 // MODELO: Representa un campeón en nuestro draft
-// Ahora incluye nombre, rol e imagen
+// Ahora incluye nombre, rol, imagen y atributos estratégicos
+
+import 'package:flutter/material.dart';
 
 class Champion {
   final String name;
-  final List<String> roles; // Rol del campeón: Asesino, Luchador, Mago, etc.
-  final String imageUrl; // URL exacta de la imagen en Data Dragon
+  final List<String> roles;
+  final String imageUrl;
 
-  // Constructor con todos los campos
+  // Atributos estratégicos (todos opcionales, por defecto false)
+  final bool isAD;
+  final bool isAP;
+  final bool isTank;
+  final bool hasCC;
+  final bool hasEngage;
+  final bool hasHealing;
+  final bool usesAutoAttacks;
+  final bool isMelee;
+  final bool isEarlyGame;
+  final bool isMidGame;
+  final bool scalesLateGame;
+
   Champion({
     required this.name,
     required this.roles,
     required this.imageUrl,
+    this.isAD = false,
+    this.isAP = false,
+    this.isTank = false,
+    this.hasCC = false,
+    this.hasEngage = false,
+    this.hasHealing = false,
+    this.usesAutoAttacks = false,
+    this.isMelee = false,
+    this.isEarlyGame = false,
+    this.isMidGame = false,
+    this.scalesLateGame = false,
   });
 
   // Método para obtener las iniciales (primeras 2 letras en mayúscula)
@@ -20,6 +45,7 @@ class Champion {
     }
     return name.toUpperCase();
   }
+
   // Método para obtener el rol principal (el primero de la lista)
   String get primaryRole {
     if (roles.isNotEmpty) {
