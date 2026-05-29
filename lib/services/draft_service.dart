@@ -132,6 +132,7 @@ class DraftService {
     'Annie_MID': ['Fizz', 'Zed', 'Akali'],
     'Aurelion Sol_MID': ['Fizz', 'Zed', 'Akali'],
     'Brand_MID': ['Fizz', 'Zed', 'Akali'],
+    'Ekko_MID'
     'Fizz_MID': ['Zed', 'Ahri', 'Lux'],
     'Galio_MID': ['Fizz', 'Zed', 'Yasuo', 'Akali'],
     'Irelia_MID': ['Malphite', 'Renekton', 'Jax', 'Fiora'],

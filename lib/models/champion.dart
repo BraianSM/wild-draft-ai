@@ -20,6 +20,8 @@ class Champion {
   final bool isEarlyGame;
   final bool isMidGame;
   final bool scalesLateGame;
+  final bool hasShield;
+  final bool hasDash;
 
   Champion({
     required this.name,
@@ -36,6 +38,8 @@ class Champion {
     this.isEarlyGame = false,
     this.isMidGame = false,
     this.scalesLateGame = false,
+    this.hasShield = false,
+    this.hasDash = false
   });
 
   // Método para obtener las iniciales (primeras 2 letras en mayúscula)
