@@ -76,7 +76,7 @@ class DraftService {
     'Kennen_TOP': ['Malphite', 'Nasus', 'Dr.Mundo', 'Galio'],
     'Malphite_TOP': ['Singed', 'Ornn', 'Dr.Mundo', 'Sion'],
     'Mordekaiser_TOP': ['Fiora', 'Olaf', 'Darius', 'Tryndamere'],
-    'Nasus_TOP': ['Garen', 'Renekton', "K\'Sante", 'Fiora'],
+    'Nasus_TOP': ['Garen', 'Renekton', "K'Sante", 'Fiora'],
     'Ornn_TOP': ['Singed', 'Garen', 'Darius', 'Olaf'],
     'Poppy_TOP': ['Darius', 'Renekton', 'Sett', 'Fiora'],
     'Renekton_TOP': ['Dr.Mundo', 'Darius', 'Gnar', 'Pantheon'],

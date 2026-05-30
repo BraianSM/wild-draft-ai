@@ -1,6 +1,5 @@
 // DATOS: Contiene la lista completa de campeones de Wild Rift
 // Cada campeón tiene su nombre, rol y URL de imagen EXACTA de Data Dragon
-import 'package:flutter/services.dart';
 
 import '../models/champion.dart';
 

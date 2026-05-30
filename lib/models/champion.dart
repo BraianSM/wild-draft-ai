@@ -1,8 +1,6 @@
 // MODELO: Representa un campeón en nuestro draft
 // Ahora incluye nombre, rol, imagen y atributos estratégicos
 
-import 'package:flutter/material.dart';
-
 class Champion {
   final String name;
   final List<String> roles;
