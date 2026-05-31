@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 import '../models/champion.dart';
 import '../data/champions_data.dart';
 import '../services/draft_service.dart';
+import '../services/counter_service.dart';
+import '../services/composition_service.dart';
 import '../widgets/champion_card.dart';
+import '../widgets/team_panel_widget.dart';
 import '../theme/app_colors.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,9 +21,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final DraftService _draftService = DraftService();
   final List<Champion> _allChampions = ChampionsData.getAll();
-  
+  late CounterService _counterService;
+  final CompositionService _compositionService = CompositionService();
+
   final TextEditingController _searchController = TextEditingController();
-  
+
   List<Champion> _filteredChampions = [];
 
   final List<String> _roleOrder = ['TOP', 'JG', 'MID', 'ADC', 'SUPP'];
@@ -31,20 +36,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   late AnimationController _glowController;
 
-  /// Cuenta los atributos de un equipo (ampliado para análisis detallado)
-  Map<String, int> _countAttributes(List<Champion> team) {
-    return {
-      'AD': team.where((c) => c.isAD).length,
-      'AP': team.where((c) => c.isAP).length,
-      'Tanques': team.where((c) => c.isTank).length,
-      'CC': team.where((c) => c.hasCC).length,
-      'Iniciadores': team.where((c) => c.hasEngage).length,
-      'Curas': team.where((c) => c.hasHealing).length,
-      'AutoAtaques': team.where((c) => c.usesAutoAttacks).length,
-      'Melee': team.where((c) => c.isMelee).length,
-      'Escudos': team.where((c) => c.hasShield).length,
-      'Late Game': team.where((c) => c.scalesLateGame).length,
-    };
+  void _actualizarCounterService() {
+    _counterService = CounterService(
+      alliedPicks: _draftService.alliedPicks,
+      enemyPicks: _draftService.enemyPicks,
+      allChampions: _allChampions,
+    );
   }
 
   @override
@@ -52,7 +49,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     super.initState();
     _applyFilters();
     _searchController.addListener(_onSearchChanged);
-    
+    _actualizarCounterService();
+
     _glowController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 4),
@@ -72,12 +70,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _applyFilters() {
     final query = _searchController.text.toLowerCase().trim();
-    
+
     setState(() {
       _filteredChampions = _allChampions.where((champion) {
-        bool matchesSearch = query.isEmpty || 
+        bool matchesSearch = query.isEmpty ||
             champion.name.toLowerCase().contains(query);
-        bool matchesRole = _roleFilter == null || 
+        bool matchesRole = _roleFilter == null ||
             champion.roles.contains(_roleFilter);
         return matchesSearch && matchesRole;
       }).toList();
@@ -85,12 +83,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _updateUI() {
+    _actualizarCounterService();
     setState(() {});
   }
 
   void _seleccionarCampeon(Champion champion) {
     if (_draftService.isChampionSelected(champion)) return;
-    
+
     if (_modoActual == 'aliado') {
       if (_draftService.alliedPicks.length < _draftService.maxPicks) {
         _draftService.pickAsAlly(champion);
@@ -105,11 +104,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Map<String, List<Champion>> _getChampionsByRole() {
     Map<String, List<Champion>> rolesMap = {};
-    
+
     for (var role in _roleOrder) {
       rolesMap[role] = [];
     }
-    
+
     for (var champion in _filteredChampions) {
       final primaryRole = champion.primaryRole;
       if (rolesMap.containsKey(primaryRole)) {
@@ -118,19 +117,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         rolesMap[primaryRole] = [champion];
       }
     }
-    
+
     rolesMap.removeWhere((key, value) => value.isEmpty);
     return rolesMap;
   }
 
   IconData _getRoleIcon(String role) {
     switch (role) {
-      case 'TOP': return Icons.shield;
-      case 'JG': return Icons.forest;
-      case 'MID': return Icons.auto_awesome;
-      case 'ADC': return Icons.gps_fixed;
-      case 'SUPP': return Icons.favorite;
-      default: return Icons.star;
+      case 'TOP':
+        return Icons.shield;
+      case 'JG':
+        return Icons.forest;
+      case 'MID':
+        return Icons.auto_awesome;
+      case 'ADC':
+        return Icons.gps_fixed;
+      case 'SUPP':
+        return Icons.favorite;
+      default:
+        return Icons.star;
     }
   }
 
@@ -165,7 +170,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Indicador de arrastre
               Center(
                 child: Container(
                   width: 40,
@@ -177,7 +181,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ),
               const SizedBox(height: 12),
-              // Título
               Row(
                 children: [
                   Icon(Icons.analytics, color: accentColor, size: 20),
@@ -199,17 +202,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ],
               ),
               const SizedBox(height: 16),
-              // Lista de atributos
               Expanded(
                 child: ListView.separated(
                   itemCount: attributeDefs.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
-                    final def = attributeDefs[index];
-                    final key = def['key'] as String;
-                    final icon = def['icon'] as IconData;
-                    final color = def['color'] as Color;
-                    final count = attributes[key] ?? 0;
+                    final attributeDef = CompositionService.allDefinitions[index];
+                    final count = attributes[attributeDef.key] ?? 0;
                     final ratio = teamSize > 0 ? count / teamSize : 0.0;
 
                     return Column(
@@ -217,10 +216,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       children: [
                         Row(
                           children: [
-                            Icon(icon, size: 18, color: color),
+                            Icon(attributeDef.icon, size: 18, color: attributeDef.color),
                             const SizedBox(width: 10),
                             Text(
-                              key,
+                              attributeDef.label,
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -233,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                                color: color,
+                                color: attributeDef.color,
                               ),
                             ),
                           ],
@@ -244,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: LinearProgressIndicator(
                             value: ratio,
                             backgroundColor: AppColors.borderDark.withValues(alpha: 0.4),
-                            valueColor: AlwaysStoppedAnimation<Color>(color.withValues(alpha: 0.8)),
+                            valueColor: AlwaysStoppedAnimation<Color>(attributeDef.color.withValues(alpha: 0.8)),
                             minHeight: 8,
                           ),
                         ),
@@ -263,9 +262,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final championsByRole = _getChampionsByRole();
-    final recomendaciones = _draftService.obtenerCountersPorRol(_selectedRole);
-    final alliedAttributes = _countAttributes(_draftService.alliedPicks);
-    final enemyAttributes = _countAttributes(_draftService.enemyPicks);
+    final recomendaciones = _counterService.obtenerCountersPorRol(_selectedRole);
+    final alliedAttributes = _compositionService.analyze(_draftService.alliedPicks);
+    final enemyAttributes = _compositionService.analyze(_draftService.enemyPicks);
+
+    // Definiciones filtradas para los chips
+    final alliedVisible = _compositionService.getDefinitionsForDisplay(extended: false);
+    final enemyVisible = _compositionService.getDefinitionsForDisplay(extended: true);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -391,13 +394,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 SizedBox(height: kToolbarHeight + MediaQuery.of(context).padding.top + 12),
 
                 // SECCIÓN: Equipo aliado (azul)
-                _buildTeamSection(
+                TeamPanelWidget(
                   title: 'ALIADOS',
                   picks: _draftService.alliedPicks,
                   color: AppColors.allyBlue,
                   glowColor: AppColors.allyBlueGlow,
                   attributes: alliedAttributes,
-                  showExtended: false,
+                  visibleAttributes: alliedVisible,
                   onAttributeTap: () => _showCompositionDetails(
                     'ALIADOS', alliedAttributes, _draftService.alliedPicks.length, AppColors.allyBlue,
                   ),
@@ -427,13 +430,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
 
                 // SECCIÓN: Equipo enemigo (rojo)
-                _buildTeamSection(
+                TeamPanelWidget(
                   title: 'ENEMIGOS',
                   picks: _draftService.enemyPicks,
                   color: AppColors.enemyRed,
                   glowColor: AppColors.enemyRedGlow,
                   attributes: enemyAttributes,
-                  showExtended: true,
+                  visibleAttributes: enemyVisible,
                   onAttributeTap: () => _showCompositionDetails(
                     'ENEMIGOS', enemyAttributes, _draftService.enemyPicks.length, AppColors.enemyRed,
                   ),
@@ -476,8 +479,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
-                          color: _modoActual == 'aliado' 
-                              ? AppColors.allyBlue.withValues(alpha: 0.8) 
+                          color: _modoActual == 'aliado'
+                              ? AppColors.allyBlue.withValues(alpha: 0.8)
                               : AppColors.enemyRed.withValues(alpha: 0.8),
                         ),
                       ),
@@ -499,9 +502,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 // RECOMENDACIONES
                 if (recomendaciones.isNotEmpty)
                   _buildRecomendacionesSection(recomendaciones: recomendaciones),
-
-                // El widget de análisis de composición grande ha sido eliminado.
-                // Ahora los chips son interactivos y abren un modal detallado.
 
                 // FILTRO RÁPIDO DE ROL
                 _buildRoleQuickFilter(),
@@ -554,13 +554,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               margin: const EdgeInsets.only(right: 6),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: isSelected 
-                    ? AppColors.getRoleColor(rol).withValues(alpha: 0.2) 
+                color: isSelected
+                    ? AppColors.getRoleColor(rol).withValues(alpha: 0.2)
                     : AppColors.cardDark,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: isSelected 
-                      ? AppColors.getRoleColor(rol) 
+                  color: isSelected
+                      ? AppColors.getRoleColor(rol)
                       : AppColors.borderDark.withValues(alpha: 0.5),
                   width: 1,
                 ),
@@ -570,8 +570,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected 
-                      ? AppColors.getRoleColor(rol) 
+                  color: isSelected
+                      ? AppColors.getRoleColor(rol)
                       : AppColors.textSecondary,
                 ),
               ),
@@ -601,278 +601,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return ChampionCard(
           champion: champion,
           isSelected: isSelected,
-          borderColor: _modoActual == 'aliado' 
-              ? AppColors.allyBlue.withValues(alpha: 0.6) 
+          borderColor: _modoActual == 'aliado'
+              ? AppColors.allyBlue.withValues(alpha: 0.6)
               : AppColors.enemyRed.withValues(alpha: 0.6),
           onTap: () => _seleccionarCampeon(champion),
         );
       },
-    );
-  }
-
-  /// Construye la sección de un equipo (aliados o enemigos) con chips de atributos interactivos
-  Widget _buildTeamSection({
-    required String title,
-    required List<Champion> picks,
-    required Color color,
-    required Color glowColor,
-    required Map<String, int> attributes,
-    required bool showExtended,
-    VoidCallback? onAttributeTap,  // NUEVO
-    required Function(int) onRemovePick,
-  }) {
-    final attributeEntries = showExtended
-    ? attributes.entries.where((e) => ['AD', 'AP', 'Tanques', 'CC', 'Iniciadores', 'Curas'].contains(e.key)).toList()
-    : attributes.entries.where((e) => ['AD', 'AP', 'Tanques', 'CC'].contains(e.key)).toList();
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceDark.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: color.withValues(alpha: 0.2),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: glowColor.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Panel izquierdo: título y slots
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 4,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        color: color,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: color,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                // Slots de campeones
-                Row(
-                  children: List.generate(5, (index) {
-                    if (index < picks.length) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 4),
-                        child: GestureDetector(
-                          onTap: () => onRemovePick(index),
-                          child: Column(
-                            children: [
-                              Stack(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(18),
-                                    child: Image.network(
-                                      picks[index].imageUrl,
-                                      height: 36,
-                                      width: 36,
-                                      fit: BoxFit.cover,
-                                      loadingBuilder: (context, child, loadingProgress) {
-                                        if (loadingProgress == null) return child;
-                                        return Container(
-                                          height: 36,
-                                          width: 36,
-                                          color: AppColors.surfaceDark,
-                                          child: const Center(
-                                            child: SizedBox(
-                                              width: 14,
-                                              height: 14,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 1.5,
-                                                color: AppColors.accentGold,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Container(
-                                          height: 36,
-                                          width: 36,
-                                          decoration: BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                color.withValues(alpha: 0.8),
-                                                color.withValues(alpha: 0.4),
-                                              ],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            borderRadius: BorderRadius.circular(18),
-                                            border: Border.all(color: color, width: 1.5),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              picks[index].initials,
-                                              style: const TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.bold,
-                                                color: AppColors.textPrimary,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                  Positioned(
-                                    top: -2,
-                                    right: -2,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(2),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.black87,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.close,
-                                        size: 10,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 2),
-                              SizedBox(
-                                width: 36,
-                                child: Text(
-                                  picks[index].name,
-                                  style: TextStyle(
-                                    fontSize: 7,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    } else {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 4),
-                        child: Container(
-                          height: 36,
-                          width: 36,
-                          decoration: BoxDecoration(
-                            color: AppColors.borderDark.withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: Icon(
-                            Icons.question_mark,
-                            size: 16,
-                            color: AppColors.textMuted,
-                          ),
-                        ),
-                      );
-                    }
-                  }),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          // Panel derecho: atributos compactos e interactivos
-          SizedBox(
-            width: 80,
-            child: Wrap(
-              spacing: 4,
-              runSpacing: 4,
-              children: attributeEntries.map((entry) {
-                IconData icon;
-                Color chipColor;
-                switch (entry.key) {
-                  case 'AD':
-                    icon = Icons.gps_fixed;
-                    chipColor = AppColors.enemyRed;
-                    break;
-                  case 'AP':
-                    icon = Icons.auto_awesome;
-                    chipColor = Colors.purpleAccent;
-                    break;
-                  case 'Tanques':
-                    icon = Icons.shield;
-                    chipColor = Colors.blueGrey;
-                    break;
-                  case 'CC':
-                    icon = Icons.link;
-                    chipColor = Colors.orange;
-                    break;
-                  case 'Iniciadores':
-                    icon = Icons.flash_on;
-                    chipColor = Colors.yellowAccent;
-                    break;
-                  case 'Curas':
-                    icon = Icons.healing;
-                    chipColor = Colors.greenAccent;
-                    break;
-                  default:
-                    icon = Icons.star;
-                    chipColor = AppColors.textMuted;
-                }
-
-                return GestureDetector(
-                  onTap: onAttributeTap, // ← ahora es interactivo
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: chipColor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(
-                        color: chipColor.withValues(alpha: 0.4),
-                        width: 0.5,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(icon, size: 10, color: chipColor),
-                        const SizedBox(width: 2),
-                        Text(
-                          '${entry.value}',
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                            color: chipColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -907,7 +641,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             children: _roleOrder.map((rol) {
               final isActive = _selectedRole == rol;
               final roleColor = AppColors.getRoleColor(rol);
-              
+
               return Expanded(
                 child: GestureDetector(
                   onTap: () {
@@ -921,8 +655,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     padding: const EdgeInsets.symmetric(vertical: 7),
                     margin: const EdgeInsets.symmetric(horizontal: 2),
                     decoration: BoxDecoration(
-                      color: isActive 
-                          ? roleColor.withValues(alpha: 0.2) 
+                      color: isActive
+                          ? roleColor.withValues(alpha: 0.2)
                           : AppColors.cardDark,
                       borderRadius: BorderRadius.circular(7),
                       border: Border.all(
@@ -970,7 +704,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   /// Construye el toggle de modo aliado/enemigo
   Widget _buildModeToggle() {
     final bool isAlly = _modoActual == 'aliado';
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Container(
@@ -1117,7 +851,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     required List<Champion> recomendaciones,
   }) {
     if (recomendaciones.isEmpty) return const SizedBox.shrink();
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
       padding: const EdgeInsets.all(8),
@@ -1262,7 +996,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }) {
     final roleColor = AppColors.getRoleColor(role);
     final roleIcon = _getRoleIcon(role);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1300,11 +1034,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ],
           ),
         ),
-        
+
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.zero, 
+          padding: EdgeInsets.zero,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             childAspectRatio: 0.8,
@@ -1319,14 +1053,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             return ChampionCard(
               champion: champion,
               isSelected: isSelected,
-              borderColor: _modoActual == 'aliado' 
-                  ? AppColors.allyBlue.withValues(alpha: 0.6) 
+              borderColor: _modoActual == 'aliado'
+                  ? AppColors.allyBlue.withValues(alpha: 0.6)
                   : AppColors.enemyRed.withValues(alpha: 0.6),
               onTap: () => _seleccionarCampeon(champion),
             );
           },
         ),
-        
+
         const SizedBox(height: 1),
       ],
     );

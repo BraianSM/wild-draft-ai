@@ -189,7 +189,7 @@ class ChampionsData {
         hasDash: true,
       ),
       Champion(
-        name: 'Dr. Mundo',
+        name: 'Dr.Mundo',
         roles: ['TOP', 'JG'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/DrMundo.png',
         isAP: true,
