@@ -871,6 +871,7 @@ class ChampionsData {
        hasShield: true,
        isMidGame: true,
        hasDash: true,
+       usesAutoAttacks: true,
       ),
       Champion(
         name: 'Senna',
