@@ -5,6 +5,7 @@ class Champion {
   final String name;
   final List<String> roles;
   final String imageUrl;
+  
 
   // Atributos estratégicos (todos opcionales, por defecto false)
   final bool isAD;
@@ -20,6 +21,7 @@ class Champion {
   final bool scalesLateGame;
   final bool hasShield;
   final bool hasDash;
+  final List<String> strategicTags;
 
   Champion({
     required this.name,
@@ -37,7 +39,8 @@ class Champion {
     this.isMidGame = false,
     this.scalesLateGame = false,
     this.hasShield = false,
-    this.hasDash = false
+    this.hasDash = false,
+    this.strategicTags = const [],
   });
 
   // Método para obtener las iniciales (primeras 2 letras en mayúscula)

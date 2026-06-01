@@ -18,7 +18,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin { 
   final DraftService _draftService = DraftService();
   final List<Champion> _allChampions = ChampionsData.getAll();
   late CounterService _counterService;
@@ -141,18 +141,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   /// Muestra un Modal Bottom Sheet con el análisis completo de composición del equipo
   void _showCompositionDetails(String teamTitle, Map<String, int> attributes, int teamSize, Color accentColor) {
-    final attributeDefs = [
-      {'key': 'AD', 'icon': Icons.gps_fixed, 'color': AppColors.enemyRed},
-      {'key': 'AP', 'icon': Icons.auto_awesome, 'color': Colors.purpleAccent},
-      {'key': 'Tanques', 'icon': Icons.shield, 'color': Colors.blueGrey},
-      {'key': 'CC', 'icon': Icons.link, 'color': Colors.orange},
-      {'key': 'Iniciadores', 'icon': Icons.flash_on, 'color': Colors.yellowAccent},
-      {'key': 'Curas', 'icon': Icons.healing, 'color': Colors.greenAccent},
-      {'key': 'Escudos', 'icon': Icons.health_and_safety, 'color': Colors.cyan},
-      {'key': 'AutoAtaques', 'icon': Icons.touch_app, 'color': Colors.amber},
-      {'key': 'Melee', 'icon': Icons.front_hand, 'color': Colors.deepOrangeAccent},
-      {'key': 'Late Game', 'icon': Icons.trending_up, 'color': Colors.deepPurpleAccent},
-    ];
+    final allDefs = CompositionService.allDefinitions;
 
     showModalBottomSheet(
       context: context,
@@ -204,11 +193,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               const SizedBox(height: 16),
               Expanded(
                 child: ListView.separated(
-                  itemCount: attributeDefs.length,
+                  itemCount: allDefs.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
-                    final attributeDef = CompositionService.allDefinitions[index];
-                    final count = attributes[attributeDef.key] ?? 0;
+                    final def = allDefs[index];
+                    final count = attributes[def.key] ?? 0;
                     final ratio = teamSize > 0 ? count / teamSize : 0.0;
 
                     return Column(
@@ -216,10 +205,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       children: [
                         Row(
                           children: [
-                            Icon(attributeDef.icon, size: 18, color: attributeDef.color),
+                            Icon(def.icon, size: 18, color: def.color),
                             const SizedBox(width: 10),
                             Text(
-                              attributeDef.label,
+                              def.label,
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -232,7 +221,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                                color: attributeDef.color,
+                                color: def.color,
                               ),
                             ),
                           ],
@@ -243,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: LinearProgressIndicator(
                             value: ratio,
                             backgroundColor: AppColors.borderDark.withValues(alpha: 0.4),
-                            valueColor: AlwaysStoppedAnimation<Color>(attributeDef.color.withValues(alpha: 0.8)),
+                            valueColor: AlwaysStoppedAnimation<Color>(def.color.withValues(alpha: 0.8)),
                             minHeight: 8,
                           ),
                         ),
@@ -446,6 +435,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   },
                 ),
 
+                // ** NUEVO: ADVERTENCIAS DE COMPOSICIÓN ENEMIGA **
+                if (_draftService.enemyPicks.isNotEmpty)
+                  _buildCompositionWarnings(),
+
+                // ** NUEVO: RECOMENDACIONES ESTRATÉGICAS **
+                if (_draftService.enemyPicks.isNotEmpty)
+                  _buildStrategicRecommendations(),
+
                 const SizedBox(height: 10),
 
                 // SELECTOR DE ROL DEL JUGADOR
@@ -528,6 +525,179 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// ** NUEVO: Widget para mostrar advertencias de composición enemiga **
+  Widget _buildCompositionWarnings() {
+    final warnings = _compositionService.getCompositionWarnings(_draftService.enemyPicks);
+    
+    if (warnings.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppColors.enemyRed.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: AppColors.enemyRed.withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.warning_amber, color: AppColors.enemyRed, size: 14),
+                const SizedBox(width: 4),
+                Text(
+                  'ALERTAS DE COMPOSICIÓN',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.enemyRed,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            ...warnings.map((w) => Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Row(
+                children: [
+                  Icon(w.icon, size: 12, color: w.color),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${w.message} (${w.count}/${w.threshold})',
+                    style: TextStyle(
+                      fontSize: 9,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// ** NUEVO: Widget para mostrar recomendaciones estratégicas basadas en advertencias **
+  Widget _buildStrategicRecommendations() {
+    final warnings = _compositionService.getCompositionWarnings(_draftService.enemyPicks);
+    final recommendations = _compositionService.getStrategicRecommendations(
+      warnings, 
+      _selectedRole, 
+      _allChampions
+    );
+    
+    if (recommendations.isEmpty) return const SizedBox.shrink();
+
+    // Agrupar recomendaciones por advertencia para mostrarlas organizadas
+    final Map<String, List<StrategicRecommendation>> grouped = {};
+    for (final rec in recommendations) {
+      grouped.putIfAbsent(rec.warningKey, () => []).add(rec);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppColors.selectedPurple.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: AppColors.selectedPurple.withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.tips_and_updates, color: AppColors.selectedPurple, size: 14),
+                const SizedBox(width: 4),
+                Text(
+                  'RECOMENDACIONES ESTRATÉGICAS',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.selectedPurple,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            ...grouped.entries.map((entry) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Encabezado de la advertencia
+                    Row(
+                      children: [
+                        Icon(entry.value.first.icon, size: 12, color: entry.value.first.color),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Para contrarrestar:',
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            color: entry.value.first.color,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    // Recomendaciones individuales
+                    ...entry.value.map((rec) => Padding(
+                      padding: const EdgeInsets.only(left: 16, top: 2),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.arrow_forward_ios, size: 8, color: AppColors.textMuted),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '${rec.championName}: ',
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.accentGold,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: rec.reason,
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
       ),
     );
   }
@@ -990,79 +1160,77 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   /// Construye una sección de rol con su título y campeones
-  Widget _buildRoleSection({
-    required String role,
-    required List<Champion> champions,
-  }) {
-    final roleColor = AppColors.getRoleColor(role);
-    final roleIcon = _getRoleIcon(role);
+Widget _buildRoleSection({
+  required String role,
+  required List<Champion> champions,
+}) {
+  final roleColor = AppColors.getRoleColor(role);
+  final roleIcon = _getRoleIcon(role);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 2, bottom: 2, left: 8, right: 8),
-          child: Row(
-            children: [
-              Icon(roleIcon, color: roleColor, size: 16),
-              const SizedBox(width: 5),
-              Text(
-                role,
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Padding(
+        padding: const EdgeInsets.only(top: 2, bottom: 2, left: 8, right: 8),
+        child: Row(
+          children: [
+            Icon(roleIcon, color: roleColor, size: 16),
+            const SizedBox(width: 5),
+            Text(
+              role,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: roleColor,
+                letterSpacing: 2,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+              decoration: BoxDecoration(
+                color: roleColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '${champions.length}',
                 style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 10,
                   color: roleColor,
-                  letterSpacing: 2,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                decoration: BoxDecoration(
-                  color: roleColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '${champions.length}',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: roleColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.zero,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            childAspectRatio: 0.8,
-            crossAxisSpacing: 6,
-            mainAxisSpacing: 6,
-          ),
-          itemCount: champions.length,
-          itemBuilder: (context, index) {
-            final champion = champions[index];
-            final isSelected = _draftService.isChampionSelected(champion);
-
-            return ChampionCard(
-              champion: champion,
-              isSelected: isSelected,
-              borderColor: _modoActual == 'aliado'
-                  ? AppColors.allyBlue.withValues(alpha: 0.6)
-                  : AppColors.enemyRed.withValues(alpha: 0.6),
-              onTap: () => _seleccionarCampeon(champion),
-            );
-          },
+      ),
+      GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.zero,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
+          childAspectRatio: 0.8,
+          crossAxisSpacing: 6,
+          mainAxisSpacing: 6,
         ),
+        itemCount: champions.length,
+        itemBuilder: (context, index) {
+          final champion = champions[index];
+          final isSelected = _draftService.isChampionSelected(champion);
 
-        const SizedBox(height: 1),
-      ],
-    );
-  }
+          return ChampionCard(
+            champion: champion,
+            isSelected: isSelected,
+            borderColor: _modoActual == 'aliado'
+                ? AppColors.allyBlue.withValues(alpha: 0.6)
+                : AppColors.enemyRed.withValues(alpha: 0.6),
+            onTap: () => _seleccionarCampeon(champion),
+          );
+        },
+      ),
+      const SizedBox(height: 1),
+    ],
+  );
+}
 }
