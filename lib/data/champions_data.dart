@@ -28,6 +28,9 @@ class ChampionsData {
         isMidGame: true,
         hasHealing: true,
         hasDash: true,
+        strategicTags: const [
+          'safe_pick',
+        ],
       ),
       Champion(
         name: 'Akali',
@@ -46,6 +49,10 @@ class ChampionsData {
         usesAutoAttacks: true,
         hasShield: true,
         hasDash: true,
+        strategicTags: const [
+          'pickoff',
+          'strong_early',
+        ],
       ),
       Champion(
         name: 'Alistar',
@@ -56,6 +63,9 @@ class ChampionsData {
         hasEngage: true,
         hasHealing: true,
         hasDash: true,
+        strategicTags: const [
+          'anti_cc',
+        ],
       ),
       Champion(
         name: 'Ambessa', 
@@ -156,6 +166,9 @@ class ChampionsData {
         isEarlyGame: true,
         isMelee: true,
         hasShield: true,
+        strategicTags: const [
+          'strong_early',
+        ],
       ),
       Champion(
         name: 'Brand',
@@ -178,6 +191,12 @@ class ChampionsData {
         hasCC: true,
         hasEngage: true,
         isMidGame: true,
+        strategicTags: const [
+          'peel',
+          'anti_autoattack',
+          'teamfight',
+          'anti_engage'
+        ],
       ),
       Champion(
         name: 'Caitlyn',
@@ -188,6 +207,10 @@ class ChampionsData {
         hasCC: true,
         isEarlyGame: true,
         hasDash: true,
+        strategicTags: const [
+          'safe_pick',
+          'strong_early',
+        ],
       ),
       Champion(
         name: 'Camille',
@@ -200,6 +223,11 @@ class ChampionsData {
         isMidGame: true,
         hasEngage: true,
         hasDash: true,
+        strategicTags: const [
+          'anti_tank',
+          'pickoff',
+          'splitpush',
+        ],
       ),
       Champion(
         name: 'Corki',
@@ -220,6 +248,9 @@ class ChampionsData {
         hasCC: true,
         hasEngage: true,
         hasHealing: true,
+        strategicTags: const [
+          'strong_early',
+        ],
       ),
       Champion(
         name: 'Diana',
@@ -231,6 +262,9 @@ class ChampionsData {
         isMidGame: true,
         hasShield: true,
         hasDash: true,
+        strategicTags: const [
+          'teamfight',
+        ],
       ),
       Champion(
         name: 'Dr.Mundo',
@@ -241,8 +275,8 @@ class ChampionsData {
         hasHealing: true,
         scalesLateGame: true,
         strategicTags: const [
-          'anti_ap'
-          'tanque',
+          'anti_ap',
+          'anti_cc',
         ],
       ),
       Champion(
@@ -253,6 +287,9 @@ class ChampionsData {
         usesAutoAttacks: true,
         isEarlyGame: true,
         hasCC: true,
+        strategicTags: const [
+          'strong_early',
+        ],
       ),
       Champion(
         name: 'Ekko',
@@ -274,6 +311,9 @@ class ChampionsData {
         isMelee: true,
         hasCC: true,
         isMidGame: true,
+        strategicTags: const [
+          'pickoff',
+        ],
       ),
       Champion(
         name: 'Ezreal',
@@ -282,6 +322,10 @@ class ChampionsData {
         isAD: true,
         usesAutoAttacks: true,
         hasDash: true,
+        strategicTags: const [
+          'anti_engage',
+          'safe_pick',
+        ],
       ),
       Champion(
         name: 'Fiora',
@@ -333,8 +377,9 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'anti_ap',
-          'engage',
           'teamfight'
+          'anti_engage',
+          'safe_pick',
         ],
       ),
       Champion(
@@ -347,6 +392,9 @@ class ChampionsData {
         hasHealing: true,
         hasShield: true,
         isMidGame: true,
+        strategicTags: const [
+          'anti_cc'
+        ],
       ),
       Champion(
         name: 'Gnar',
@@ -357,6 +405,9 @@ class ChampionsData {
         hasCC: true,
         isMidGame: true,
         hasDash: true,
+        strategicTags: const [
+          'teamfight',
+        ],
       ),
       Champion(
         name: 'Gragas',
@@ -369,6 +420,11 @@ class ChampionsData {
         isMidGame: true,
         isMelee: true,
         hasDash: true,
+        strategicTags: const [
+          'anti_engage',
+          'teamfight',
+          'waveclear',
+        ],
       ),
       Champion(
         name: 'Graves',
@@ -404,7 +460,6 @@ class ChampionsData {
         hasEngage: true,
         isMidGame: true,
         strategicTags: const [
-          'engage',
           'teamfight',
           ],
           ),
@@ -430,8 +485,12 @@ class ChampionsData {
         usesAutoAttacks: true,
         hasCC: true,
         hasEngage: true,
+        hasHealing: true,
         isMidGame: true,
         hasDash: true,
+        strategicTags: const [
+          'splitpush'
+        ],
       ),
       Champion(
         name: 'Janna',
@@ -442,9 +501,13 @@ class ChampionsData {
         hasShield: true,
         hasCC: true,
         scalesLateGame: true,
+        strategicTags: const [
+          'peel',
+          'anti,engage',
+        ],
       ),
       Champion(
-        name: 'Jarvan IV',
+        name: "Jarvan'IV",
         roles: ['JG'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/JarvanIV.png',
         isAD: true,
@@ -454,6 +517,9 @@ class ChampionsData {
         hasShield: true,
         isMidGame: true,
         hasDash: true,
+        strategicTags: const [
+          'safe_pick',
+        ],
       ),
       Champion(
         name: 'Jax',
@@ -466,6 +532,10 @@ class ChampionsData {
         hasEngage: true,
         scalesLateGame: true,
         hasDash: true,
+        strategicTags: const [
+          'anti_autoattack',
+          'anti_ad',
+        ],
       ),
       Champion(
         name: 'Jayce',
@@ -475,6 +545,9 @@ class ChampionsData {
         isMelee: true,
         usesAutoAttacks: true,
         isEarlyGame: true,
+        strategicTags: const [
+          'strong_early',
+        ],
       ),
       Champion(
         name: 'Katarina', 
@@ -527,6 +600,9 @@ class ChampionsData {
         hasEngage: true,
         hasShield: true,
         isEarlyGame: true,
+        strategicTags: const [
+          'peel',
+        ],
       ),
       Champion(
         name: 'Kassadin',
@@ -539,7 +615,6 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'anti_ap',
-          'late_game'
           'pickoff',
         ],
       ),
@@ -551,6 +626,10 @@ class ChampionsData {
         usesAutoAttacks: true,
         scalesLateGame: true,
         hasHealing: true,
+        strategicTags: const [
+          'peel',
+          'anti_cc',
+        ],
       ),
       Champion(
         name: 'Kalista', 
@@ -570,6 +649,9 @@ class ChampionsData {
         isAP: true,
         hasEngage: true,
         isMidGame: true,
+        strategicTags: const [
+          'teamfight',
+        ],
       ),
       Champion(
         name: "Kha'Zix",
@@ -579,7 +661,20 @@ class ChampionsData {
         isMelee: true,
         isMidGame: true,
         hasDash: true,
+        strategicTags: const [
+          'pickoff',
+        ],
         ),
+        Champion(
+          name: 'Kindred', 
+          roles: ['JG'], 
+          imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Kindred.png',
+          isAD: true,
+          hasHealing: true,
+          usesAutoAttacks: true,
+          scalesLateGame: true,
+          hasDash: true,
+          ),
       Champion(
         name: "Kog'Maw",
         roles: ['ADC'],
@@ -602,7 +697,7 @@ class ChampionsData {
         hasDash: true,
       ),
       Champion(
-        name: 'Lee Sin',
+        name: "Lee'Sin",
         roles: ['JG'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/LeeSin.png',
         isAD: true,
@@ -612,6 +707,9 @@ class ChampionsData {
         isEarlyGame: true,
         hasShield: true,
         hasDash: true,
+        strategicTags: const [
+          'strong_early',
+        ],
       ),
       Champion(
         name: 'Leona',
@@ -623,6 +721,9 @@ class ChampionsData {
         hasEngage: true,
         isEarlyGame: true,
         isMelee: true,
+        strategicTags: const [
+          'strong_early',
+        ],
       ),
       Champion(
         name: 'Lillia',
@@ -644,10 +745,9 @@ class ChampionsData {
         isMidGame: true,
         strategicTags: const [
           'anti_mobility',
-          'cc',
           'teamfight',
           'pickoff',
-          'engage',
+          'safe_pick',
         ],
       ),
       Champion(
@@ -658,6 +758,9 @@ class ChampionsData {
         usesAutoAttacks: true,
         isEarlyGame: true,
         hasDash: true,
+        strategicTags: const [
+          'strong_early',
+        ],
       ),
       Champion(
         name: 'Lulu',
@@ -667,6 +770,10 @@ class ChampionsData {
         hasShield: true,
         hasCC: true,
         scalesLateGame: true,
+        strategicTags: const [
+          'peel',
+          'anti_engage',
+        ],
       ),
       Champion(
         name: 'Lux',
@@ -691,7 +798,6 @@ class ChampionsData {
         hasCC: true,
         strategicTags: const [
           'anti_ad'
-          'engage'
           'teamfight'
         ]
       ),
@@ -774,6 +880,7 @@ class ChampionsData {
         strategicTags: const [
           'anti_cc'
           'peel',
+          'anti_engage',
         ],
       ),
       Champion(
@@ -785,6 +892,10 @@ class ChampionsData {
         hasHealing: true,
         hasEngage: true,
         isMidGame: true,
+        strategicTags: const [
+          'peel',
+          'anti_engage',
+        ],
       ),
       Champion(
         name: 'Nasus',
@@ -806,6 +917,9 @@ class ChampionsData {
         isMelee: true,
         hasShield: true,
         isEarlyGame: true,
+        strategicTags: const [
+          'strong_early',
+        ],
       ),
       Champion(
         name: 'Nidalee', 
@@ -827,6 +941,10 @@ class ChampionsData {
         hasEngage: true,
         hasHealing: true,
         scalesLateGame: true,
+        strategicTags: const [
+          'anti_autoattack',
+          'teamfight',
+        ],
         ),
       Champion(
         name: 'Nocturne', 
@@ -838,6 +956,9 @@ class ChampionsData {
         hasEngage: true,
         hasHealing: true,
         isMidGame: true,
+        strategicTags: const [
+          'pickoff',
+        ],
         ),
         Champion(
           name: 'Norra', 
@@ -875,6 +996,7 @@ class ChampionsData {
         strategicTags: const [
           'anti_cc'
           'fighter'
+          'strong_early',
         ],
       ),
       Champion(
@@ -897,7 +1019,11 @@ class ChampionsData {
         hasEngage: true,
         isTank: true,
         scalesLateGame: true,
-        ),
+        strategicTags: const [
+          'anti_ad',
+          'teamfight',
+        ],
+      ),
       Champion(
         name: 'Pantheon',
         roles: ['TOP', 'JG'],
@@ -907,6 +1033,9 @@ class ChampionsData {
         hasCC: true,
         hasEngage: true,
         isEarlyGame: true,
+        strategicTags: const [
+          'strong_early',
+        ],
       ),
       Champion(
         name: 'Pyke',
@@ -919,6 +1048,9 @@ class ChampionsData {
         isMelee: true,
         isEarlyGame: true,
         hasDash: true,
+        strategicTags: const [
+          'strong_early',
+          ],
       ),
       Champion(
         name: 'Rell', 
@@ -946,6 +1078,11 @@ class ChampionsData {
         hasHealing: true,
         isMidGame: true,
         hasDash: true,
+        strategicTags: const [
+          'teamfight',
+          'peel',
+          'anti_mobility',
+        ],
       ),
       Champion(
         name: 'Rammus',
@@ -959,9 +1096,7 @@ class ChampionsData {
         scalesLateGame: true,
         strategicTags: const [
           'anti_ad',
-          'anti_autoataque'
-          'tanque',
-          'engage'
+          'anti_autoattack',
         ],
         ),
       Champion(
@@ -972,6 +1107,9 @@ class ChampionsData {
         hasCC: true,
         scalesLateGame: true,
         hasEngage: true,
+        strategicTags: const [
+          'waveclear',
+        ],
         ),
       Champion(
         name: 'Renekton',
@@ -983,6 +1121,9 @@ class ChampionsData {
         hasHealing: true,
         isEarlyGame: true,
         hasDash: true,
+        strategicTags: const [
+          'strong_early',
+          ],
       ),
       Champion(
         name: 'Rengar',
@@ -994,6 +1135,9 @@ class ChampionsData {
         hasEngage: true,
         hasHealing: true,
         isMidGame: true,
+        strategicTags: const [
+          'pickoff',
+        ],
       ),
       Champion(
         name: 'Riven',
@@ -1006,6 +1150,9 @@ class ChampionsData {
         hasShield: true,
         isMidGame: true,
         hasDash: true,
+        strategicTags: const [
+          'strong_early',
+        ],
       ),
       Champion(
         name: 'Poppy', 
@@ -1017,6 +1164,11 @@ class ChampionsData {
         hasEngage: true,
         hasShield: true,
         isMidGame: true,
+        strategicTags: const [
+          'anti_mobility',
+          'teamfight',
+          'anti_engage',
+        ],
         ),
       Champion(
         name: 'Rumble', 
@@ -1052,8 +1204,10 @@ class ChampionsData {
        usesAutoAttacks: true,
        strategicTags: const [
         'anti_ad'
+        'anti_autoattack',
         'peel',
-        'tanque'
+        'safe_pick',
+        'anti_engage',
        ],
       ),
       Champion(
@@ -1122,6 +1276,10 @@ class ChampionsData {
         hasShield: true,
         isTank: true,
         scalesLateGame: true,
+        strategicTags: const [
+          'splitpush',
+          'anti_ad',
+        ],
       ),
       Champion(
         name: 'Sivir',
@@ -1130,6 +1288,12 @@ class ChampionsData {
         isAD: true,
         usesAutoAttacks: true,
         scalesLateGame: true,
+        strategicTags: const [
+           'waveclear',
+           'anti_cc',
+           'anti_engage',
+           'safe_pick',
+        ],
       ),
       Champion(
         name: 'Smolder', 
@@ -1154,6 +1318,10 @@ class ChampionsData {
         hasShield: true,
         hasHealing: true,
         scalesLateGame: true,
+        strategicTags: const [
+          'peel',
+          'teamfight',
+        ],
       ),
       Champion(
         name: 'Soraka',
@@ -1163,6 +1331,9 @@ class ChampionsData {
         hasCC: true,
         hasHealing: true,
         scalesLateGame: true,
+        strategicTags: const [
+          'peel',
+        ],
         ),
       Champion(
         name: 'Swain', 
@@ -1182,6 +1353,10 @@ class ChampionsData {
         hasCC: true,
         hasEngage: true,
         scalesLateGame: true,
+        strategicTags: const [
+          'pickoff',
+          'teamfight',
+        ],
         ),
       Champion(
         name: 'Taliyah',
@@ -1201,6 +1376,10 @@ class ChampionsData {
         hasCC: true,
         isMidGame: true,
         hasDash: true,
+        strategicTags: const [
+          'pickoff',
+          'strong_early',
+        ],
         ),
       Champion(
         name: 'Teemo',
@@ -1210,6 +1389,9 @@ class ChampionsData {
         usesAutoAttacks: true,
         hasCC: true,
         isMidGame: true,
+        strategicTags: const [
+          'anti_autoattack'
+        ],
         ),
       Champion(
         name: 'Thresh',
@@ -1221,6 +1403,11 @@ class ChampionsData {
         hasEngage: true,
         hasShield: true,
         isMidGame: true,
+        strategicTags: const [
+          'peel',
+          'anti_engage',
+          'strong_early',
+        ],
       ),
       Champion(
         name: 'Tristana',
@@ -1230,6 +1417,9 @@ class ChampionsData {
         usesAutoAttacks: true,
         scalesLateGame: true,
         hasDash: true,
+        strategicTags: const [
+          'safe_pick',
+        ],
         ),
       Champion(
         name: 'Tryndamere',
@@ -1241,9 +1431,12 @@ class ChampionsData {
         hasHealing: true,
         scalesLateGame: true,
         hasDash: true,
+        strategicTags: const [
+          'splitpush',
+        ],
         ),
       Champion(
-        name: 'Twisted Fate',
+        name: "Twisted'Fate",
         roles: ['MID'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/TwistedFate.png',
         isAP: true,
@@ -1305,6 +1498,9 @@ class ChampionsData {
         hasCC: true,
         scalesLateGame: true,
         hasEngage: true,
+        strategicTags: const [
+          'anti_engage'
+        ]
         ),
       Champion(
         name: "Vel'Koz", 
@@ -1343,6 +1539,10 @@ class ChampionsData {
         hasShield: true,
         isMidGame: true,
         hasDash: true,
+        strategicTags: const [
+          'teamfight',
+          'safe_pick',
+        ],
       ),
       Champion(
         name: 'Viktor', 
@@ -1353,6 +1553,10 @@ class ChampionsData {
         hasShield: true,
         hasEngage: true,
         scalesLateGame: true,
+        strategicTags: const [
+          'waveclear',
+          'teamfight',
+        ],
         ),
       Champion(
         name: 'Viego', 
@@ -1407,6 +1611,9 @@ class ChampionsData {
         hasEngage: true,
         isMidGame: true,
         hasDash: true,
+        strategicTags: const [
+          'safe_pick',
+        ],
       ),
       Champion(
         name: 'Xayah',
@@ -1417,9 +1624,14 @@ class ChampionsData {
         hasCC: true,
         hasEngage: true,
         scalesLateGame: true,
+        strategicTags: const [
+          'anti_cc',
+          'anti_engage',
+          'safe_pick',
+        ],
       ),
       Champion(
-        name: 'Xin Zhao',
+        name: "Xin'Zhao",
         roles: ['JG'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/XinZhao.png',
         isAD: true,
@@ -1428,6 +1640,12 @@ class ChampionsData {
         usesAutoAttacks: true,
         hasEngage: true,
         isMidGame: true,
+        strategicTags: const [
+          'anti_engage',
+          'anti_autoattack',
+          'strong_early',
+        ],
+
       ),
       Champion(
         name: 'Yasuo',
@@ -1439,6 +1657,9 @@ class ChampionsData {
         isMelee: true,
         usesAutoAttacks: true,
         hasDash: true,
+        strategicTags: const [
+          'strong_early',
+        ],
       ),
       Champion(
         name: 'Yone',
@@ -1451,6 +1672,10 @@ class ChampionsData {
         hasShield: true,
         isMidGame: true,
         hasDash: true,
+        strategicTags: const [
+          'teamfight',
+          'pickoff',
+        ],
       ),
       Champion(
         name: 'Yuumi',
@@ -1459,8 +1684,12 @@ class ChampionsData {
         isAP: true,
         hasCC: true,
         hasHealing: true,
+        hasEngage: true,
         hasShield: true,
         scalesLateGame: true,
+        strategicTags: const [
+          'peel'
+        ],
       ),
       Champion(
         name: 'Zed',
@@ -1471,6 +1700,10 @@ class ChampionsData {
         hasEngage: true,
         isMidGame: true,
         hasDash: true,
+        strategicTags: const [
+          'pickoff',
+          'strong_early',
+        ],
       ),
       Champion(
         name: 'Zilean', 
@@ -1479,6 +1712,10 @@ class ChampionsData {
         isAP: true,
         hasCC: true,
         scalesLateGame: true,
+        strategicTags: const [
+          'peel',
+          'anti_mobility',
+         ],
         ),
       Champion(
         name: 'Ziggs',
@@ -1488,6 +1725,10 @@ class ChampionsData {
         hasCC: true,
         hasEngage: true,
         scalesLateGame: true,
+        strategicTags: const [
+          'waveclear',
+          'teamfight',
+        ],
       ),
       Champion(
         name: 'Zoe',
@@ -1497,6 +1738,9 @@ class ChampionsData {
         hasCC: true,
         hasEngage: true,
         isMidGame: true,
+        strategicTags: const [
+          'pickoff',
+        ],
       ),
       Champion(
         name: 'Zyra',

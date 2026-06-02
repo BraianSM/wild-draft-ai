@@ -58,6 +58,21 @@ class StrategicRecommendation {
   });
 }
 
+/// Insight estratégico sobre la composición enemiga
+class StrategicInsight {
+  final String type;
+  final String description;
+  final IconData icon;
+  final Color color;
+
+  const StrategicInsight({
+    required this.type,
+    required this.description,
+    required this.icon,
+    required this.color,
+  });
+}
+
 /// Clase auxiliar para definir reglas de advertencia
 class _WarningRule {
   final String key;
@@ -196,7 +211,6 @@ class CompositionService {
     for (final def in allDefinitions) {
       result[def.key] = team.where(def.predicate).length;
     }
-    // También contar atributos avanzados
     for (final def in _advancedDefinitions) {
       result[def.key] = team.where(def.predicate).length;
     }
@@ -204,29 +218,33 @@ class CompositionService {
   }
 
   /// Obtiene las definiciones de atributos a mostrar según el contexto
-  /// [extended]: true para enemigos (6 atributos), false para aliados (4 atributos)
   List<AttributeDef> getDefinitionsForDisplay({required bool extended}) {
     final keysToShow = extended
         ? ['AD', 'AP', 'Tanques', 'CC', 'Iniciadores', 'Curas']
         : ['AD', 'AP', 'Tanques', 'CC'];
-
     return allDefinitions.where((def) => keysToShow.contains(def.key)).toList();
   }
 
+  /// Verifica si un campeón tiene un strategic tag específico
+  bool championHasTag(Champion champion, String tag) {
+    return champion.strategicTags.contains(tag);
+  }
+
+  /// Filtra campeones que posean un strategic tag determinado
+  List<Champion> getChampionsWithTag(String tag, List<Champion> champions) {
+    return champions.where((c) => championHasTag(c, tag)).toList();
+  }
+
   /// Genera advertencias automáticas sobre la composición enemiga
-  /// Basado en umbrales y atributos estratégicos
   List<CompositionWarning> getCompositionWarnings(List<Champion> enemies) {
     if (enemies.isEmpty) return [];
 
     final warnings = <CompositionWarning>[];
-
-    // Analizar usando los predicates existentes
     final Map<String, int> counts = {};
     for (final def in [...allDefinitions, ..._advancedDefinitions]) {
       counts[def.key] = enemies.where(def.predicate).length;
     }
 
-    // Reglas de advertencia
     final rules = [
       _WarningRule(key: 'AD', threshold: 3, message: 'Mucho daño físico', icon: Icons.gps_fixed, color: AppColors.enemyRed),
       _WarningRule(key: 'AP', threshold: 3, message: 'Mucho daño mágico', icon: Icons.auto_awesome, color: Colors.purpleAccent),
@@ -240,7 +258,6 @@ class CompositionService {
       _WarningRule(key: 'Late Game', threshold: 3, message: 'Escala muy bien a late game', icon: Icons.trending_up, color: Colors.deepPurpleAccent),
     ];
 
-    // Aplicar reglas
     for (final rule in rules) {
       final count = counts[rule.key] ?? 0;
       if (count >= rule.threshold) {
@@ -254,342 +271,539 @@ class CompositionService {
         ));
       }
     }
-
     return warnings;
   }
 
-  /// Genera recomendaciones estratégicas basadas en las advertencias de composición
-  /// Devuelve campeones que contrarrestan las amenazas detectadas
-  List<StrategicRecommendation> getStrategicRecommendations(
-    List<CompositionWarning> warnings,
+  /// FASE 1: Analiza la composición enemiga completa y genera insights estratégicos
+  List<StrategicInsight> generateStrategicInsights(List<Champion> enemies) {
+    if (enemies.isEmpty) return [];
+
+    final counts = analyze(enemies);
+    final teamSize = enemies.length;
+    final insights = <StrategicInsight>[];
+
+    // Mucho daño físico
+    if ((counts['AD'] ?? 0) >= 3) {
+      insights.add(const StrategicInsight(
+        type: 'heavy_ad',
+        description: 'La composición enemiga depende principalmente de daño físico.',
+        icon: Icons.gps_fixed,
+        color: AppColors.enemyRed,
+      ));
+    }
+
+    // Mucho daño mágico
+    if ((counts['AP'] ?? 0) >= 3) {
+      insights.add(const StrategicInsight(
+        type: 'heavy_ap',
+        description: 'El enemigo tiene una fuerte fuente de daño mágico.',
+        icon: Icons.auto_awesome,
+        color: Colors.purpleAccent,
+      ));
+    }
+
+    // Poca frontline
+    if ((counts['Tanques'] ?? 0) <= 1 && teamSize >= 4) {
+      insights.add(const StrategicInsight(
+        type: 'no_frontline',
+        description: 'El enemigo carece de una línea frontal sólida.',
+        icon: Icons.shield,
+        color: Colors.blueGrey,
+      ));
+    }
+
+    // Muchos tanques
+    if ((counts['Tanques'] ?? 0) >= 2) {
+      insights.add(const StrategicInsight(
+        type: 'tanky',
+        description: 'El enemigo tiene varios campeones resistentes.',
+        icon: Icons.shield,
+        color: Colors.blueGrey,
+      ));
+    }
+
+    // Mucho CC
+    if ((counts['CC'] ?? 0) >= 3) {
+      insights.add(const StrategicInsight(
+        type: 'heavy_cc',
+        description: 'El enemigo tiene gran capacidad para iniciar peleas y encadenar control.',
+        icon: Icons.link,
+        color: Colors.orange,
+      ));
+    }
+
+    // Mucha movilidad
+    if ((counts['Dash'] ?? 0) >= 3) {
+      insights.add(const StrategicInsight(
+        type: 'high_mobility',
+        description: 'Los campeones enemigos pueden esquivar habilidades importantes.',
+        icon: Icons.directions_run,
+        color: Colors.pinkAccent,
+      ));
+    }
+
+    // Dependencia de autoataques
+    if ((counts['AutoAtaques'] ?? 0) >= 3) {
+      insights.add(const StrategicInsight(
+        type: 'autoattack_reliant',
+        description: 'Los ataques básicos son una fuente principal de daño enemigo.',
+        icon: Icons.touch_app,
+        color: Colors.amber,
+      ));
+    }
+
+    // Mucha curación
+    if ((counts['Curas'] ?? 0) >= 2) {
+      insights.add(const StrategicInsight(
+        type: 'healing',
+        description: 'El enemigo cuenta con curación significativa.',
+        icon: Icons.healing,
+        color: Colors.greenAccent,
+      ));
+    }
+
+    // Muchos escudos
+    if ((counts['Escudos'] ?? 0) >= 2) {
+      insights.add(const StrategicInsight(
+        type: 'shielding',
+        description: 'El enemigo tiene múltiples escudos para protegerse.',
+        icon: Icons.health_and_safety,
+        color: Colors.cyan,
+      ));
+    }
+
+    // Composición early game
+    if ((counts['Early Game'] ?? 0) >= 3) {
+      insights.add(const StrategicInsight(
+        type: 'early_game',
+        description: 'El enemigo busca ganar temprano con campeones de early game.',
+        icon: Icons.access_time,
+        color: Colors.lightGreen,
+      ));
+    }
+
+    // Composición late game
+    if ((counts['Late Game'] ?? 0) >= 3) {
+      insights.add(const StrategicInsight(
+        type: 'late_game',
+        description: 'El enemigo escala muy bien a late game.',
+        icon: Icons.trending_up,
+        color: Colors.deepPurpleAccent,
+      ));
+    }
+
+    // Mucho engage
+    if ((counts['Iniciadores'] ?? 0) >= 3) {
+      insights.add(const StrategicInsight(
+        type: 'engage',
+        description: 'El enemigo tiene mucho engage e iniciación.',
+        icon: Icons.flash_on,
+        color: Colors.yellowAccent,
+      ));
+    }
+
+    // Daño mixto balanceado
+    final adCount = counts['AD'] ?? 0;
+    final apCount = counts['AP'] ?? 0;
+    if (adCount >= 2 && apCount >= 2) {
+      insights.add(const StrategicInsight(
+        type: 'mixed_damage',
+        description: 'El enemigo posee fuentes equilibradas de daño físico y mágico, dificultando la itemización defensiva.',
+        icon: Icons.balance,
+        color: Colors.tealAccent,
+      ));
+    }
+
+    return insights;
+  }
+
+  /// Puntúa un campeón contra los insights de la composición enemiga.
+  int scoreChampionAgainstComposition(Champion champion, List<StrategicInsight> insights) {
+    int score = 0;
+    bool hasSafePick = championHasTag(champion, 'safe_pick');
+    bool safePickBonusApplied = false;
+
+    for (final insight in insights) {
+      switch (insight.type) {
+        case 'heavy_ad':
+          if (championHasTag(champion, 'anti_ad')) score += 10;
+          if (championHasTag(champion, 'anti_autoattack')) score += 5;
+          if (championHasTag(champion, 'frontline')) score += 5;
+          if (champion.isTank) score += 2;
+          if (champion.hasShield) score += 2;
+          break;
+        case 'heavy_ap':
+          if (championHasTag(champion, 'anti_ap')) score += 10;
+          if (championHasTag(champion, 'frontline')) score += 5;
+          if (champion.isTank) score += 2;
+          if (champion.hasShield) score += 2;
+          break;
+        case 'no_frontline':
+          if (championHasTag(champion, 'backline_access')) score += 10;
+          if (championHasTag(champion, 'pickoff')) score += 10;
+          if (championHasTag(champion, 'strong_early')) score += 5;
+          if (champion.isMelee && champion.isAD) score += 2;
+          break;
+        case 'tanky':
+          if (championHasTag(champion, 'anti_tank')) score += 10;
+          if (championHasTag(champion, 'backline_access')) score += 5;
+          if (champion.isAD && champion.usesAutoAttacks) score += 3;
+          if (champion.isMelee) score += 2;
+          break;
+        case 'heavy_cc':
+          if (championHasTag(champion, 'anti_cc')) score += 10;
+          if (champion.hasShield) score += 2;
+          break;
+        case 'high_mobility':
+          if (championHasTag(champion, 'anti_dash')) score += 10;
+          if (champion.hasCC) score += 3;
+          break;
+        case 'autoattack_reliant':
+          if (championHasTag(champion, 'anti_autoattack')) score += 10;
+          if (champion.hasShield) score += 3;
+          if (champion.isTank) score += 2;
+          break;
+        case 'healing':
+          if (championHasTag(champion, 'anti_heal')) score += 10;
+          if (champion.isAD || champion.isAP) score += 3;
+          break;
+        case 'shielding':
+          if (championHasTag(champion, 'anti_shield')) score += 10;
+          if (champion.hasCC) score += 3;
+          if (champion.hasEngage) score += 2;
+          break;
+        case 'early_game':
+          if (championHasTag(champion, 'scaling')) score += 10;
+          if (champion.scalesLateGame) score += 3;
+          break;
+        case 'late_game':
+          if (championHasTag(champion, 'strong_early')) score += 10;
+          if (champion.isEarlyGame) score += 3;
+          break;
+        case 'engage':
+          if (championHasTag(champion, 'anti_engage')) score += 10;
+          if (championHasTag(champion, 'frontline')) score += 5;
+          if (champion.hasShield) score += 2;
+          if (champion.isTank) score += 2;
+          break;
+        case 'mixed_damage':
+          if (championHasTag(champion, 'frontline')) score += 5;
+          if (champion.isTank) score += 3;
+          if (champion.hasShield) score += 2;
+          break;
+      }
+
+      // Aplicar bonus de safe_pick una sola vez
+      if (!safePickBonusApplied && hasSafePick) {
+        if (insight.type == 'heavy_cc' || insight.type == 'high_mobility' || insight.type == 'engage') {
+          score += 3;
+          safePickBonusApplied = true;
+        }
+      }
+    }
+
+    return score;
+  }
+
+  /// FASE 3: Obtiene los mejores campeones para el rol contra la composición enemiga
+  List<StrategicRecommendation> getBestRecommendations(
+    List<StrategicInsight> insights,
     String selectedRole,
     List<Champion> allChampions,
   ) {
-    if (warnings.isEmpty) return [];
-
-    final recommendations = <StrategicRecommendation>[];
-    // Filtrar campeones que pertenezcan al rol seleccionado
+    // Filtrar campeones del rol
     final roleChampions = allChampions
         .where((c) => c.roles.contains(selectedRole))
         .toList();
 
-    for (final warning in warnings) {
-      final predefined = _getPredefinedCounters(warning.key);
-      // Filtrar los predefinidos que estén en el rol
-      final validPredefined = <StrategicRecommendation>[];
-      for (final rec in predefined) {
-        if (roleChampions.any((c) => c.name == rec.championName)) {
-          validPredefined.add(rec);
-        }
-      }
+    if (roleChampions.isEmpty) return [];
 
-      if (validPredefined.isNotEmpty) {
-        recommendations.addAll(validPredefined);
-      } else {
-        // Buscar contadores según atributos
-        final fallback = _findBestCounters(warning.key, roleChampions);
-        recommendations.addAll(fallback);
+    // Puntuar cada campeón
+    final scored = <MapEntry<Champion, int>>[];
+    for (final champ in roleChampions) {
+      final score = scoreChampionAgainstComposition(champ, insights);
+      if (score > 0) {
+        scored.add(MapEntry(champ, score));
       }
+    }
+
+    // Ordenar por puntuación descendente
+    scored.sort((a, b) => b.value.compareTo(a.value));
+
+    // Aplicar diversidad: solo un campeón por perfil de tags activados
+    final seenProfiles = <String>{};
+    final uniqueTop = <MapEntry<Champion, int>>[];
+
+    for (final entry in scored) {
+      final profile = _getChampionProfile(entry.key, insights);
+      if (!seenProfiles.contains(profile)) {
+        seenProfiles.add(profile);
+        uniqueTop.add(entry);
+      }
+      if (uniqueTop.length >= 3) break;
+    }
+
+    // Si no hay suficientes, tomar los siguientes aunque repitan perfil
+    if (uniqueTop.length < 3) {
+      for (final entry in scored) {
+        if (!uniqueTop.contains(entry)) {
+          uniqueTop.add(entry);
+        }
+        if (uniqueTop.length >= 3) break;
+      }
+    }
+
+    final recommendations = <StrategicRecommendation>[];
+    for (final entry in uniqueTop) {
+      final champ = entry.key;
+      final reason = generateRecommendationReason(champ, insights);
+      recommendations.add(StrategicRecommendation(
+        championName: champ.name,
+        reason: reason,
+        warningKey: 'composition',
+        icon: Icons.psychology,
+        color: AppColors.accentGold,
+      ));
     }
 
     return recommendations;
   }
 
-  // Métodos privados dentro de la clase
-
-  /// Lista predefinida de contadores por clave de advertencia
-  List<StrategicRecommendation> _getPredefinedCounters(String warningKey) {
-    switch (warningKey) {
-      case 'AD':
-        return [
-          StrategicRecommendation(
-            championName: 'Rammus',
-            reason: 'Rammus tiene armadura pasiva que refleja daño físico y su W aumenta su armadura masivamente',
-            warningKey: warningKey,
-            icon: Icons.gps_fixed,
-            color: AppColors.enemyRed,
-          ),
-          StrategicRecommendation(
-            championName: 'Malphite',
-            reason: 'Malphite escala con armadura, su pasiva le da un escudo basado en armadura y su E reduce velocidad de ataque',
-            warningKey: warningKey,
-            icon: Icons.gps_fixed,
-            color: AppColors.enemyRed,
-          ),
-        ];
-      case 'AP':
-        return [
-          StrategicRecommendation(
-            championName: 'Kassadin',
-            reason: 'Kassadin tiene resistencia mágica pasiva que reduce el daño mágico recibido en un 15%',
-            warningKey: warningKey,
-            icon: Icons.auto_awesome,
-            color: Colors.purpleAccent,
-          ),
-          StrategicRecommendation(
-            championName: 'Galio',
-            reason: 'Galio es un tanque mágico natural con alta resistencia mágica base y W que reduce daño mágico',
-            warningKey: warningKey,
-            icon: Icons.auto_awesome,
-            color: Colors.purpleAccent,
-          ),
-        ];
-      case 'Tanques':
-        return [
-          StrategicRecommendation(
-            championName: 'Vayne',
-            reason: 'Vayne tiene daño verdadero con su W que ignora la armadura de los tanques',
-            warningKey: warningKey,
-            icon: Icons.shield,
-            color: Colors.blueGrey,
-          ),
-          StrategicRecommendation(
-            championName: 'Fiora',
-            reason: 'Fiora tiene daño verdadero con su pasiva y su ultimate que ignora defensas',
-            warningKey: warningKey,
-            icon: Icons.shield,
-            color: Colors.blueGrey,
-          ),
-        ];
-      case 'CC':
-        return [
-          StrategicRecommendation(
-            championName: 'Olaf',
-            reason: 'Olaf con su ultimate Ragnarok se vuelve inmune a todo control de masas durante 6 segundos',
-            warningKey: warningKey,
-            icon: Icons.link,
-            color: Colors.orange,
-          ),
-          StrategicRecommendation(
-            championName: 'Morgana',
-            reason: 'Morgana tiene un escudo mágico (E) que bloquea todo control de masas',
-            warningKey: warningKey,
-            icon: Icons.link,
-            color: Colors.orange,
-          ),
-        ];
-      case 'Dash':
-        return [
-          StrategicRecommendation(
-            championName: 'Lissandra',
-            reason: 'Lissandra tiene root con su W y ultimate que inmoviliza en area, atrapando campeones móviles',
-            warningKey: warningKey,
-            icon: Icons.directions_run,
-            color: Colors.pinkAccent,
-          ),
-          StrategicRecommendation(
-            championName: 'Poppy', 
-            reason: 'Poppy corta saltos y desplazamientos con su W', 
-            warningKey: warningKey, 
-            icon: Icons.block_flipped,
-            color: Colors.indigo.shade400,
-            )
-        ];
-      case 'AutoAtaques':
-        return [
-          StrategicRecommendation(
-            championName: 'Shen',
-            reason: 'Shen tiene W que crea una zona que esquiva todos los ataques básicos durante 1.75 segundos',
-            warningKey: warningKey,
-            icon: Icons.touch_app,
-            color: Colors.amber,
-          ),
-          StrategicRecommendation(
-            championName: 'Jax',
-            reason: 'Jax tiene E que esquiva todos los ataques básicos y luego aturde en area',
-            warningKey: warningKey,
-            icon: Icons.touch_app,
-            color: Colors.amber,
-          ),
-        ];
-      case 'Curas':
-        return [
-          StrategicRecommendation(
-            championName: 'Katarina',
-            reason: 'Katarina aplica heridas graves con su ultimate que reduce la curación del enemigo en un 60%',
-            warningKey: warningKey,
-            icon: Icons.healing,
-            color: Colors.greenAccent,
-          ),
-          StrategicRecommendation(
-            championName: 'Miss Fortune',
-            reason: 'Miss Fortune aplica heridas graves con su E, reduciendo la curación enemiga',
-            warningKey: warningKey,
-            icon: Icons.healing,
-            color: Colors.greenAccent,
-          ),
-        ];
-      case 'Escudos':
-        return [
-          StrategicRecommendation(
-            championName: 'Blitzcrank',
-            reason: 'Blitzcrank tiene Q que ignora escudos al agarrar al objetivo directamente',
-            warningKey: warningKey,
-            icon: Icons.health_and_safety,
-            color: Colors.cyan,
-          ),
-          StrategicRecommendation(
-            championName: 'Renekton',
-            reason: 'Renekton con su W potenciado rompe escudos y aturde al objetivo',
-            warningKey: warningKey,
-            icon: Icons.health_and_safety,
-            color: Colors.cyan,
-          ),
-        ];
-      case 'Early Game':
-        return [
-          StrategicRecommendation(
-            championName: 'Kog\'Maw',
-            reason: 'Kog\'Maw escala muy bien a late game, convirtiéndose en un hiper carry imparable',
-            warningKey: warningKey,
-            icon: Icons.access_time,
-            color: Colors.lightGreen,
-          ),
-          StrategicRecommendation(
-            championName: 'Kayle',
-            reason: 'Kayle escala a nivel 16 volviéndose inmortal y con daño en area masivo',
-            warningKey: warningKey,
-            icon: Icons.access_time,
-            color: Colors.lightGreen,
-          ),
-        ];
-      case 'Late Game':
-        return [
-          StrategicRecommendation(
-            championName: 'Pantheon',
-            reason: 'Pantheon domina early game con su pasiva y puede cerrar partidas antes del late',
-            warningKey: warningKey,
-            icon: Icons.trending_up,
-            color: Colors.deepPurpleAccent,
-          ),
-          StrategicRecommendation(
-            championName: 'Draven',
-            reason: 'Draven presiona fuerte en early y puede ganar linea para acelerar la partida',
-            warningKey: warningKey,
-            icon: Icons.trending_up,
-            color: Colors.deepPurpleAccent,
-          ),
-          StrategicRecommendation(
-            championName: 'Lee Sin', 
-            reason: 'Lee Sin domina el early y puedes ganar antes de llegar al late.', 
-            warningKey: warningKey, 
-            icon: Icons.directions_run, 
-            color: Colors.orange.shade700
-            ),
-        ];
-      default:
-        return [];
+  /// Genera un perfil de tags activados para un campeón, para agrupar similares.
+  String _getChampionProfile(Champion champ, List<StrategicInsight> insights) {
+    final tags = <String>[];
+    for (final insight in insights) {
+      switch (insight.type) {
+        case 'heavy_ad':
+          if (championHasTag(champ, 'anti_ad')) tags.add('anti_ad');
+          break;
+        case 'heavy_ap':
+          if (championHasTag(champ, 'anti_ap')) tags.add('anti_ap');
+          break;
+        case 'no_frontline':
+          if (championHasTag(champ, 'backline_access')) tags.add('backline');
+          if (championHasTag(champ, 'pickoff')) tags.add('pickoff');
+          break;
+        case 'tanky':
+          if (championHasTag(champ, 'anti_tank')) tags.add('anti_tank');
+          break;
+        case 'heavy_cc':
+          if (championHasTag(champ, 'anti_cc')) tags.add('anti_cc');
+          if (championHasTag(champ, 'safe_pick')) tags.add('safe');
+          break;
+        case 'high_mobility':
+          if (championHasTag(champ, 'anti_dash')) tags.add('anti_dash');
+          if (championHasTag(champ, 'safe_pick')) tags.add('safe');
+          break;
+        case 'autoattack_reliant':
+          if (championHasTag(champ, 'anti_autoattack')) tags.add('anti_autoattack');
+          break;
+        case 'healing':
+          if (championHasTag(champ, 'anti_heal')) tags.add('anti_heal');
+          break;
+        case 'shielding':
+          if (championHasTag(champ, 'anti_shield')) tags.add('anti_shield');
+          break;
+        case 'early_game':
+          if (championHasTag(champ, 'scaling')) tags.add('scaling');
+          break;
+        case 'late_game':
+          if (championHasTag(champ, 'strong_early')) tags.add('strong_early');
+          break;
+        case 'engage':
+          if (championHasTag(champ, 'anti_engage')) tags.add('anti_engage');
+          break;
+        case 'mixed_damage':
+          if (championHasTag(champ, 'frontline')) tags.add('frontline');
+          break;
+      }
     }
+    tags.sort();
+    return tags.join('|');
   }
 
-  /// Encuentra los mejores contadores en el rol dado usando atributos
-  List<StrategicRecommendation> _findBestCounters(String warningKey, List<Champion> roleChampions) {
-    final candidates = <Champion>[];
-    switch (warningKey) {
-      case 'AD':
-        candidates.addAll(roleChampions.where((c) => c.isTank || c.hasShield));
-        break;
-      case 'AP':
-        candidates.addAll(roleChampions.where((c) => c.isTank && (c.hasShield || c.hasHealing)));
-        break;
-      case 'Tanques':
-        candidates.addAll(roleChampions.where((c) => c.isAD && c.usesAutoAttacks || c.isMelee));
-        break;
-      case 'CC':
-        candidates.addAll(roleChampions.where((c) => c.hasEngage || c.hasShield || c.isTank));
-        break;
-      case 'Dash':
-        candidates.addAll(roleChampions.where((c) => c.hasCC));
-        break;
-      case 'AutoAtaques':
-        candidates.addAll(roleChampions.where((c) => c.hasShield || c.isTank));
-        break;
-      case 'Curas':
-        candidates.addAll(roleChampions.where((c) => c.isAD || c.isAP));
-        break;
-      case 'Escudos':
-        candidates.addAll(roleChampions.where((c) => c.hasCC || c.hasEngage));
-        break;
-      case 'Early Game':
-        candidates.addAll(roleChampions.where((c) => c.scalesLateGame));
-        break;
-      case 'Late Game':
-        candidates.addAll(roleChampions.where((c) => c.isEarlyGame));
-        break;
-      default:
-        break;
+  /// Genera una razón humana y estratégica para la recomendación.
+  String generateRecommendationReason(Champion champ, List<StrategicInsight> insights) {
+    // Recopilar todos los tags que contribuyeron significativamente
+    final activatedTags = <String>[];
+    final activatedAttrs = <String>[];
+
+    for (final insight in insights) {
+      switch (insight.type) {
+        case 'heavy_ad':
+          if (championHasTag(champ, 'anti_ad')) activatedTags.add('anti_ad');
+          if (championHasTag(champ, 'anti_autoattack')) activatedTags.add('anti_autoattack');
+          if (champ.isTank) activatedAttrs.add('tanque');
+          break;
+        case 'heavy_ap':
+          if (championHasTag(champ, 'anti_ap')) activatedTags.add('anti_ap');
+          if (champ.isTank) activatedAttrs.add('tanque');
+          if (champ.hasShield) activatedAttrs.add('escudos');
+          break;
+        case 'no_frontline':
+          if (championHasTag(champ, 'backline_access')) activatedTags.add('backline_access');
+          if (championHasTag(champ, 'pickoff')) activatedTags.add('pickoff');
+          break;
+        case 'tanky':
+          if (championHasTag(champ, 'anti_tank')) activatedTags.add('anti_tank');
+          break;
+        case 'heavy_cc':
+          if (championHasTag(champ, 'anti_cc')) activatedTags.add('anti_cc');
+          if (championHasTag(champ, 'safe_pick')) activatedTags.add('safe_pick');
+          if (champ.hasShield) activatedAttrs.add('escudos');
+          break;
+        case 'high_mobility':
+          if (championHasTag(champ, 'anti_dash')) activatedTags.add('anti_dash');
+          if (championHasTag(champ, 'safe_pick')) activatedTags.add('safe_pick');
+          if (champ.hasCC) activatedAttrs.add('CC');
+          break;
+        case 'autoattack_reliant':
+          if (championHasTag(champ, 'anti_autoattack')) activatedTags.add('anti_autoattack');
+          if (champ.hasShield) activatedAttrs.add('escudos');
+          break;
+        case 'healing':
+          if (championHasTag(champ, 'anti_heal')) activatedTags.add('anti_heal');
+          break;
+        case 'shielding':
+          if (championHasTag(champ, 'anti_shield')) activatedTags.add('anti_shield');
+          break;
+        case 'early_game':
+          if (championHasTag(champ, 'scaling')) activatedTags.add('scaling');
+          if (champ.scalesLateGame) activatedAttrs.add('late game');
+          break;
+        case 'late_game':
+          if (championHasTag(champ, 'strong_early')) activatedTags.add('strong_early');
+          if (champ.isEarlyGame) activatedAttrs.add('early game');
+          break;
+        case 'engage':
+          if (championHasTag(champ, 'anti_engage')) activatedTags.add('anti_engage');
+          if (championHasTag(champ, 'safe_pick')) activatedTags.add('safe_pick');
+          break;
+        case 'mixed_damage':
+          if (championHasTag(champ, 'frontline')) activatedTags.add('frontline');
+          if (champ.isTank) activatedAttrs.add('tanque');
+          if (champ.hasShield) activatedAttrs.add('escudos');
+          break;
+      }
     }
 
-    if (candidates.isEmpty) return [];
+    // Construir razones naturales basadas en los tags activados
+    return _naturalReason(champ, activatedTags, activatedAttrs);
+  }
 
-    final unique = candidates.toSet().take(2).toList();
-    return unique.map((c) {
-      String reason;
-      IconData icon;
-      Color color;
-      switch (warningKey) {
-        case 'AD':
-          reason = '${c.name} es resistente al daño físico';
-          icon = Icons.gps_fixed;
-          color = AppColors.enemyRed;
-          break;
-        case 'AP':
-          reason = '${c.name} tiene resistencia mágica';
-          icon = Icons.auto_awesome;
-          color = Colors.purpleAccent;
-          break;
-        case 'Tanques':
-          reason = '${c.name} puede lidiar con tanques';
-          icon = Icons.shield;
-          color = Colors.blueGrey;
-          break;
-        case 'CC':
-          reason = '${c.name} puede resistir o inmunizar control de masas';
-          icon = Icons.link;
-          color = Colors.orange;
-          break;
-        case 'Dash':
-          reason = '${c.name} puede inmovilizar enemigos móviles';
-          icon = Icons.directions_run;
-          color = Colors.pinkAccent;
-          break;
-        case 'AutoAtaques':
-          reason = '${c.name} puede bloquear ataques básicos';
-          icon = Icons.touch_app;
-          color = Colors.amber;
-          break;
-        case 'Curas':
-          reason = '${c.name} puede aplicar presión sostenida';
-          icon = Icons.healing;
-          color = Colors.greenAccent;
-          break;
-        case 'Escudos':
-          reason = '${c.name} puede romper escudos';
-          icon = Icons.health_and_safety;
-          color = Colors.cyan;
-          break;
-        case 'Early Game':
-          reason = '${c.name} escala bien a late game';
-          icon = Icons.access_time;
-          color = Colors.lightGreen;
-          break;
-        case 'Late Game':
-          reason = '${c.name} es fuerte en early game';
-          icon = Icons.trending_up;
-          color = Colors.deepPurpleAccent;
-          break;
-        default:
-          reason = '${c.name} puede contrarrestar esta amenaza';
-          icon = Icons.star;
-          color = AppColors.textPrimary;
-      }
-      return StrategicRecommendation(
-        championName: c.name,
-        reason: reason,
-        warningKey: warningKey,
-        icon: icon,
-        color: color,
-      );
-    }).toList();
+  /// Convierte tags y atributos activados en una frase natural.
+  String _naturalReason(Champion champ, List<String> tags, List<String> attrs) {
+    // Frases específicas por combinación de tags
+    bool hasTag(String t) => tags.contains(t);
+    bool hasAttrs(String a) => attrs.contains(a);
+
+    // Mixed damage
+    if (hasTag('frontline') && (hasAttrs('tanque') || hasAttrs('escudos'))) {
+      return '${champ.name} ofrece resistencia versátil contra daño mixto, ideal contra esta composición equilibrada.';
+    }
+    // Anti-AD y anti-autoattack juntos
+    if (hasTag('anti_ad') && hasTag('anti_autoattack')) {
+      return '${champ.name} castiga equipos que dependen de daño físico y ataques básicos.';
+    }
+    // Anti-AP prominente
+    if (hasTag('anti_ap') && hasTag('anti_cc')) {
+      return '${champ.name} destaca contra composiciones con mucho daño mágico gracias a su resistencia y capacidad de iniciación.';
+    }
+    // Anti-CC con safe_pick
+    if (hasTag('anti_cc') && hasTag('safe_pick')) {
+      return '${champ.name} puede bloquear habilidades clave y reducir el impacto del control enemigo.';
+    }
+    // Anti-dash con CC
+    if (hasTag('anti_dash') && hasAttrs('CC')) {
+      return '${champ.name} su control dirigido dificulta que campeones móviles ejecuten sus planes.';
+    }
+    // Anti-tank
+    if (hasTag('anti_tank')) {
+      return '${champ.name} es una excelente respuesta contra tanques enemigos.';
+    }
+    // Backline_access o pickoff
+    if (hasTag('backline_access') || hasTag('pickoff')) {
+      return '${champ.name} puede acceder a los carries enemigos y castigar su falta de protección.';
+    }
+    // Anti-heal
+    if (hasTag('anti_heal')) {
+      return '${champ.name} reduce drásticamente la curación enemiga.';
+    }
+    // Anti-shield
+    if (hasTag('anti_shield')) {
+      return '${champ.name} puede romper o ignorar los escudos enemigos.';
+    }
+    // Scaling contra early game
+    if (hasTag('scaling')) {
+      return '${champ.name} escala muy bien a late game, sobreviviendo al early enemigo.';
+    }
+    // Strong early contra late game
+    if (hasTag('strong_early')) {
+      return '${champ.name} puede cerrar la partida antes de que el enemigo escale.';
+    }
+    // Anti-engage con safe_pick
+    if (hasTag('anti_engage') && hasTag('safe_pick')) {
+      return '${champ.name} es difícil de atrapar y contrarresta la iniciación enemiga.';
+    }
+    // Safe_pick genérico
+    if (hasTag('safe_pick')) {
+      return '${champ.name} es un pick seguro y versátil contra esta composición.';
+    }
+    // Solo anti_ad
+    if (hasTag('anti_ad')) {
+      return '${champ.name} resiste bien el daño físico enemigo.';
+    }
+    // Solo anti_ap
+    if (hasTag('anti_ap')) {
+      return '${champ.name} tiene alta resistencia mágica contra este equipo AP.';
+    }
+    // Solo anti_cc
+    if (hasTag('anti_cc')) {
+      return '${champ.name} puede mitigar el control de masas enemigo.';
+    }
+    // Solo anti_dash
+    if (hasTag('anti_dash')) {
+      return '${champ.name} detiene la movilidad enemiga.';
+    }
+    // Solo anti_autoattack
+    if (hasTag('anti_autoattack')) {
+      return '${champ.name} reduce el impacto de los ataques básicos enemigos.';
+    }
+    // Atributos genéricos
+    if (hasAttrs('tanque') && hasAttrs('escudos')) {
+      return '${champ.name} es un tanque con escudos, ideal contra este equipo.';
+    }
+    if (hasAttrs('tanque')) {
+      return '${champ.name} ofrece una sólida línea frontal contra el enemigo.';
+    }
+    if (hasAttrs('escudos')) {
+      return '${champ.name} puede proteger a su equipo con escudos oportunos.';
+    }
+    if (hasAttrs('CC')) {
+      return '${champ.name} contribuye con control para neutralizar amenazas.';
+    }
+    if (hasAttrs('late game')) {
+      return '${champ.name} escala a late game y sobrevive al early enemigo.';
+    }
+    if (hasAttrs('early game')) {
+      return '${champ.name} presiona mucho en early para cerrar la partida rápido.';
+    }
+    // Fallback
+    return '${champ.name} es una buena elección contra esta composición.';
+  }
+
+  /// Método público principal: a partir de la lista de enemigos, genera insights
+  /// y devuelve las mejores recomendaciones para el rol seleccionado.
+  List<StrategicRecommendation> getStrategicRecommendations(
+    List<Champion> enemies,
+    String selectedRole,
+    List<Champion> allChampions,
+  ) {
+    if (enemies.isEmpty) return [];
+
+    final insights = generateStrategicInsights(enemies);
+    if (insights.isEmpty) return [];
+
+    return getBestRecommendations(insights, selectedRole, allChampions);
   }
 }

@@ -18,7 +18,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin { 
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final DraftService _draftService = DraftService();
   final List<Champion> _allChampions = ChampionsData.getAll();
   late CounterService _counterService;
@@ -532,7 +532,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   /// ** NUEVO: Widget para mostrar advertencias de composición enemiga **
   Widget _buildCompositionWarnings() {
     final warnings = _compositionService.getCompositionWarnings(_draftService.enemyPicks);
-    
+
     if (warnings.isEmpty) return const SizedBox.shrink();
 
     return Padding(
@@ -590,13 +590,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   /// ** NUEVO: Widget para mostrar recomendaciones estratégicas basadas en advertencias **
   Widget _buildStrategicRecommendations() {
-    final warnings = _compositionService.getCompositionWarnings(_draftService.enemyPicks);
+    // Usamos el nuevo método basado en la composición enemiga completa
     final recommendations = _compositionService.getStrategicRecommendations(
-      warnings, 
-      _selectedRole, 
-      _allChampions
+      _draftService.enemyPicks,
+      _selectedRole,
+      _allChampions,
     );
-    
+
     if (recommendations.isEmpty) return const SizedBox.shrink();
 
     // Agrupar recomendaciones por advertencia para mostrarlas organizadas
@@ -1160,77 +1160,77 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   /// Construye una sección de rol con su título y campeones
-Widget _buildRoleSection({
-  required String role,
-  required List<Champion> champions,
-}) {
-  final roleColor = AppColors.getRoleColor(role);
-  final roleIcon = _getRoleIcon(role);
+  Widget _buildRoleSection({
+    required String role,
+    required List<Champion> champions,
+  }) {
+    final roleColor = AppColors.getRoleColor(role);
+    final roleIcon = _getRoleIcon(role);
 
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Padding(
-        padding: const EdgeInsets.only(top: 2, bottom: 2, left: 8, right: 8),
-        child: Row(
-          children: [
-            Icon(roleIcon, color: roleColor, size: 16),
-            const SizedBox(width: 5),
-            Text(
-              role,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
-                color: roleColor,
-                letterSpacing: 2,
-              ),
-            ),
-            const SizedBox(width: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-              decoration: BoxDecoration(
-                color: roleColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                '${champions.length}',
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 2, bottom: 2, left: 8, right: 8),
+          child: Row(
+            children: [
+              Icon(roleIcon, color: roleColor, size: 16),
+              const SizedBox(width: 5),
+              Text(
+                role,
                 style: TextStyle(
-                  fontSize: 10,
-                  color: roleColor,
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
+                  color: roleColor,
+                  letterSpacing: 2,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                decoration: BoxDecoration(
+                  color: roleColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '${champions.length}',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: roleColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-      GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        padding: EdgeInsets.zero,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          childAspectRatio: 0.8,
-          crossAxisSpacing: 6,
-          mainAxisSpacing: 6,
-        ),
-        itemCount: champions.length,
-        itemBuilder: (context, index) {
-          final champion = champions[index];
-          final isSelected = _draftService.isChampionSelected(champion);
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.zero,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            childAspectRatio: 0.8,
+            crossAxisSpacing: 6,
+            mainAxisSpacing: 6,
+          ),
+          itemCount: champions.length,
+          itemBuilder: (context, index) {
+            final champion = champions[index];
+            final isSelected = _draftService.isChampionSelected(champion);
 
-          return ChampionCard(
-            champion: champion,
-            isSelected: isSelected,
-            borderColor: _modoActual == 'aliado'
-                ? AppColors.allyBlue.withValues(alpha: 0.6)
-                : AppColors.enemyRed.withValues(alpha: 0.6),
-            onTap: () => _seleccionarCampeon(champion),
-          );
-        },
-      ),
-      const SizedBox(height: 1),
-    ],
-  );
-}
+            return ChampionCard(
+              champion: champion,
+              isSelected: isSelected,
+              borderColor: _modoActual == 'aliado'
+                  ? AppColors.allyBlue.withValues(alpha: 0.6)
+                  : AppColors.enemyRed.withValues(alpha: 0.6),
+              onTap: () => _seleccionarCampeon(champion),
+            );
+          },
+        ),
+        const SizedBox(height: 1),
+      ],
+    );
+  }
 }
