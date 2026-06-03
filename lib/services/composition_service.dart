@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../models/champion.dart';
 import '../theme/app_colors.dart';
 
+
 /// Definición de un atributo de composición
 class AttributeDef {
   final String key;
@@ -281,6 +282,21 @@ class CompositionService {
     final counts = analyze(enemies);
     final teamSize = enemies.length;
     final insights = <StrategicInsight>[];
+    final frontlineCount = enemies.where((c) => championHasTag(c, 'frontline')).length;
+    final pokeCount = enemies.where((c) => championHasTag(c, 'poke')).length;
+    final diveCount = enemies.where((c) => championHasTag(c, 'dive')).length;
+    final pickoffCount = enemies.where((c) => championHasTag(c, 'pickoff')).length;
+    final teamfightCount = enemies.where((c) => championHasTag(c, 'teamfight')).length;
+
+    // Frontline
+    if (frontlineCount >= 2) {
+  insights.add(const StrategicInsight(
+    type: 'heavy_frontline',
+    description: 'El enemigo posee una línea frontal muy sólida.',
+    icon: Icons.shield,
+    color: Colors.blueGrey,
+  ));
+}
 
     // Mucho daño físico
     if ((counts['AD'] ?? 0) >= 3) {
@@ -301,17 +317,7 @@ class CompositionService {
         color: Colors.purpleAccent,
       ));
     }
-
-    // Poca frontline
-    if ((counts['Tanques'] ?? 0) <= 1 && teamSize >= 4) {
-      insights.add(const StrategicInsight(
-        type: 'no_frontline',
-        description: 'El enemigo carece de una línea frontal sólida.',
-        icon: Icons.shield,
-        color: Colors.blueGrey,
-      ));
-    }
-
+    
     // Muchos tanques
     if ((counts['Tanques'] ?? 0) >= 2) {
       insights.add(const StrategicInsight(
@@ -336,7 +342,7 @@ class CompositionService {
     if ((counts['Dash'] ?? 0) >= 3) {
       insights.add(const StrategicInsight(
         type: 'high_mobility',
-        description: 'Los campeones enemigos pueden esquivar habilidades importantes.',
+        description: 'Los campeones enemigos tienen muchos desplazamientos o dash.',
         icon: Icons.directions_run,
         color: Colors.pinkAccent,
       ));
@@ -414,6 +420,66 @@ class CompositionService {
       ));
     }
 
+    // Composición de poke
+    if (pokeCount >= 3) {
+        insights.add(
+        const StrategicInsight(
+        type: 'poke',
+        description: 'El enemigo busca desgastar antes de pelear.',
+        icon: Icons.architecture,
+      color: Colors.cyan,
+       ),
+      );
+    }
+    
+    // Composicion de Frontline 
+    if (frontlineCount == 0 && teamSize >= 4) {
+    insights.add(const StrategicInsight(
+    type: 'no_frontline',
+    description: 'El enemigo carece de una línea frontal sólida.',
+    icon: Icons.shield,
+    color: Colors.blueGrey,
+  ));
+}
+    // Frontline débil
+    if (frontlineCount == 1 && teamSize >= 4) {
+    insights.add(const StrategicInsight(
+    type: 'weak_frontline',
+    description: 'El enemigo tiene una línea frontal limitada.',
+    icon: Icons.shield,
+    color: Colors.blueGrey,
+  ));
+}
+    // Composición de dive
+    if (diveCount >= 3) {
+    insights.add(const StrategicInsight(
+    type: 'dive',
+    description: 'El enemigo puede lanzarse rápidamente sobre la backline.',
+    icon: Icons.flash_on,
+    color: Colors.redAccent,
+  ));
+  }
+
+  // Composición de pickoff
+  if (pickoffCount >= 2) {
+  insights.add(const StrategicInsight(
+    type: 'pickoff',
+    description: 'El enemigo busca atrapar objetivos aislados.',
+    icon: Icons.gps_fixed,
+    color: Colors.orangeAccent,
+  ));
+  }
+
+  // Composición de teamfight
+   if (teamfightCount >= 3) {
+   insights.add(const StrategicInsight(
+    type: 'teamfight',
+    description: 'El enemigo destaca en peleas grupales 5v5.',
+    icon: Icons.groups,
+    color: Colors.deepPurpleAccent,
+  ));
+  }
+
     return insights;
   }
 
@@ -428,10 +494,26 @@ class CompositionService {
         case 'heavy_ad':
           if (championHasTag(champion, 'anti_ad')) score += 10;
           if (championHasTag(champion, 'anti_autoattack')) score += 5;
-          if (championHasTag(champion, 'frontline')) score += 5;
-          if (champion.isTank) score += 2;
+          if (championHasTag(champion, 'frontline')) score += 3;
+          if (champion.isTank) score += 1;
           if (champion.hasShield) score += 2;
           break;
+        case 'heavy_frontline':
+          if (championHasTag(champion, 'anti_tank')) score += 10;
+          if (championHasTag(champion, 'backline_access')) score += 5;
+          break;
+        case 'poke':
+         if  (championHasTag(champion, 'anti_poke')) score += 15;
+         break;
+        case 'dive':
+         if (championHasTag(champion, 'anti_dive')) score += 15;
+         break;
+         case 'pickoff':
+          if (championHasTag(champion, 'anti_pickoff')) score += 15;
+         break;
+        case 'teamfight':
+          if (championHasTag(champion, 'anti_teamfight')) score += 18;
+         break;
         case 'heavy_ap':
           if (championHasTag(champion, 'anti_ap')) score += 10;
           if (championHasTag(champion, 'frontline')) score += 5;
@@ -439,9 +521,8 @@ class CompositionService {
           if (champion.hasShield) score += 2;
           break;
         case 'no_frontline':
-          if (championHasTag(champion, 'backline_access')) score += 10;
-          if (championHasTag(champion, 'pickoff')) score += 10;
-          if (championHasTag(champion, 'strong_early')) score += 5;
+          if (championHasTag(champion, 'backline_access')) score += 15;
+          if (championHasTag(champion, 'pickoff')) score += 15;
           if (champion.isMelee && champion.isAD) score += 2;
           break;
         case 'tanky':
@@ -477,11 +558,11 @@ class CompositionService {
           if (champion.scalesLateGame) score += 3;
           break;
         case 'late_game':
-          if (championHasTag(champion, 'strong_early')) score += 10;
+          if (championHasTag(champion, 'strong_early')) score += 3;
           if (champion.isEarlyGame) score += 3;
           break;
         case 'engage':
-          if (championHasTag(champion, 'anti_engage')) score += 10;
+          if (championHasTag(champion, 'anti_engage')) score += 15;
           if (championHasTag(champion, 'frontline')) score += 5;
           if (champion.hasShield) score += 2;
           if (champion.isTank) score += 2;
@@ -520,15 +601,30 @@ class CompositionService {
 
     // Puntuar cada campeón
     final scored = <MapEntry<Champion, int>>[];
+
+    for (final champ in roleChampions) {
+  final score = scoreChampionAgainstComposition(champ, insights);
+
+  debugPrint('${champ.name}: $score');
+
+  if (score > 0) {
+    scored.add(MapEntry(champ, score));
+  }
+}
     for (final champ in roleChampions) {
       final score = scoreChampionAgainstComposition(champ, insights);
       if (score > 0) {
         scored.add(MapEntry(champ, score));
       }
     }
+      
 
     // Ordenar por puntuación descendente
     scored.sort((a, b) => b.value.compareTo(a.value));
+
+    for (final entry in scored.take(10)) {
+     debugPrint('${entry.key.name}: ${entry.value}');
+     }
 
     // Aplicar diversidad: solo un campeón por perfil de tags activados
     final seenProfiles = <String>{};
@@ -536,6 +632,8 @@ class CompositionService {
 
     for (final entry in scored) {
       final profile = _getChampionProfile(entry.key, insights);
+
+      debugPrint('${entry.key.name} -> $profile -> ${entry.value}');
       if (!seenProfiles.contains(profile)) {
         seenProfiles.add(profile);
         uniqueTop.add(entry);
@@ -574,6 +672,16 @@ class CompositionService {
     final tags = <String>[];
     for (final insight in insights) {
       switch (insight.type) {
+        case 'poke':
+         if (championHasTag(champ, 'anti_poke')) tags.add('anti_poke');
+         break;
+        case 'dive':if (championHasTag(champ, 'anti_dive')) tags.add('anti_dive');
+         break;
+        case 'pickoff':if (championHasTag(champ, 'anti_pickoff')) tags.add('anti_pickoff');
+         break;
+        case 'teamfight':
+         if (championHasTag(champ, 'anti_teamfight')) tags.add('anti_teamfight');
+         break;
         case 'heavy_ad':
           if (championHasTag(champ, 'anti_ad')) tags.add('anti_ad');
           break;
@@ -590,6 +698,10 @@ class CompositionService {
         case 'heavy_cc':
           if (championHasTag(champ, 'anti_cc')) tags.add('anti_cc');
           if (championHasTag(champ, 'safe_pick')) tags.add('safe');
+          break;
+        case 'heavy_frontline':
+          if (championHasTag(champ, 'anti_tank')) tags.add('anti_tank');
+          if (championHasTag(champ, 'backline_access')) tags.add('backline');
           break;
         case 'high_mobility':
           if (championHasTag(champ, 'anti_dash')) tags.add('anti_dash');
@@ -630,6 +742,22 @@ class CompositionService {
 
     for (final insight in insights) {
       switch (insight.type) {
+        case 'heavy_frontline':
+         if (championHasTag(champ, 'anti_tank')) activatedTags.add('anti_tank');
+         if (championHasTag(champ, 'backline_access')) activatedTags.add('backline_access');
+         break;
+        case 'poke':
+         if (championHasTag(champ, 'anti_poke')) activatedTags.add('anti_poke');
+         break;         
+        case 'dive':
+         if (championHasTag(champ, 'anti_dive')) activatedTags.add('anti_dive');
+         break;
+        case 'pickoff':
+         if (championHasTag(champ, 'anti_pickoff')) activatedTags.add('anti_pickoff');
+         break;
+        case 'teamfight':
+         if (championHasTag(champ, 'anti_teamfight')) activatedTags.add('anti_teamfight');
+         break;
         case 'heavy_ad':
           if (championHasTag(champ, 'anti_ad')) activatedTags.add('anti_ad');
           if (championHasTag(champ, 'anti_autoattack')) activatedTags.add('anti_autoattack');
@@ -696,6 +824,26 @@ class CompositionService {
     // Frases específicas por combinación de tags
     bool hasTag(String t) => tags.contains(t);
     bool hasAttrs(String a) => attrs.contains(a);
+
+    // Anti Poke
+    if (hasTag('anti_poke')) {
+      return '${champ.name} reduce la efectividad del poke enemigo.';
+    }
+
+    // Anti Dive 
+    if (hasTag('anti_dive')) {
+      return '${champ.name} protege bien a su equipo contra campeones que se lanzan agresivamente.';
+    }
+
+    // Anti Pickoff
+    if (hasTag('anti_pickoff')) {
+      return '${champ.name} dificulta que el enemigo consiga picks aislados.';
+    }
+
+    // Anti Teamfight
+    if (hasTag('anti_teamfight')) {
+      return '${champ.name} puede romper las peleas grupales que busca esta composición.';
+    }
 
     // Mixed damage
     if (hasTag('frontline') && (hasAttrs('tanque') || hasAttrs('escudos'))) {

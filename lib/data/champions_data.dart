@@ -30,6 +30,9 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'safe_pick',
+          'pickoff',
+          'high_mobility',
+          'backline_access',
         ],
       ),
       Champion(
@@ -39,6 +42,10 @@ class ChampionsData {
         isAP: true,
         isMidGame: true,
         hasDash: true,
+        strategicTags: const [
+          'high_mobility',
+          'backline_access',
+        ],
       ),
       Champion(
         name: 'Akshan',
@@ -65,6 +72,8 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'anti_cc',
+          'frontline',
+          'backline_access',
         ],
       ),
       Champion(
@@ -79,6 +88,7 @@ class ChampionsData {
         hasCC: true,
         strategicTags: const [
           'pickoff'
+          'backline_access',
         ], 
       ),
       Champion(
@@ -93,6 +103,7 @@ class ChampionsData {
         scalesLateGame: true,
         strategicTags: const [
           'teamfight',
+          'frontline',
         ],
       ),
       Champion(
@@ -122,6 +133,7 @@ class ChampionsData {
         strategicTags: const [
           'teamfight',
           'pickoff',
+          'poke',
         ],
       ),
       Champion(
@@ -168,6 +180,7 @@ class ChampionsData {
         hasShield: true,
         strategicTags: const [
           'strong_early',
+          'pickoff',
         ],
       ),
       Champion(
@@ -196,6 +209,7 @@ class ChampionsData {
           'anti_autoattack',
           'teamfight',
           'anti_engage'
+          'frontline',
         ],
       ),
       Champion(
@@ -227,6 +241,9 @@ class ChampionsData {
           'anti_tank',
           'pickoff',
           'splitpush',
+          'dive',
+          'high_mobility',
+          'backline_access',
         ],
       ),
       Champion(
@@ -277,6 +294,7 @@ class ChampionsData {
         strategicTags: const [
           'anti_ap',
           'anti_cc',
+          'frontline',
         ],
       ),
       Champion(
@@ -302,6 +320,9 @@ class ChampionsData {
         isMidGame: true,
         isMelee: true,
         hasDash: true,
+        strategicTags: const [
+          'backline_access',
+        ],
       ),
       Champion(
         name: 'Evelynn',
@@ -313,6 +334,7 @@ class ChampionsData {
         isMidGame: true,
         strategicTags: const [
           'pickoff',
+          'backline_access',
         ],
       ),
       Champion(
@@ -325,6 +347,7 @@ class ChampionsData {
         strategicTags: const [
           'anti_engage',
           'safe_pick',
+          'poke',
         ],
       ),
       Champion(
@@ -350,6 +373,9 @@ class ChampionsData {
         isMelee: true,
         isMidGame: true,
         hasDash: true,
+        strategicTags: const [
+          'backline_access',
+        ],
       ),
       Champion(
         name: 'Fiddlesticks', 
@@ -449,6 +475,7 @@ class ChampionsData {
         strategicTags: const [
           'anti_tank',
           'splitpush',
+          'anti_teamfight',
         ],
       ),
       Champion(
@@ -489,7 +516,9 @@ class ChampionsData {
         isMidGame: true,
         hasDash: true,
         strategicTags: const [
-          'splitpush'
+          'splitpush',
+          'high_mobility',
+          'backline_access',
         ],
       ),
       Champion(
@@ -503,7 +532,8 @@ class ChampionsData {
         scalesLateGame: true,
         strategicTags: const [
           'peel',
-          'anti,engage',
+          'anti_engage',
+          'anti_dive',
         ],
       ),
       Champion(
@@ -519,6 +549,7 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'safe_pick',
+          'frontline',
         ],
       ),
       Champion(
@@ -535,6 +566,8 @@ class ChampionsData {
         strategicTags: const [
           'anti_autoattack',
           'anti_ad',
+          'splitpush',
+          'backline_access',
         ],
       ),
       Champion(
@@ -547,6 +580,7 @@ class ChampionsData {
         isEarlyGame: true,
         strategicTags: const [
           'strong_early',
+          'poke',
         ],
       ),
       Champion(
@@ -559,9 +593,11 @@ class ChampionsData {
         isMidGame: true,
         hasDash: true,
         strategicTags: const [
-          'anti_healing'
-          'teamfight'
-          'pickoff'
+          'anti_healing',
+          'teamfight',
+          'pickoff',
+          'high_mobility',
+          'backline_access',
         ],
         ),
       Champion(
@@ -590,7 +626,12 @@ class ChampionsData {
         usesAutoAttacks: true,
         hasShield: true,
         scalesLateGame: true,
+        strategicTags: const [
+          'dive',
+          'backline_access',
+        ],
       ),
+      
       Champion(
         name: 'Karma',
         roles: ['SUPP'],
@@ -602,6 +643,7 @@ class ChampionsData {
         isEarlyGame: true,
         strategicTags: const [
           'peel',
+          'poke',
         ],
       ),
       Champion(
@@ -651,6 +693,7 @@ class ChampionsData {
         isMidGame: true,
         strategicTags: const [
           'teamfight',
+          'backline_access',
         ],
       ),
       Champion(
@@ -663,6 +706,8 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'pickoff',
+          'backline_access',
+          'high_mobility',
         ],
         ),
         Champion(
@@ -709,6 +754,7 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'strong_early',
+          'backline_access',
         ],
       ),
       Champion(
@@ -723,6 +769,8 @@ class ChampionsData {
         isMelee: true,
         strategicTags: const [
           'strong_early',
+          'frontline',
+          'backline_access',
         ],
       ),
       Champion(
@@ -784,6 +832,9 @@ class ChampionsData {
         hasEngage: true,
         hasShield: true,
         scalesLateGame: true,
+        strategicTags: const [
+          'poke',
+        ],
         ),
       Champion(
         name: 'Malphite',
@@ -797,9 +848,11 @@ class ChampionsData {
         isMelee: true,
         hasCC: true,
         strategicTags: const [
-          'anti_ad'
-          'teamfight'
-        ]
+          'anti_ad',
+          'teamfight',
+          'frontline',
+          'dive',
+        ],
       ),
       Champion(
         name: 'Maokai',
@@ -895,6 +948,7 @@ class ChampionsData {
         strategicTags: const [
           'peel',
           'anti_engage',
+          'teamfight',
         ],
       ),
       Champion(
@@ -919,6 +973,8 @@ class ChampionsData {
         isEarlyGame: true,
         strategicTags: const [
           'strong_early',
+          'frontline',
+          'backline_access',
         ],
       ),
       Champion(
@@ -930,6 +986,7 @@ class ChampionsData {
         hasHealing: true,
         strategicTags: const [
           'pickoff',
+          'poke',
         ],
         ),
       Champion(
@@ -958,6 +1015,7 @@ class ChampionsData {
         isMidGame: true,
         strategicTags: const [
           'pickoff',
+          'backline_access',
         ],
         ),
         Champion(
@@ -1013,7 +1071,7 @@ class ChampionsData {
         name: 'Ornn',
         roles: ['TOP'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Ornn.png',
-        isAD: true,
+        isAP: true,
         isMelee: true,
         hasCC: true,
         hasEngage: true,
@@ -1022,6 +1080,7 @@ class ChampionsData {
         strategicTags: const [
           'anti_ad',
           'teamfight',
+          'frontline'
         ],
       ),
       Champion(
@@ -1050,6 +1109,7 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'strong_early',
+          'high_mobility',
           ],
       ),
       Champion(
@@ -1082,6 +1142,9 @@ class ChampionsData {
           'teamfight',
           'peel',
           'anti_mobility',
+          'frontline',
+          'dive',
+          'backline_access',
         ],
       ),
       Champion(
@@ -1097,6 +1160,7 @@ class ChampionsData {
         strategicTags: const [
           'anti_ad',
           'anti_autoattack',
+          'frontline',
         ],
         ),
       Champion(
@@ -1123,6 +1187,7 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'strong_early',
+          'backline_access',
           ],
       ),
       Champion(
@@ -1137,6 +1202,7 @@ class ChampionsData {
         isMidGame: true,
         strategicTags: const [
           'pickoff',
+          'backline_access',
         ],
       ),
       Champion(
@@ -1152,6 +1218,8 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'strong_early',
+          'backline_access',
+          'high_mobility',
         ],
       ),
       Champion(
@@ -1165,9 +1233,10 @@ class ChampionsData {
         hasShield: true,
         isMidGame: true,
         strategicTags: const [
-          'anti_mobility',
+          'anti_dash',
           'teamfight',
           'anti_engage',
+          'frontline',
         ],
         ),
       Champion(
@@ -1208,6 +1277,8 @@ class ChampionsData {
         'peel',
         'safe_pick',
         'anti_engage',
+        'anti_dive',
+        'frontline',
        ],
       ),
       Champion(
@@ -1243,6 +1314,9 @@ class ChampionsData {
         hasEngage: true,
         hasShield: true,
         isEarlyGame: true,
+        strategicTags: const [
+          'frontline',
+        ],
       ),
       Champion(
         name: 'Shyvana',
@@ -1279,6 +1353,7 @@ class ChampionsData {
         strategicTags: const [
           'splitpush',
           'anti_ad',
+          'frontline',
         ],
       ),
       Champion(
@@ -1333,6 +1408,7 @@ class ChampionsData {
         scalesLateGame: true,
         strategicTags: const [
           'peel',
+          'anti_poke',
         ],
         ),
       Champion(
@@ -1419,6 +1495,7 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'safe_pick',
+          'backline_access',
         ],
         ),
       Champion(
@@ -1488,6 +1565,7 @@ class ChampionsData {
         strategicTags: const [
           'anti_tank',
           'late_game',
+          'backline_access',
         ],
         ),
       Champion(
@@ -1510,6 +1588,9 @@ class ChampionsData {
         hasCC: true,
         hasEngage: true,
         isMidGame: true,
+        strategicTags: const [
+          'poke',
+        ],
         ),
       Champion(
         name: 'Vex', 
@@ -1542,6 +1623,8 @@ class ChampionsData {
         strategicTags: const [
           'teamfight',
           'safe_pick',
+          'dive',
+          'frontline',
         ],
       ),
       Champion(
@@ -1589,6 +1672,9 @@ class ChampionsData {
         hasEngage: true,
         hasCC: true,
         isMidGame: true,
+        strategicTags: const [
+          'frontline',
+        ],
       ),
       Champion(
         name: 'Warwick',
@@ -1613,6 +1699,9 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'safe_pick',
+          'teamfight',
+          'frontline',
+          'backline_access',
         ],
       ),
       Champion(
@@ -1644,6 +1733,8 @@ class ChampionsData {
           'anti_engage',
           'anti_autoattack',
           'strong_early',
+          'teamfight',
+          'frontline',
         ],
 
       ),
@@ -1659,6 +1750,7 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'strong_early',
+          'high_mobility',
         ],
       ),
       Champion(
@@ -1675,6 +1767,8 @@ class ChampionsData {
         strategicTags: const [
           'teamfight',
           'pickoff',
+          'backline_access'
+          'high_mobility',
         ],
       ),
       Champion(
@@ -1703,6 +1797,7 @@ class ChampionsData {
         strategicTags: const [
           'pickoff',
           'strong_early',
+          'backline_access',
         ],
       ),
       Champion(
@@ -1722,12 +1817,12 @@ class ChampionsData {
         roles: ['MID', 'ADC'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Ziggs.png',
         isAP: true,
-        hasCC: true,
         hasEngage: true,
         scalesLateGame: true,
         strategicTags: const [
           'waveclear',
           'teamfight',
+          'poke',
         ],
       ),
       Champion(
