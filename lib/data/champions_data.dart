@@ -26,7 +26,6 @@ class ChampionsData {
         isAP: true,
         hasCC: true,
         isMidGame: true,
-        hasHealing: true,
         hasDash: true,
         strategicTags: const [
           'safe_pick',
@@ -45,6 +44,7 @@ class ChampionsData {
         strategicTags: const [
           'high_mobility',
           'backline_access',
+          'pickoff',
         ],
       ),
       Champion(
@@ -433,6 +433,8 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'teamfight',
+          'frontline',
+          'anti_tank',
         ],
       ),
       Champion(
@@ -475,7 +477,7 @@ class ChampionsData {
         strategicTags: const [
           'anti_tank',
           'splitpush',
-          'anti_teamfight',
+          
         ],
       ),
       Champion(
@@ -568,6 +570,7 @@ class ChampionsData {
           'anti_ad',
           'splitpush',
           'backline_access',
+          'anti_tank',
         ],
       ),
       Champion(
@@ -629,6 +632,7 @@ class ChampionsData {
         strategicTags: const [
           'dive',
           'backline_access',
+          'high_mobility',
         ],
       ),
       
@@ -683,6 +687,10 @@ class ChampionsData {
         hasEngage: true,
         hasCC: true,
         isEarlyGame: true,
+        strategicTags: const [
+          'high_mobility',
+
+        ],
         ),
       Champion(
         name: 'Kennen',
@@ -755,6 +763,7 @@ class ChampionsData {
         strategicTags: const [
           'strong_early',
           'backline_access',
+          'pickoff',
         ],
       ),
       Champion(
@@ -1103,13 +1112,13 @@ class ChampionsData {
         isAD: true,
         hasCC: true,
         hasEngage: true,
-        hasHealing: true,
         isMelee: true,
         isEarlyGame: true,
         hasDash: true,
         strategicTags: const [
           'strong_early',
           'high_mobility',
+          'pickoff',
           ],
       ),
       Champion(
@@ -1145,6 +1154,7 @@ class ChampionsData {
           'frontline',
           'dive',
           'backline_access',
+          'high_mobility',
         ],
       ),
       Champion(
@@ -1234,6 +1244,7 @@ class ChampionsData {
         isMidGame: true,
         strategicTags: const [
           'anti_dash',
+          'anti_pickoff',
           'teamfight',
           'anti_engage',
           'frontline',
@@ -1249,6 +1260,9 @@ class ChampionsData {
         hasShield: true,
         hasCC: true,
         isMidGame: true,
+        strategicTags: const [
+          'teamfight',
+        ],
         ),
       Champion(
         name: 'Samira',

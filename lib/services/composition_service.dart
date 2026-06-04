@@ -495,63 +495,70 @@ class CompositionService {
           if (championHasTag(champion, 'anti_ad')) score += 10;
           if (championHasTag(champion, 'anti_autoattack')) score += 5;
           if (championHasTag(champion, 'frontline')) score += 3;
-          if (champion.isTank) score += 1;
+          if (champion.isTank) score += 2;
           if (champion.hasShield) score += 2;
           break;
         case 'heavy_frontline':
-          if (championHasTag(champion, 'anti_tank')) score += 10;
+          if (championHasTag(champion, 'anti_tank')) score += 20;
           if (championHasTag(champion, 'backline_access')) score += 5;
           break;
         case 'poke':
          if  (championHasTag(champion, 'anti_poke')) score += 15;
+         if (champion.hasEngage) score += 10;
+         if (championHasTag(champion, 'backline_access')) score += 5;
          break;
         case 'dive':
          if (championHasTag(champion, 'anti_dive')) score += 15;
          break;
          case 'pickoff':
           if (championHasTag(champion, 'anti_pickoff')) score += 15;
+          if (championHasTag(champion, 'safe_pick')) score += 10;
+          if (championHasTag(champion, 'peel')) score += 10;
+          if (champion.isTank) score += 5;
          break;
         case 'teamfight':
-          if (championHasTag(champion, 'anti_teamfight')) score += 18;
+          if (championHasTag(champion, 'splitpush')) score += 15;
+          if (championHasTag(champion, 'pickoff')) score += 10;
+          if (championHasTag(champion, 'backline_access')) score += 10;
          break;
         case 'heavy_ap':
           if (championHasTag(champion, 'anti_ap')) score += 10;
           if (championHasTag(champion, 'frontline')) score += 5;
+          if (championHasTag(champion, 'backline_access')) score += 5;
           if (champion.isTank) score += 2;
           if (champion.hasShield) score += 2;
           break;
         case 'no_frontline':
           if (championHasTag(champion, 'backline_access')) score += 15;
           if (championHasTag(champion, 'pickoff')) score += 15;
-          if (champion.isMelee && champion.isAD) score += 2;
           break;
         case 'tanky':
-          if (championHasTag(champion, 'anti_tank')) score += 10;
-          if (championHasTag(champion, 'backline_access')) score += 5;
-          if (champion.isAD && champion.usesAutoAttacks) score += 3;
-          if (champion.isMelee) score += 2;
+          if (championHasTag(champion, 'anti_tank')) score += 20;
+          if (championHasTag(champion, 'backline_access')) score += 10;
           break;
         case 'heavy_cc':
           if (championHasTag(champion, 'anti_cc')) score += 10;
           if (champion.hasShield) score += 2;
           break;
         case 'high_mobility':
-          if (championHasTag(champion, 'anti_dash')) score += 10;
-          if (champion.hasCC) score += 3;
+          if (championHasTag(champion, 'anti_dash')) score += 20;
+          if (champion.hasCC) score += 5;
           break;
         case 'autoattack_reliant':
-          if (championHasTag(champion, 'anti_autoattack')) score += 10;
+          if (championHasTag(champion, 'anti_autoattack')) score += 15;
           if (champion.hasShield) score += 3;
           if (champion.isTank) score += 2;
           break;
         case 'healing':
-          if (championHasTag(champion, 'anti_heal')) score += 10;
-          if (champion.isAD || champion.isAP) score += 3;
+          if (championHasTag(champion, 'anti_heal')) score += 15;
+          if (champion.hasCC) score += 5;
+          if (championHasTag(champion, 'pickoff')) score += 5;
           break;
         case 'shielding':
-          if (championHasTag(champion, 'anti_shield')) score += 10;
-          if (champion.hasCC) score += 3;
-          if (champion.hasEngage) score += 2;
+          if (championHasTag(champion, 'anti_shield')) score += 15;
+          if (championHasTag(champion, 'backline_access')) score += 5;
+          if (championHasTag(champion, 'pickoff')) score += 5;
+          if (champion.hasEngage) score += 3;
           break;
         case 'early_game':
           if (championHasTag(champion, 'scaling')) score += 10;
@@ -562,7 +569,7 @@ class CompositionService {
           if (champion.isEarlyGame) score += 3;
           break;
         case 'engage':
-          if (championHasTag(champion, 'anti_engage')) score += 15;
+          if (championHasTag(champion, 'anti_engage')) score += 10;
           if (championHasTag(champion, 'frontline')) score += 5;
           if (champion.hasShield) score += 2;
           if (champion.isTank) score += 2;
@@ -600,9 +607,9 @@ class CompositionService {
     if (roleChampions.isEmpty) return [];
 
     // Puntuar cada campeón
-    final scored = <MapEntry<Champion, int>>[];
+final scored = <MapEntry<Champion, int>>[];
 
-    for (final champ in roleChampions) {
+for (final champ in roleChampions) {
   final score = scoreChampionAgainstComposition(champ, insights);
 
   debugPrint('${champ.name}: $score');
@@ -611,12 +618,6 @@ class CompositionService {
     scored.add(MapEntry(champ, score));
   }
 }
-    for (final champ in roleChampions) {
-      final score = scoreChampionAgainstComposition(champ, insights);
-      if (score > 0) {
-        scored.add(MapEntry(champ, score));
-      }
-    }
       
 
     // Ordenar por puntuación descendente
@@ -950,6 +951,14 @@ class CompositionService {
     if (enemies.isEmpty) return [];
 
     final insights = generateStrategicInsights(enemies);
+
+    // === AGREGAR ESTO PARA VER LOS INSIGHTS ===
+    debugPrint('=== INSIGHTS DETECTADOS ===');
+    for (final insight in insights) {
+      debugPrint('${insight.type}: ${insight.description}');
+    }
+    debugPrint('===========================');
+
     if (insights.isEmpty) return [];
 
     return getBestRecommendations(insights, selectedRole, allChampions);
