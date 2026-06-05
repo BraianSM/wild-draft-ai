@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../models/champion.dart';
 import '../theme/app_colors.dart';
 
-
 /// Definición de un atributo de composición
 class AttributeDef {
   final String key;
@@ -109,8 +108,8 @@ class CompositionService {
       predicate: _isAP,
     ),
     AttributeDef(
-      key: 'Tanques',
-      label: 'Tanques',
+      key: 'Tank',
+      label: 'Tank',
       icon: Icons.shield,
       color: Colors.blueGrey,
       predicate: _isTank,
@@ -123,29 +122,29 @@ class CompositionService {
       predicate: _hasCC,
     ),
     AttributeDef(
-      key: 'Iniciadores',
-      label: 'Iniciadores',
+      key: 'Engages',
+      label: 'Engages',
       icon: Icons.flash_on,
       color: Colors.yellowAccent,
       predicate: _hasEngage,
     ),
     AttributeDef(
-      key: 'Curas',
-      label: 'Curas',
+      key: 'heal',
+      label: 'heal',
       icon: Icons.healing,
       color: Colors.greenAccent,
       predicate: _hasHealing,
     ),
     AttributeDef(
-      key: 'Escudos',
-      label: 'Escudos',
+      key: 'Shield',
+      label: 'Shield',
       icon: Icons.health_and_safety,
       color: Colors.cyan,
       predicate: _hasShield,
     ),
     AttributeDef(
-      key: 'AutoAtaques',
-      label: 'AutoAtaques',
+      key: 'AutoAttacks',
+      label: 'AutoAttacks',
       icon: Icons.touch_app,
       color: Colors.amber,
       predicate: _usesAutoAttacks,
@@ -282,14 +281,14 @@ class CompositionService {
     final counts = analyze(enemies);
     final teamSize = enemies.length;
     final insights = <StrategicInsight>[];
-    final frontlineCount = enemies.where((c) => championHasTag(c, 'frontline')).length;
+    final frontline = enemies.where((c) => championHasTag(c, 'frontline')).length;
     final pokeCount = enemies.where((c) => championHasTag(c, 'poke')).length;
     final diveCount = enemies.where((c) => championHasTag(c, 'dive')).length;
     final pickoffCount = enemies.where((c) => championHasTag(c, 'pickoff')).length;
     final teamfightCount = enemies.where((c) => championHasTag(c, 'teamfight')).length;
 
     // Frontline
-    if (frontlineCount >= 2) {
+    if (frontline >= 2) {
   insights.add(const StrategicInsight(
     type: 'heavy_frontline',
     description: 'El enemigo posee una línea frontal muy sólida.',
@@ -319,7 +318,7 @@ class CompositionService {
     }
     
     // Muchos tanques
-    if ((counts['Tanques'] ?? 0) >= 2) {
+    if ((counts['Tank'] ?? 0) >= 2) {
       insights.add(const StrategicInsight(
         type: 'tanky',
         description: 'El enemigo tiene varios campeones resistentes.',
@@ -349,7 +348,7 @@ class CompositionService {
     }
 
     // Dependencia de autoataques
-    if ((counts['AutoAtaques'] ?? 0) >= 3) {
+    if ((counts['AutoAttacks'] ?? 0) >= 3) {
       insights.add(const StrategicInsight(
         type: 'autoattack_reliant',
         description: 'Los ataques básicos son una fuente principal de daño enemigo.',
@@ -359,7 +358,7 @@ class CompositionService {
     }
 
     // Mucha curación
-    if ((counts['Curas'] ?? 0) >= 2) {
+    if ((counts['Heal'] ?? 0) >= 2) {
       insights.add(const StrategicInsight(
         type: 'healing',
         description: 'El enemigo cuenta con curación significativa.',
@@ -369,7 +368,7 @@ class CompositionService {
     }
 
     // Muchos escudos
-    if ((counts['Escudos'] ?? 0) >= 2) {
+    if ((counts['Shield'] ?? 0) >= 2) {
       insights.add(const StrategicInsight(
         type: 'shielding',
         description: 'El enemigo tiene múltiples escudos para protegerse.',
@@ -399,7 +398,7 @@ class CompositionService {
     }
 
     // Mucho engage
-    if ((counts['Iniciadores'] ?? 0) >= 3) {
+    if ((counts['Engage'] ?? 0) >= 3) {
       insights.add(const StrategicInsight(
         type: 'engage',
         description: 'El enemigo tiene mucho engage e iniciación.',
@@ -433,7 +432,7 @@ class CompositionService {
     }
     
     // Composicion de Frontline 
-    if (frontlineCount == 0 && teamSize >= 4) {
+    if (frontline == 0 && teamSize >= 4) {
     insights.add(const StrategicInsight(
     type: 'no_frontline',
     description: 'El enemigo carece de una línea frontal sólida.',
@@ -442,7 +441,7 @@ class CompositionService {
   ));
 }
     // Frontline débil
-    if (frontlineCount == 1 && teamSize >= 4) {
+    if (frontline == 1 && teamSize >= 4) {
     insights.add(const StrategicInsight(
     type: 'weak_frontline',
     description: 'El enemigo tiene una línea frontal limitada.',
@@ -509,6 +508,7 @@ class CompositionService {
          break;
         case 'dive':
          if (championHasTag(champion, 'anti_dive')) score += 15;
+         if (championHasTag(champion, 'peel')) score += 10;
          break;
          case 'pickoff':
           if (championHasTag(champion, 'anti_pickoff')) score += 15;
@@ -520,6 +520,7 @@ class CompositionService {
           if (championHasTag(champion, 'splitpush')) score += 15;
           if (championHasTag(champion, 'pickoff')) score += 10;
           if (championHasTag(champion, 'backline_access')) score += 10;
+          if (championHasTag(champion, 'peel')) score += 5;
          break;
         case 'heavy_ap':
           if (championHasTag(champion, 'anti_ap')) score += 10;
@@ -541,7 +542,7 @@ class CompositionService {
           if (champion.hasShield) score += 2;
           break;
         case 'high_mobility':
-          if (championHasTag(champion, 'anti_dash')) score += 20;
+          if (championHasTag(champion, 'anti_mobility')) score += 20;
           if (champion.hasCC) score += 5;
           break;
         case 'autoattack_reliant':
@@ -561,37 +562,77 @@ class CompositionService {
           if (champion.hasEngage) score += 3;
           break;
         case 'early_game':
-          if (championHasTag(champion, 'scaling')) score += 10;
-          if (champion.scalesLateGame) score += 3;
+          if (champion.scalesLateGame) score += 10;
+          if (championHasTag(champion, 'safe_pick')) score += 5;
           break;
         case 'late_game':
-          if (championHasTag(champion, 'strong_early')) score += 3;
-          if (champion.isEarlyGame) score += 3;
+          if (championHasTag(champion, 'strong_early')) score += 5;
+          if (champion.isEarlyGame) score += 10;
           break;
         case 'engage':
           if (championHasTag(champion, 'anti_engage')) score += 10;
+          if (championHasTag(champion, 'peel')) score += 10;
           if (championHasTag(champion, 'frontline')) score += 5;
-          if (champion.hasShield) score += 2;
-          if (champion.isTank) score += 2;
           break;
         case 'mixed_damage':
-          if (championHasTag(champion, 'frontline')) score += 5;
-          if (champion.isTank) score += 3;
-          if (champion.hasShield) score += 2;
+          if (championHasTag(champion, 'pickoff')) score += 7;
+          if (championHasTag(champion, 'dive')) score += 6;
+          if (championHasTag(champion, 'splitpush')) score += 6;
+          if (champion.hasEngage) score += 8;
           break;
       }
 
-      // Aplicar bonus de safe_pick una sola vez
       if (!safePickBonusApplied && hasSafePick) {
-        if (insight.type == 'heavy_cc' || insight.type == 'high_mobility' || insight.type == 'engage') {
-          score += 3;
-          safePickBonusApplied = true;
-        }
-      }
-    }
+  int safePickScore = 0;
 
-    return score;
+  // Base de seguridad del campeón
+  if (champion.scalesLateGame) {
+    safePickScore += 2;
   }
+
+  if (championHasTag(champion, 'peel')) {
+    safePickScore += 2;
+  }
+
+  if (championHasTag(champion, 'waveclear')) {
+    safePickScore += 1;
+  }
+
+  if (championHasTag(champion, 'anti_engage')) {
+    safePickScore += 2;
+  }
+
+  if (championHasTag(champion, 'anti_dive')) {
+    safePickScore += 2;
+  }
+
+  // Ajuste contextual (enemigo)
+  if (insight.type == 'engage' &&
+      championHasTag(champion, 'anti_engage')) {
+    safePickScore += 2;
+  }
+
+  if (insight.type == 'dive' &&
+      championHasTag(champion, 'anti_dive')) {
+    safePickScore += 2;
+  }
+
+  if (insight.type == 'poke' &&
+      championHasTag(champion, 'waveclear')) {
+    safePickScore += 1;
+  }
+
+  // Aplicación final del bonus
+  if (safePickScore >= 4) {
+    score += 3;
+    safePickBonusApplied = true;
+   }
+  }
+ }
+
+   return score;
+
+}
 
   /// FASE 3: Obtiene los mejores campeones para el rol contra la composición enemiga
   List<StrategicRecommendation> getBestRecommendations(

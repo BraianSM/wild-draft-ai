@@ -702,6 +702,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+
   /// Filtro rápido por rol (botones pequeños arriba de la lista de campeones)
   Widget _buildRoleQuickFilter() {
     return Padding(

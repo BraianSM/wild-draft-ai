@@ -32,6 +32,7 @@ class ChampionsData {
           'pickoff',
           'high_mobility',
           'backline_access',
+          'burst',
         ],
       ),
       Champion(
@@ -45,6 +46,7 @@ class ChampionsData {
           'high_mobility',
           'backline_access',
           'pickoff',
+          'burst',
         ],
       ),
       Champion(
@@ -119,6 +121,7 @@ class ChampionsData {
           'teamfight',
           'pickoff',
           'anti_mobility',
+          'burst',
         ],
       ),
       Champion(
@@ -157,7 +160,8 @@ class ChampionsData {
         isMidGame: true,
         hasDash: true,
         ),
-        Champion(
+
+      Champion(
           name: 'Bardo', 
           roles: ['SUPP'], 
           imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Bard.png',
@@ -244,6 +248,7 @@ class ChampionsData {
           'dive',
           'high_mobility',
           'backline_access',
+          'burst',
         ],
       ),
       Champion(
@@ -281,6 +286,7 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'teamfight',
+          'burst',
         ],
       ),
       Champion(
@@ -335,6 +341,7 @@ class ChampionsData {
         strategicTags: const [
           'pickoff',
           'backline_access',
+          'burst',
         ],
       ),
       Champion(
@@ -362,6 +369,7 @@ class ChampionsData {
         strategicTags: const [
           'anti_tank',
           'splitpush',
+          'burst',
         ],
       ),
       Champion(
@@ -375,6 +383,7 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'backline_access',
+          'burst',
         ],
       ),
       Champion(
@@ -480,6 +489,7 @@ class ChampionsData {
           
         ],
       ),
+
       Champion(
         name: 'Hecarim', 
         roles: ['JG'], 
@@ -491,8 +501,9 @@ class ChampionsData {
         strategicTags: const [
           'teamfight',
           ],
-          ),
-          Champion(
+        ),
+
+        Champion(
             name: 'Heimerdinger', 
             roles: ['MID', 'TOP'], 
             imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Heimerdinger.png',
@@ -596,11 +607,12 @@ class ChampionsData {
         isMidGame: true,
         hasDash: true,
         strategicTags: const [
-          'anti_healing',
+          'anti_heal',
           'teamfight',
           'pickoff',
           'high_mobility',
           'backline_access',
+          'burst',
         ],
         ),
       Champion(
@@ -716,6 +728,7 @@ class ChampionsData {
           'pickoff',
           'backline_access',
           'high_mobility',
+          'burst',
         ],
         ),
         Champion(
@@ -764,6 +777,7 @@ class ChampionsData {
           'strong_early',
           'backline_access',
           'pickoff',
+          'burst',
         ],
       ),
       Champion(
@@ -843,6 +857,7 @@ class ChampionsData {
         scalesLateGame: true,
         strategicTags: const [
           'poke',
+          'burst',
         ],
         ),
       Champion(
@@ -873,6 +888,10 @@ class ChampionsData {
         hasCC: true,
         hasHealing: true,
         isMidGame: true,
+        strategicTags: const [
+          'frontline',
+          'teamfight',
+        ],
       ),
       Champion(
         name: 'Master Yi',
@@ -902,7 +921,7 @@ class ChampionsData {
         usesAutoAttacks: true,
         isEarlyGame: true,
         strategicTags: const [
-          'anti_healing',
+          'anti_heal',
           'teamfight'
         ],
       ),
@@ -1035,6 +1054,10 @@ class ChampionsData {
           hasCC: true,
           hasEngage: true,
           scalesLateGame: true,
+          strategicTags: const [
+            'poke',
+            'teamfight',
+          ],
           ),
       Champion(
         name: 'Nunu y Willump',
@@ -1062,7 +1085,6 @@ class ChampionsData {
         hasHealing: true,
         strategicTags: const [
           'anti_cc'
-          'fighter'
           'strong_early',
         ],
       ),
@@ -1103,6 +1125,7 @@ class ChampionsData {
         isEarlyGame: true,
         strategicTags: const [
           'strong_early',
+          'burst',
         ],
       ),
       Champion(
@@ -1119,6 +1142,7 @@ class ChampionsData {
           'strong_early',
           'high_mobility',
           'pickoff',
+          'burst',
           ],
       ),
       Champion(
@@ -1198,6 +1222,7 @@ class ChampionsData {
         strategicTags: const [
           'strong_early',
           'backline_access',
+          'burst',
           ],
       ),
       Champion(
@@ -1213,6 +1238,7 @@ class ChampionsData {
         strategicTags: const [
           'pickoff',
           'backline_access',
+          'burst',
         ],
       ),
       Champion(
@@ -1230,6 +1256,7 @@ class ChampionsData {
           'strong_early',
           'backline_access',
           'high_mobility',
+          'burst',
         ],
       ),
       Champion(
@@ -1243,7 +1270,7 @@ class ChampionsData {
         hasShield: true,
         isMidGame: true,
         strategicTags: const [
-          'anti_dash',
+          'anti_mobility',
           'anti_pickoff',
           'teamfight',
           'anti_engage',
@@ -1434,6 +1461,9 @@ class ChampionsData {
         hasEngage: true,
         hasHealing: true,
         scalesLateGame: true,
+        strategicTags: const [
+          'frontline',
+        ],
         ),
       Champion(
         name: 'Syndra', 
@@ -1446,6 +1476,7 @@ class ChampionsData {
         strategicTags: const [
           'pickoff',
           'teamfight',
+          'burst',
         ],
         ),
       Champion(
@@ -1456,6 +1487,9 @@ class ChampionsData {
         hasCC: true,
         hasEngage: true,
         isMidGame: true,
+        strategicTags: const [
+          'anti_mobility',
+        ],
       ),
       Champion(
         name: 'Talon',
@@ -1469,6 +1503,7 @@ class ChampionsData {
         strategicTags: const [
           'pickoff',
           'strong_early',
+          'burst',
         ],
         ),
       Champion(
@@ -1563,8 +1598,8 @@ class ChampionsData {
         hasCC: true,
         isMidGame: true,
         strategicTags: const [
-          'anti_healing'
-          'poke'
+          'anti_heal',
+          'poke',
         ],
         ),
       Champion(
@@ -1578,7 +1613,6 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'anti_tank',
-          'late_game',
           'backline_access',
         ],
         ),
@@ -1592,6 +1626,7 @@ class ChampionsData {
         hasEngage: true,
         strategicTags: const [
           'anti_engage'
+          'burst',
         ]
         ),
       Champion(
@@ -1618,7 +1653,6 @@ class ChampionsData {
         strategicTags: const [
           'anti_mobility'
           'anti_dash',
-          'engage',
           'teamfight',
           'pickoff',
         ],
@@ -1639,6 +1673,7 @@ class ChampionsData {
           'safe_pick',
           'dive',
           'frontline',
+          'burst',
         ],
       ),
       Champion(
@@ -1783,6 +1818,7 @@ class ChampionsData {
           'pickoff',
           'backline_access'
           'high_mobility',
+          'burst',
         ],
       ),
       Champion(
@@ -1812,6 +1848,7 @@ class ChampionsData {
           'pickoff',
           'strong_early',
           'backline_access',
+          'burst',
         ],
       ),
       Champion(
