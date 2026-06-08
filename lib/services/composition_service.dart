@@ -129,8 +129,8 @@ class CompositionService {
       predicate: _hasEngage,
     ),
     AttributeDef(
-      key: 'heal',
-      label: 'heal',
+      key: 'Heal',
+      label: 'Heal',
       icon: Icons.healing,
       color: Colors.greenAccent,
       predicate: _hasHealing,
@@ -220,8 +220,8 @@ class CompositionService {
   /// Obtiene las definiciones de atributos a mostrar según el contexto
   List<AttributeDef> getDefinitionsForDisplay({required bool extended}) {
     final keysToShow = extended
-        ? ['AD', 'AP', 'Tanques', 'CC', 'Iniciadores', 'Curas']
-        : ['AD', 'AP', 'Tanques', 'CC'];
+        ? ['AD', 'AP', 'Tank', 'CC', 'Engages', 'Heal']
+        : ['AD', 'AP', 'Tank', 'CC'];
     return allDefinitions.where((def) => keysToShow.contains(def.key)).toList();
   }
 
@@ -248,12 +248,12 @@ class CompositionService {
     final rules = [
       _WarningRule(key: 'AD', threshold: 3, message: 'Mucho daño físico', icon: Icons.gps_fixed, color: AppColors.enemyRed),
       _WarningRule(key: 'AP', threshold: 3, message: 'Mucho daño mágico', icon: Icons.auto_awesome, color: Colors.purpleAccent),
-      _WarningRule(key: 'Tanques', threshold: 2, message: 'Muchos tanques', icon: Icons.shield, color: Colors.blueGrey),
+      _WarningRule(key: 'Tank', threshold: 2, message: 'Muchos tanques', icon: Icons.shield, color: Colors.blueGrey),
       _WarningRule(key: 'CC', threshold: 3, message: 'Mucho control de masas', icon: Icons.link, color: Colors.orange),
       _WarningRule(key: 'Dash', threshold: 3, message: 'Muchos Desplazamientos', icon: Icons.directions_run, color: Colors.pinkAccent),
-      _WarningRule(key: 'AutoAtaques', threshold: 3, message: 'Muchos autoataques', icon: Icons.touch_app, color: Colors.amber),
-      _WarningRule(key: 'Curas', threshold: 2, message: 'Mucha curación', icon: Icons.healing, color: Colors.greenAccent),
-      _WarningRule(key: 'Escudos', threshold: 2, message: 'Muchos escudos', icon: Icons.health_and_safety, color: Colors.cyan),
+      _WarningRule(key: 'AutoAttacks', threshold: 3, message: 'Muchos autoataques', icon: Icons.touch_app, color: Colors.amber),
+      _WarningRule(key: 'Heal', threshold: 3, message: 'Mucha curación', icon: Icons.healing, color: Colors.greenAccent),
+      _WarningRule(key: 'Shield', threshold: 3, message: 'Muchos escudos', icon: Icons.health_and_safety, color: Colors.cyan),
       _WarningRule(key: 'Early Game', threshold: 3, message: 'Composición fuerte en early', icon: Icons.access_time, color: Colors.lightGreen),
       _WarningRule(key: 'Late Game', threshold: 3, message: 'Escala muy bien a late game', icon: Icons.trending_up, color: Colors.deepPurpleAccent),
     ];
@@ -298,7 +298,7 @@ class CompositionService {
 }
 
     // Mucho daño físico
-    if ((counts['AD'] ?? 0) >= 3) {
+    if ((counts['AD'] ?? 0) >= 4) {
       insights.add(const StrategicInsight(
         type: 'heavy_ad',
         description: 'La composición enemiga depende principalmente de daño físico.',
@@ -308,7 +308,7 @@ class CompositionService {
     }
 
     // Mucho daño mágico
-    if ((counts['AP'] ?? 0) >= 3) {
+    if ((counts['AP'] ?? 0) >= 4) {
       insights.add(const StrategicInsight(
         type: 'heavy_ap',
         description: 'El enemigo tiene una fuerte fuente de daño mágico.',
@@ -318,7 +318,7 @@ class CompositionService {
     }
     
     // Muchos tanques
-    if ((counts['Tank'] ?? 0) >= 2) {
+    if ((counts['Tank'] ?? 0) >= 3) {
       insights.add(const StrategicInsight(
         type: 'tanky',
         description: 'El enemigo tiene varios campeones resistentes.',
@@ -358,7 +358,7 @@ class CompositionService {
     }
 
     // Mucha curación
-    if ((counts['Heal'] ?? 0) >= 2) {
+    if ((counts['Heal'] ?? 0) >= 3) {
       insights.add(const StrategicInsight(
         type: 'healing',
         description: 'El enemigo cuenta con curación significativa.',
@@ -368,7 +368,7 @@ class CompositionService {
     }
 
     // Muchos escudos
-    if ((counts['Shield'] ?? 0) >= 2) {
+    if ((counts['Shield'] ?? 0) >= 3) {
       insights.add(const StrategicInsight(
         type: 'shielding',
         description: 'El enemigo tiene múltiples escudos para protegerse.',
@@ -398,7 +398,7 @@ class CompositionService {
     }
 
     // Mucho engage
-    if ((counts['Engage'] ?? 0) >= 3) {
+    if ((counts['Engages'] ?? 0) >= 3) {
       insights.add(const StrategicInsight(
         type: 'engage',
         description: 'El enemigo tiene mucho engage e iniciación.',
@@ -478,6 +478,9 @@ class CompositionService {
     color: Colors.deepPurpleAccent,
   ));
   }
+     insights.addAll(
+      generateCompositionArchetype(enemies, counts),
+    );
 
     return insights;
   }
@@ -503,8 +506,8 @@ class CompositionService {
           break;
         case 'poke':
          if  (championHasTag(champion, 'anti_poke')) score += 15;
-         if (champion.hasEngage) score += 10;
-         if (championHasTag(champion, 'backline_access')) score += 5;
+         if (champion.hasEngage) score += 12;
+         if (championHasTag(champion, 'backline_access')) score += 10;
          break;
         case 'dive':
          if (championHasTag(champion, 'anti_dive')) score += 15;
@@ -556,9 +559,10 @@ class CompositionService {
           if (championHasTag(champion, 'pickoff')) score += 5;
           break;
         case 'shielding':
-          if (championHasTag(champion, 'anti_shield')) score += 15;
+          if (championHasTag(champion, 'anti_shield')) score += 7;
           if (championHasTag(champion, 'backline_access')) score += 5;
           if (championHasTag(champion, 'pickoff')) score += 5;
+          if (championHasTag(champion, 'burst')) score += 5;
           if (champion.hasEngage) score += 3;
           break;
         case 'early_game':
@@ -633,6 +637,70 @@ class CompositionService {
    return score;
 
 }
+     /// Genera insights de arquetipos de composición usando tags estratégicos.
+  List<StrategicInsight> generateCompositionArchetype(
+    List<Champion> enemies,
+    Map<String, int> counts,
+  ) {
+    final insights = <StrategicInsight>[];
+    final engageCount = enemies.where((c) => championHasTag(c, 'engage')).length;
+    final pokeCount = enemies.where((c) => championHasTag(c, 'poke')).length;
+    final diveCount = enemies.where((c) => championHasTag(c, 'dive')).length;
+    final pickoffCount = enemies.where((c) => championHasTag(c, 'pickoff')).length;
+    final teamfightCount = enemies.where((c) => championHasTag(c, 'teamfight')).length;
+    final frontlineCount = enemies.where((c) => championHasTag(c, 'frontline')).length;
+
+    // engage_teamfight_comp
+    if (engageCount >= 3 && teamfightCount >= 3 && frontlineCount >= 2) {
+      insights.add(const StrategicInsight(
+        type: 'engage_teamfight_comp',
+        description: 'Composición de engage y teamfight con frontline sólida.',
+        icon: Icons.flash_on,
+        color: Colors.yellowAccent,
+      ));
+    }
+    // poke_comp
+    if (pokeCount >= 3 && frontlineCount <= 1) {
+      insights.add(const StrategicInsight(
+        type: 'poke_comp',
+        description: 'Composición de poke con poca protección frontal.',
+        icon: Icons.architecture,
+        color: Colors.cyan,
+      ));
+    }
+    // dive_comp
+    if (diveCount >= 3) {
+      insights.add(const StrategicInsight(
+        type: 'dive_comp',
+        description: 'Composición de dive agresivo.',
+        icon: Icons.flash_on,
+        color: Colors.redAccent,
+      ));
+    }
+    // pickoff_comp
+    if (pickoffCount >= 2) {
+      insights.add(const StrategicInsight(
+        type: 'pickoff_comp',
+        description: 'Composición orientada a pickoffs.',
+        icon: Icons.gps_fixed,
+        color: Colors.orangeAccent,
+      ));
+    }
+    // front_to_back_comp
+    final peelCount =
+    enemies.where((c) => championHasTag(c, 'peel')).length;
+
+if (frontlineCount >= 2 &&
+    (teamfightCount >= 2 || peelCount >= 1)) {
+  insights.add(const StrategicInsight(
+    type: 'front_to_back_comp',
+    description: 'Composición clásica front-to-back con línea frontal y teamfight.',
+    icon: Icons.shield,
+    color: Colors.blueGrey,
+  ));
+}
+    return insights;
+  }
 
   /// FASE 3: Obtiene los mejores campeones para el rol contra la composición enemiga
   List<StrategicRecommendation> getBestRecommendations(
@@ -680,7 +748,7 @@ for (final champ in roleChampions) {
         seenProfiles.add(profile);
         uniqueTop.add(entry);
       }
-      if (uniqueTop.length >= 3) break;
+      if (uniqueTop.length >= 4) break;
     }
 
     // Si no hay suficientes, tomar los siguientes aunque repitan perfil

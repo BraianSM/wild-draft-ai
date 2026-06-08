@@ -625,7 +625,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 Icon(Icons.tips_and_updates, color: AppColors.selectedPurple, size: 14),
                 const SizedBox(width: 4),
                 Text(
-                  'RECOMENDACIONES ESTRATÉGICAS',
+                  'RECOMENDACION ESTRATEGICA',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -1048,7 +1048,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               const Icon(Icons.tips_and_updates, color: AppColors.accentGold, size: 16),
               const SizedBox(width: 6),
               Text(
-                'RECOMENDACIONES PARA $_selectedRole',
+                'COUNTER DIRECTO DEL $_selectedRole',
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
