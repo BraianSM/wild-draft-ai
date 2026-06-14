@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import '../models/champion.dart';
 import '../theme/app_colors.dart';
+import 'package:flutter/foundation.dart';
 
 /// Definición de un atributo de composición
 class AttributeDef {
@@ -64,12 +65,14 @@ class StrategicInsight {
   final String description;
   final IconData icon;
   final Color color;
+  final double intensity;
 
   const StrategicInsight({
     required this.type,
     required this.description,
     required this.icon,
     required this.color,
+    this.intensity = 0.0,
   });
 }
 
@@ -282,157 +285,22 @@ class CompositionService {
     final teamSize = enemies.length;
     final insights = <StrategicInsight>[];
     final frontline = enemies.where((c) => championHasTag(c, 'frontline')).length;
-    final pokeCount = enemies.where((c) => championHasTag(c, 'poke')).length;
-    final diveCount = enemies.where((c) => championHasTag(c, 'dive')).length;
-    final pickoffCount = enemies.where((c) => championHasTag(c, 'pickoff')).length;
-    final teamfightCount = enemies.where((c) => championHasTag(c, 'teamfight')).length;
 
     // Frontline
-    if (frontline >= 2) {
-  insights.add(const StrategicInsight(
-    type: 'heavy_frontline',
-    description: 'El enemigo posee una línea frontal muy sólida.',
-    icon: Icons.shield,
-    color: Colors.blueGrey,
-  ));
+    final frontlineRatio = frontline / teamSize;
+    if (frontlineRatio >= 0.4 && frontline >= 2 && teamSize >= 4) {
+    insights.add(
+    StrategicInsight(
+      type: 'heavy_frontline',
+      description: 'El enemigo posee una línea frontal muy sólida.',
+      icon: Icons.shield,
+      color: Colors.blueGrey,
+      intensity: frontlineRatio,
+    ),
+  );
 }
-
-    // Mucho daño físico
-    if ((counts['AD'] ?? 0) >= 4) {
-      insights.add(const StrategicInsight(
-        type: 'heavy_ad',
-        description: 'La composición enemiga depende principalmente de daño físico.',
-        icon: Icons.gps_fixed,
-        color: AppColors.enemyRed,
-      ));
-    }
-
-    // Mucho daño mágico
-    if ((counts['AP'] ?? 0) >= 4) {
-      insights.add(const StrategicInsight(
-        type: 'heavy_ap',
-        description: 'El enemigo tiene una fuerte fuente de daño mágico.',
-        icon: Icons.auto_awesome,
-        color: Colors.purpleAccent,
-      ));
-    }
-    
-    // Muchos tanques
-    if ((counts['Tank'] ?? 0) >= 3) {
-      insights.add(const StrategicInsight(
-        type: 'tanky',
-        description: 'El enemigo tiene varios campeones resistentes.',
-        icon: Icons.shield,
-        color: Colors.blueGrey,
-      ));
-    }
-
-    // Mucho CC
-    if ((counts['CC'] ?? 0) >= 3) {
-      insights.add(const StrategicInsight(
-        type: 'heavy_cc',
-        description: 'El enemigo tiene gran capacidad para iniciar peleas y encadenar control.',
-        icon: Icons.link,
-        color: Colors.orange,
-      ));
-    }
-
-    // Mucha movilidad
-    if ((counts['Dash'] ?? 0) >= 3) {
-      insights.add(const StrategicInsight(
-        type: 'high_mobility',
-        description: 'Los campeones enemigos tienen muchos desplazamientos o dash.',
-        icon: Icons.directions_run,
-        color: Colors.pinkAccent,
-      ));
-    }
-
-    // Dependencia de autoataques
-    if ((counts['AutoAttacks'] ?? 0) >= 3) {
-      insights.add(const StrategicInsight(
-        type: 'autoattack_reliant',
-        description: 'Los ataques básicos son una fuente principal de daño enemigo.',
-        icon: Icons.touch_app,
-        color: Colors.amber,
-      ));
-    }
-
-    // Mucha curación
-    if ((counts['Heal'] ?? 0) >= 3) {
-      insights.add(const StrategicInsight(
-        type: 'healing',
-        description: 'El enemigo cuenta con curación significativa.',
-        icon: Icons.healing,
-        color: Colors.greenAccent,
-      ));
-    }
-
-    // Muchos escudos
-    if ((counts['Shield'] ?? 0) >= 3) {
-      insights.add(const StrategicInsight(
-        type: 'shielding',
-        description: 'El enemigo tiene múltiples escudos para protegerse.',
-        icon: Icons.health_and_safety,
-        color: Colors.cyan,
-      ));
-    }
-
-    // Composición early game
-    if ((counts['Early Game'] ?? 0) >= 3) {
-      insights.add(const StrategicInsight(
-        type: 'early_game',
-        description: 'El enemigo busca ganar temprano con campeones de early game.',
-        icon: Icons.access_time,
-        color: Colors.lightGreen,
-      ));
-    }
-
-    // Composición late game
-    if ((counts['Late Game'] ?? 0) >= 3) {
-      insights.add(const StrategicInsight(
-        type: 'late_game',
-        description: 'El enemigo escala muy bien a late game.',
-        icon: Icons.trending_up,
-        color: Colors.deepPurpleAccent,
-      ));
-    }
-
-    // Mucho engage
-    if ((counts['Engages'] ?? 0) >= 3) {
-      insights.add(const StrategicInsight(
-        type: 'engage',
-        description: 'El enemigo tiene mucho engage e iniciación.',
-        icon: Icons.flash_on,
-        color: Colors.yellowAccent,
-      ));
-    }
-
-    // Daño mixto balanceado
-    final adCount = counts['AD'] ?? 0;
-    final apCount = counts['AP'] ?? 0;
-    if (adCount >= 2 && apCount >= 2) {
-      insights.add(const StrategicInsight(
-        type: 'mixed_damage',
-        description: 'El enemigo posee fuentes equilibradas de daño físico y mágico, dificultando la itemización defensiva.',
-        icon: Icons.balance,
-        color: Colors.tealAccent,
-      ));
-    }
-
-    // Composición de poke
-    if (pokeCount >= 3) {
-        insights.add(
-        const StrategicInsight(
-        type: 'poke',
-        description: 'El enemigo busca desgastar antes de pelear.',
-        icon: Icons.architecture,
-      color: Colors.cyan,
-       ),
-      );
-    }
-    
     // Composicion de Frontline 
-    if (frontline == 0 && teamSize >= 4) {
+    if (frontline == 0 && teamSize >= 4 && teamSize >= 3) {
     insights.add(const StrategicInsight(
     type: 'no_frontline',
     description: 'El enemigo carece de una línea frontal sólida.',
@@ -449,218 +317,358 @@ class CompositionService {
     color: Colors.blueGrey,
   ));
 }
-    // Composición de dive
-    if (diveCount >= 3) {
-    insights.add(const StrategicInsight(
-    type: 'dive',
-    description: 'El enemigo puede lanzarse rápidamente sobre la backline.',
-    icon: Icons.flash_on,
-    color: Colors.redAccent,
-  ));
-  }
 
-  // Composición de pickoff
-  if (pickoffCount >= 2) {
-  insights.add(const StrategicInsight(
-    type: 'pickoff',
-    description: 'El enemigo busca atrapar objetivos aislados.',
-    icon: Icons.gps_fixed,
-    color: Colors.orangeAccent,
-  ));
-  }
+    // Mucho daño físico
+    final adCount = counts['AD'] ?? 0;
+    final adRatio = adCount / teamSize;
+    if (adRatio >= 0.7 && adCount >= 2) {
+      insights.add(StrategicInsight(
+        type: 'heavy_ad',
+        description: 'La composición enemiga depende principalmente de daño físico.',
+        icon: Icons.gps_fixed,
+        color: AppColors.enemyRed,
+        intensity: adRatio,
+      ));
+    }
 
-  // Composición de teamfight
-   if (teamfightCount >= 3) {
-   insights.add(const StrategicInsight(
-    type: 'teamfight',
-    description: 'El enemigo destaca en peleas grupales 5v5.',
-    icon: Icons.groups,
-    color: Colors.deepPurpleAccent,
-  ));
-  }
+    // Mucho daño mágico
+    final apCount = counts['AP'] ?? 0;
+    final apRatio = apCount / teamSize;
+    if (apRatio >= 0.7 && apCount >= 2) {
+      insights.add(StrategicInsight(
+        type: 'heavy_ap',
+        description: 'El enemigo tiene una fuerte fuente de daño mágico.',
+        icon: Icons.auto_awesome,
+        color: Colors.purpleAccent,
+        intensity: apRatio,
+      ));
+    }
+
+    // Composición con múltiples AP carries
+      final apCarryCount = enemies.where((c) =>
+      (c.roles.contains('MID') || c.roles.contains('ADC')) && c.isAP).length;
+      if (apCarryCount >= 2) {
+      insights.add(StrategicInsight(
+        type: 'heavy_ap_carries',
+        description: 'El enemigo tiene múltiples carries de daño mágico.',
+        icon: Icons.auto_awesome,
+        color: Colors.purpleAccent,
+        intensity: apCarryCount / teamSize,
+      ));
+    }
+    
+    // Muchos tanques
+    final tankCount = counts['Tank'] ?? 0;
+    final tankRatio = tankCount / teamSize;
+    if (tankRatio >= 0.5 && tankCount >= 2 && teamSize >= 3) {
+      insights.add(StrategicInsight(
+        type: 'tanky',
+        description: 'El enemigo tiene varios campeones resistentes.',
+        icon: Icons.shield,
+        color: Colors.blueGrey,
+        intensity: tankRatio,
+      ));
+    }
+
+    // Mucho CC
+    final ccCount = counts['CC'] ?? 0;
+    final ccRatio = ccCount / teamSize;
+    if (ccRatio >= 0.5 && ccCount >= 2) {
+      insights.add(StrategicInsight(
+        type: 'heavy_cc',
+        description: 'El enemigo tiene gran capacidad para iniciar peleas y encadenar control.',
+        icon: Icons.link,
+        color: Colors.orange,
+        intensity: ccRatio,
+      ));
+    }
+
+    // Mucha movilidad
+    final dashCount = counts['Dash'] ?? 0;
+    final dashRatio = dashCount / teamSize;
+    if (dashRatio >= 0.5 && dashCount >= 2) {
+      insights.add(StrategicInsight(
+        type: 'high_mobility',
+        description: 'Los campeones enemigos tienen muchos desplazamientos o dash.',
+        icon: Icons.directions_run,
+        color: Colors.pinkAccent,
+        intensity: dashRatio,
+      ));
+    }
+
+    // Dependencia de autoataques
+    if ((counts['AutoAttacks'] ?? 0) >= 3) {
+      final aaRatio = (counts['AutoAttacks'] ?? 0) / teamSize;
+      insights.add(StrategicInsight(
+        type: 'autoattack_reliant',
+        description: 'Los ataques básicos son una fuente principal de daño enemigo.',
+        icon: Icons.touch_app,
+        color: Colors.amber,
+        intensity: aaRatio,
+      ));
+    }
+
+    // Mucha curación
+    final healCount = counts['Heal'] ?? 0;
+    final healRatio = healCount / teamSize;
+    if (healRatio >= 0.5 && healCount >= 2) {
+      insights.add(StrategicInsight(
+        type: 'healing',
+        description: 'El enemigo cuenta con curación significativa.',
+        icon: Icons.healing,
+        color: Colors.greenAccent,
+        intensity: healRatio,
+      ));
+    }
+
+    // Muchos escudos
+    final shieldCount = counts['Shield'] ?? 0;
+    final shieldRatio = shieldCount / teamSize;
+    if (shieldRatio >= 0.5 && shieldCount >= 2) {
+      insights.add(StrategicInsight(
+        type: 'shielding',
+        description: 'El enemigo tiene múltiples escudos para protegerse.',
+        icon: Icons.health_and_safety,
+        color: Colors.cyan,
+        intensity: shieldRatio,
+      ));
+    }
+
+    // Composición early game
+    final earlyCount = counts['Early Game'] ?? 0;
+    final earlyRatio = earlyCount / teamSize;
+    if (earlyRatio >= 0.5 && earlyCount >= 2) {
+      insights.add(const StrategicInsight(
+        type: 'early_game',
+        description: 'El enemigo busca ganar temprano con campeones de early game.',
+        icon: Icons.access_time,
+        color: Colors.lightGreen,
+      ));
+    }
+
+    // Composición late game
+    final lateCount = counts['Late Game'] ?? 0;
+    final lateRatio = lateCount / teamSize;
+    if (lateRatio >= 0.5 && lateCount >= 2) {
+      insights.add(const StrategicInsight(
+        type: 'late_game',
+        description: 'El enemigo escala muy bien a late game.',
+        icon: Icons.trending_up,
+        color: Colors.deepPurpleAccent,
+      ));
+    }
+
+    // Daño mixto balanceado
+    final totalap = counts['AP'] ?? 0;
+
+    if (adCount >= 2 && totalap >= 2) {
+      insights.add(const StrategicInsight(
+        type: 'mixed_damage',
+        description: 'El enemigo posee fuentes equilibradas de daño físico y mágico, dificultando la itemización defensiva.',
+        icon: Icons.balance,
+        color: Colors.tealAccent,
+      ));
+    }
+
      insights.addAll(
       generateCompositionArchetype(enemies, counts),
     );
+
+    // Justo antes del return insights; en generateStrategicInsights
+    final seenTypes = <String>{};
+    insights.removeWhere((insight) {
+      if (seenTypes.contains(insight.type)) return true;
+      seenTypes.add(insight.type);
+      return false;
+    });
 
     return insights;
   }
 
   /// Puntúa un campeón contra los insights de la composición enemiga.
   int scoreChampionAgainstComposition(Champion champion, List<StrategicInsight> insights) {
-    int score = 0;
+     int score = 0;
     bool hasSafePick = championHasTag(champion, 'safe_pick');
     bool safePickBonusApplied = false;
 
     for (final insight in insights) {
       switch (insight.type) {
+
+        // ============ ARQUETIPOS (peso dominante) ============
+        case 'pickoff_comp':
+          if (championHasTag(champion, 'anti_pickoff')) score += 15;
+          if (championHasTag(champion, 'safe_pick')) score += 10;
+          break;
+        case 'front_to_back_comp':
+          if (championHasTag(champion, 'backline_access')) score += 10;
+          if (championHasTag(champion, 'anti_tank')) score += 10;
+          break;
+        case 'dive_comp':
+          if (championHasTag(champion, 'anti_dive')) score += 15;
+          if (championHasTag(champion, 'peel')) score += 10;
+          break;
+        case 'poke_comp':
+          if (championHasTag(champion, 'anti_poke')) score += 15;
+          if (champion.hasEngage) score += 12;
+          if (championHasTag(champion, 'backline_access')) score += 10;
+          break;
+        case 'engage_comp':
+          if (championHasTag(champion, 'anti_engage')) score += 15;
+          if (championHasTag(champion, 'peel')) score += 10;
+          if (championHasTag(champion, 'frontline')) score += 5;
+          break;
+        case 'teamfight_comp':
+          if (championHasTag(champion, 'splitpush')) score += 15;
+          if (championHasTag(champion, 'pickoff')) score += 8;
+          break;
+
+        // ============ INSIGNIAS CRÍTICAS (peso medio, factor hasta 1.5) ============
         case 'heavy_ad':
-          if (championHasTag(champion, 'anti_ad')) score += 10;
+          final factor = insight.intensity >= 0.8 ? 1.5 : 1.0;
+          if (championHasTag(champion, 'anti_ad')) score += (10 * factor).round();
           if (championHasTag(champion, 'anti_autoattack')) score += 5;
           if (championHasTag(champion, 'frontline')) score += 3;
           if (champion.isTank) score += 2;
           if (champion.hasShield) score += 2;
           break;
-        case 'heavy_frontline':
-          if (championHasTag(champion, 'anti_tank')) score += 20;
-          if (championHasTag(champion, 'backline_access')) score += 5;
-          break;
-        case 'poke':
-         if  (championHasTag(champion, 'anti_poke')) score += 15;
-         if (champion.hasEngage) score += 12;
-         if (championHasTag(champion, 'backline_access')) score += 10;
-         break;
-        case 'dive':
-         if (championHasTag(champion, 'anti_dive')) score += 15;
-         if (championHasTag(champion, 'peel')) score += 10;
-         break;
-         case 'pickoff':
-          if (championHasTag(champion, 'anti_pickoff')) score += 15;
-          if (championHasTag(champion, 'safe_pick')) score += 10;
-          if (championHasTag(champion, 'peel')) score += 10;
-          if (champion.isTank) score += 5;
-         break;
-        case 'teamfight':
-          if (championHasTag(champion, 'splitpush')) score += 15;
-          if (championHasTag(champion, 'pickoff')) score += 10;
-          if (championHasTag(champion, 'backline_access')) score += 10;
-          if (championHasTag(champion, 'peel')) score += 5;
-         break;
         case 'heavy_ap':
-          if (championHasTag(champion, 'anti_ap')) score += 10;
+          final factor = insight.intensity >= 0.8 ? 1.5 : 1.0;
+          if (championHasTag(champion, 'anti_ap')) score += (10 * factor).round();
           if (championHasTag(champion, 'frontline')) score += 5;
           if (championHasTag(champion, 'backline_access')) score += 5;
           if (champion.isTank) score += 2;
           if (champion.hasShield) score += 2;
           break;
-        case 'no_frontline':
-          if (championHasTag(champion, 'backline_access')) score += 15;
-          if (championHasTag(champion, 'pickoff')) score += 15;
-          break;
-        case 'tanky':
-          if (championHasTag(champion, 'anti_tank')) score += 20;
-          if (championHasTag(champion, 'backline_access')) score += 10;
-          break;
-        case 'heavy_cc':
-          if (championHasTag(champion, 'anti_cc')) score += 10;
-          if (champion.hasShield) score += 2;
-          break;
-        case 'high_mobility':
-          if (championHasTag(champion, 'anti_mobility')) score += 20;
-          if (champion.hasCC) score += 5;
-          break;
-        case 'autoattack_reliant':
-          if (championHasTag(champion, 'anti_autoattack')) score += 15;
-          if (champion.hasShield) score += 3;
-          if (champion.isTank) score += 2;
+        case 'heavy_ap_carries':
+          final apCarryFactor = insight.intensity >= 0.4 ? 1.5 : 1.0; // 2+ carries en 5
+          if (championHasTag(champion, 'anti_ap')) score += (12 * apCarryFactor).round();
+          if (champion.isTank) score += 4;
+          if (champion.hasShield) score += 4;
           break;
         case 'healing':
-          if (championHasTag(champion, 'anti_heal')) score += 15;
+          final factor = insight.intensity >= 0.6 ? 1.5 : 1.0;
+          if (championHasTag(champion, 'anti_heal')) score += (12 * factor).round();
           if (champion.hasCC) score += 5;
           if (championHasTag(champion, 'pickoff')) score += 5;
           break;
         case 'shielding':
-          if (championHasTag(champion, 'anti_shield')) score += 7;
+          final factor = insight.intensity >= 0.6 ? 1.5 : 1.0;
+          if (championHasTag(champion, 'anti_shield')) score += (8 * factor).round();
           if (championHasTag(champion, 'backline_access')) score += 5;
           if (championHasTag(champion, 'pickoff')) score += 5;
           if (championHasTag(champion, 'burst')) score += 5;
           if (champion.hasEngage) score += 3;
           break;
+
+        // ============ INSIGNIAS SECUNDARIAS (peso bajo, sin factor) ============
+        case 'heavy_cc':
+          if (championHasTag(champion, 'anti_cc')) score += 6;
+          if (champion.hasShield) score += 2;
+          break;
+        case 'high_mobility':
+          if (championHasTag(champion, 'anti_mobility')) score += 8;
+          if (champion.hasCC) score += 3;
+          break;
+        case 'autoattack_reliant':
+          if (championHasTag(champion, 'anti_autoattack')) score += 8;
+          if (champion.hasShield) score += 2;
+          if (champion.isTank) score += 2;
+          break;
+        case 'heavy_frontline':
+        case 'tanky':
+          if (championHasTag(champion, 'anti_tank')) score += 8;
+          if (championHasTag(champion, 'backline_access')) score += 5;
+          break;
+        case 'weak_frontline':
+        case 'no_frontline':
+          if (championHasTag(champion, 'backline_access')) score += 6;
+          if (championHasTag(champion, 'pickoff')) score += 6;
+          break;
         case 'early_game':
-          if (champion.scalesLateGame) score += 10;
-          if (championHasTag(champion, 'safe_pick')) score += 5;
+          if (champion.scalesLateGame) score += 5;
+          if (championHasTag(champion, 'safe_pick')) score += 3;
           break;
         case 'late_game':
-          if (championHasTag(champion, 'strong_early')) score += 5;
-          if (champion.isEarlyGame) score += 10;
-          break;
-        case 'engage':
-          if (championHasTag(champion, 'anti_engage')) score += 10;
-          if (championHasTag(champion, 'peel')) score += 10;
-          if (championHasTag(champion, 'frontline')) score += 5;
+          if (championHasTag(champion, 'strong_early')) score += 4;
+          if (champion.isEarlyGame) score += 5;
           break;
         case 'mixed_damage':
-          if (championHasTag(champion, 'pickoff')) score += 7;
-          if (championHasTag(champion, 'dive')) score += 6;
-          if (championHasTag(champion, 'splitpush')) score += 6;
-          if (champion.hasEngage) score += 8;
+          if (championHasTag(champion, 'frontline')) score += 5;
+          if (champion.isTank) score += 3;
+          if (champion.hasShield) score += 2;
           break;
-      }
+          }
 
+      // ============ SAFE PICK BONUS (sin cambios) ============
       if (!safePickBonusApplied && hasSafePick) {
-  int safePickScore = 0;
+        int safePickScore = 0;
+        if (championHasTag(champion, 'peel')) safePickScore += 2;
+        if (championHasTag(champion, 'waveclear')) safePickScore += 2;
+        if (championHasTag(champion, 'anti_engage')) safePickScore += 2;
+        if (championHasTag(champion, 'anti_dive')) safePickScore += 2;
+        // Ajuste contextual
+        if (insight.type == 'engage_comp' && championHasTag(champion, 'anti_engage')) safePickScore += 2;
+        if (insight.type == 'dive_comp' && championHasTag(champion, 'anti_dive')) safePickScore += 2;
+        if (insight.type == 'poke_comp' && championHasTag(champion, 'waveclear')) safePickScore += 1;
 
-  // Base de seguridad del campeón
-  if (champion.scalesLateGame) {
-    safePickScore += 2;
+        if (safePickScore >= 6) {
+          score += 3;
+          safePickBonusApplied = true;
+        }
+      }
+    }
+    return score;
   }
-
-  if (championHasTag(champion, 'peel')) {
-    safePickScore += 2;
-  }
-
-  if (championHasTag(champion, 'waveclear')) {
-    safePickScore += 1;
-  }
-
-  if (championHasTag(champion, 'anti_engage')) {
-    safePickScore += 2;
-  }
-
-  if (championHasTag(champion, 'anti_dive')) {
-    safePickScore += 2;
-  }
-
-  // Ajuste contextual (enemigo)
-  if (insight.type == 'engage' &&
-      championHasTag(champion, 'anti_engage')) {
-    safePickScore += 2;
-  }
-
-  if (insight.type == 'dive' &&
-      championHasTag(champion, 'anti_dive')) {
-    safePickScore += 2;
-  }
-
-  if (insight.type == 'poke' &&
-      championHasTag(champion, 'waveclear')) {
-    safePickScore += 1;
-  }
-
-  // Aplicación final del bonus
-  if (safePickScore >= 4) {
-    score += 3;
-    safePickBonusApplied = true;
-   }
-  }
- }
-
-   return score;
-
-}
      /// Genera insights de arquetipos de composición usando tags estratégicos.
   List<StrategicInsight> generateCompositionArchetype(
     List<Champion> enemies,
     Map<String, int> counts,
   ) {
     final insights = <StrategicInsight>[];
-    final engageCount = enemies.where((c) => championHasTag(c, 'engage')).length;
+    final engageCount = enemies.where((c) => c.hasEngage).length;
     final pokeCount = enemies.where((c) => championHasTag(c, 'poke')).length;
     final diveCount = enemies.where((c) => championHasTag(c, 'dive')).length;
     final pickoffCount = enemies.where((c) => championHasTag(c, 'pickoff')).length;
     final teamfightCount = enemies.where((c) => championHasTag(c, 'teamfight')).length;
     final frontlineCount = enemies.where((c) => championHasTag(c, 'frontline')).length;
+    final peelCount = enemies.where((c) => championHasTag(c, 'peel')).length;
+    final teamSize = enemies.length.clamp(1, 5);
+    final frontlineRatio = frontlineCount / teamSize;
+    final teamfightRatio = teamfightCount / teamSize;
+    final engageRatio = engageCount / teamSize;
+    final peelRatio = peelCount / teamSize;
+    final diveRatio = diveCount / teamSize;
+    final pokeRatio = pokeCount / teamSize;
+  
 
-    // engage_teamfight_comp
-    if (engageCount >= 3 && teamfightCount >= 3 && frontlineCount >= 2) {
-      insights.add(const StrategicInsight(
-        type: 'engage_teamfight_comp',
-        description: 'Composición de engage y teamfight con frontline sólida.',
-        icon: Icons.flash_on,
-        color: Colors.yellowAccent,
-      ));
-    }
+
+    // engage_comp
+    if (engageRatio >= 0.6 && teamSize >= 3) {
+      insights.add(
+    StrategicInsight(
+      type: 'engage_comp',
+      description: 'La composición enemiga puede forzar peleas constantemente.',
+      icon: Icons.flash_on,
+      color: Colors.orange,
+      intensity: engageRatio,
+    ),
+  );
+}
+ 
+  // teamfight_comp
+  if (teamfightRatio >= 0.6 && teamSize >= 3) {
+    insights.add(
+  StrategicInsight(
+      type: 'teamfight_comp',
+      description: 'La composición enemiga destaca en peleas grupales.',
+      icon: Icons.groups,
+      color: Colors.purple,
+      intensity: teamfightRatio,
+    ),
+  );
+}
     // poke_comp
-    if (pokeCount >= 3 && frontlineCount <= 1) {
+    if (pokeRatio >= 0.5 && frontlineRatio <= 0.3 && teamSize >= 3) {
       insights.add(const StrategicInsight(
         type: 'poke_comp',
         description: 'Composición de poke con poca protección frontal.',
@@ -669,7 +677,7 @@ class CompositionService {
       ));
     }
     // dive_comp
-    if (diveCount >= 3) {
+    if (diveRatio >= 0.5 && diveCount >= 2 && teamSize >= 3) {
       insights.add(const StrategicInsight(
         type: 'dive_comp',
         description: 'Composición de dive agresivo.',
@@ -678,7 +686,8 @@ class CompositionService {
       ));
     }
     // pickoff_comp
-    if (pickoffCount >= 2) {
+    final pickoffRatio = pickoffCount / teamSize;
+    if (pickoffRatio >= 0.5 && pickoffCount >= 2 && teamSize >= 3) {
       insights.add(const StrategicInsight(
         type: 'pickoff_comp',
         description: 'Composición orientada a pickoffs.',
@@ -687,17 +696,17 @@ class CompositionService {
       ));
     }
     // front_to_back_comp
-    final peelCount =
-    enemies.where((c) => championHasTag(c, 'peel')).length;
-
-if (frontlineCount >= 2 &&
-    (teamfightCount >= 2 || peelCount >= 1)) {
-  insights.add(const StrategicInsight(
-    type: 'front_to_back_comp',
-    description: 'Composición clásica front-to-back con línea frontal y teamfight.',
-    icon: Icons.shield,
-    color: Colors.blueGrey,
-  ));
+    if (frontlineRatio >= 0.4 && (teamfightRatio >= 0.4 || peelRatio >= 0.2) 
+    && diveRatio < 0.4 &&teamSize >= 3) {
+    insights.add(
+    StrategicInsight(
+      type: 'front_to_back_comp',
+      description: 'Composición clásica front-to-back con línea frontal y teamfight.',
+      icon: Icons.shield,
+      color: Colors.blueGrey,
+      intensity: frontlineRatio,
+    ),
+  );
 }
     return insights;
   }
@@ -707,6 +716,7 @@ if (frontlineCount >= 2 &&
     List<StrategicInsight> insights,
     String selectedRole,
     List<Champion> allChampions,
+    List<Champion> enemies,
   ) {
     // Filtrar campeones del rol
     final roleChampions = allChampions
@@ -721,33 +731,43 @@ final scored = <MapEntry<Champion, int>>[];
 for (final champ in roleChampions) {
   final score = scoreChampionAgainstComposition(champ, insights);
 
-  debugPrint('${champ.name}: $score');
-
   if (score > 0) {
     scored.add(MapEntry(champ, score));
   }
 }
-      
 
-    // Ordenar por puntuación descendente
-    scored.sort((a, b) => b.value.compareTo(a.value));
+// Ordenar por puntuación descendente
+scored.sort((a, b) => b.value.compareTo(a.value));
 
-    for (final entry in scored.take(10)) {
-     debugPrint('${entry.key.name}: ${entry.value}');
-     }
+// Mostrar solo TOP 5 con perfiles
+for (final entry in scored.take(10)) {
+  final profile = _getChampionProfile(entry.key, insights);
 
-    // Aplicar diversidad: solo un campeón por perfil de tags activados
-    final seenProfiles = <String>{};
+  debugPrint(
+    '${entry.key.name} -> $profile -> ${entry.value}',
+  );
+}
+
+        // Aplicar diversidad: máximo 2 campeones por perfil si el score es >=30% mayor
+    final seenProfiles = <String, int>{}; // perfil -> score del primero
+    final profileCounts = <String, int>{}; // perfil -> cuántos aceptados
     final uniqueTop = <MapEntry<Champion, int>>[];
 
     for (final entry in scored) {
       final profile = _getChampionProfile(entry.key, insights);
 
-      debugPrint('${entry.key.name} -> $profile -> ${entry.value}');
-      if (!seenProfiles.contains(profile)) {
-        seenProfiles.add(profile);
+      if (!seenProfiles.containsKey(profile)) {
+        // Primer campeón de este perfil
+        seenProfiles[profile] = entry.value;
+        profileCounts[profile] = 1;
+        uniqueTop.add(entry);
+      } else if (profileCounts[profile]! < 2 &&
+                 entry.value > seenProfiles[profile]! * 1.3) {
+        // Segundo campeón del mismo perfil solo si es significativamente mejor
+        profileCounts[profile] = profileCounts[profile]! + 1;
         uniqueTop.add(entry);
       }
+
       if (uniqueTop.length >= 4) break;
     }
 
@@ -776,278 +796,297 @@ for (final champ in roleChampions) {
 
     return recommendations;
   }
+    /// Método unificado: recopila tags y atributos activados por un campeón
+  /// contra una lista de insights. Evita duplicar el switch en 3 lugares.
+  Map<String, List<String>> _collectActivatedTags(
+    Champion champ,
+    List<StrategicInsight> insights,
+  ) {
+    final tags = <String>{};
+    final attrs = <String>{};
 
-  /// Genera un perfil de tags activados para un campeón, para agrupar similares.
-  String _getChampionProfile(Champion champ, List<StrategicInsight> insights) {
-    final tags = <String>[];
     for (final insight in insights) {
       switch (insight.type) {
-        case 'poke':
-         if (championHasTag(champ, 'anti_poke')) tags.add('anti_poke');
-         break;
-        case 'dive':if (championHasTag(champ, 'anti_dive')) tags.add('anti_dive');
-         break;
-        case 'pickoff':if (championHasTag(champ, 'anti_pickoff')) tags.add('anti_pickoff');
-         break;
-        case 'teamfight':
-         if (championHasTag(champ, 'anti_teamfight')) tags.add('anti_teamfight');
-         break;
-        case 'heavy_ad':
-          if (championHasTag(champ, 'anti_ad')) tags.add('anti_ad');
-          break;
-        case 'heavy_ap':
-          if (championHasTag(champ, 'anti_ap')) tags.add('anti_ap');
-          break;
-        case 'no_frontline':
-          if (championHasTag(champ, 'backline_access')) tags.add('backline');
-          if (championHasTag(champ, 'pickoff')) tags.add('pickoff');
-          break;
-        case 'tanky':
-          if (championHasTag(champ, 'anti_tank')) tags.add('anti_tank');
-          break;
-        case 'heavy_cc':
-          if (championHasTag(champ, 'anti_cc')) tags.add('anti_cc');
-          if (championHasTag(champ, 'safe_pick')) tags.add('safe');
-          break;
-        case 'heavy_frontline':
-          if (championHasTag(champ, 'anti_tank')) tags.add('anti_tank');
-          if (championHasTag(champ, 'backline_access')) tags.add('backline');
-          break;
-        case 'high_mobility':
-          if (championHasTag(champ, 'anti_dash')) tags.add('anti_dash');
-          if (championHasTag(champ, 'safe_pick')) tags.add('safe');
-          break;
-        case 'autoattack_reliant':
-          if (championHasTag(champ, 'anti_autoattack')) tags.add('anti_autoattack');
-          break;
-        case 'healing':
-          if (championHasTag(champ, 'anti_heal')) tags.add('anti_heal');
-          break;
-        case 'shielding':
-          if (championHasTag(champ, 'anti_shield')) tags.add('anti_shield');
-          break;
-        case 'early_game':
-          if (championHasTag(champ, 'scaling')) tags.add('scaling');
-          break;
-        case 'late_game':
-          if (championHasTag(champ, 'strong_early')) tags.add('strong_early');
-          break;
-        case 'engage':
+        // ============ ARQUETIPOS ============
+        case 'engage_comp':
           if (championHasTag(champ, 'anti_engage')) tags.add('anti_engage');
-          break;
-        case 'mixed_damage':
+          if (championHasTag(champ, 'peel')) tags.add('peel');
           if (championHasTag(champ, 'frontline')) tags.add('frontline');
           break;
-      }
-    }
-    tags.sort();
-    return tags.join('|');
-  }
 
-  /// Genera una razón humana y estratégica para la recomendación.
-  String generateRecommendationReason(Champion champ, List<StrategicInsight> insights) {
-    // Recopilar todos los tags que contribuyeron significativamente
-    final activatedTags = <String>[];
-    final activatedAttrs = <String>[];
+        case 'teamfight_comp':
+          if (championHasTag(champ, 'splitpush')) tags.add('splitpush');
+          if (championHasTag(champ, 'pickoff')) tags.add('pickoff');
+          break;
 
-    for (final insight in insights) {
-      switch (insight.type) {
+        case 'poke_comp':
+          if (championHasTag(champ, 'anti_poke')) tags.add('anti_poke');
+          if (championHasTag(champ, 'anti_engage')) tags.add('anti_engage');
+          if (championHasTag(champ, 'backline_access')) tags.add('backline_access');
+          break;
+
+        case 'dive_comp':
+          if (championHasTag(champ, 'anti_dive')) tags.add('anti_dive');
+          if (championHasTag(champ, 'anti_engage')) tags.add('anti_engage');
+          if (championHasTag(champ, 'peel')) tags.add('peel');
+          break;
+
+        case 'pickoff_comp':
+          if (championHasTag(champ, 'anti_pickoff')) tags.add('anti_pickoff');
+          if (championHasTag(champ, 'safe_pick')) tags.add('safe_pick');
+          break;
+
+        case 'front_to_back_comp':
         case 'heavy_frontline':
-         if (championHasTag(champ, 'anti_tank')) activatedTags.add('anti_tank');
-         if (championHasTag(champ, 'backline_access')) activatedTags.add('backline_access');
-         break;
-        case 'poke':
-         if (championHasTag(champ, 'anti_poke')) activatedTags.add('anti_poke');
-         break;         
-        case 'dive':
-         if (championHasTag(champ, 'anti_dive')) activatedTags.add('anti_dive');
-         break;
-        case 'pickoff':
-         if (championHasTag(champ, 'anti_pickoff')) activatedTags.add('anti_pickoff');
-         break;
-        case 'teamfight':
-         if (championHasTag(champ, 'anti_teamfight')) activatedTags.add('anti_teamfight');
-         break;
-        case 'heavy_ad':
-          if (championHasTag(champ, 'anti_ad')) activatedTags.add('anti_ad');
-          if (championHasTag(champ, 'anti_autoattack')) activatedTags.add('anti_autoattack');
-          if (champ.isTank) activatedAttrs.add('tanque');
-          break;
-        case 'heavy_ap':
-          if (championHasTag(champ, 'anti_ap')) activatedTags.add('anti_ap');
-          if (champ.isTank) activatedAttrs.add('tanque');
-          if (champ.hasShield) activatedAttrs.add('escudos');
-          break;
-        case 'no_frontline':
-          if (championHasTag(champ, 'backline_access')) activatedTags.add('backline_access');
-          if (championHasTag(champ, 'pickoff')) activatedTags.add('pickoff');
-          break;
         case 'tanky':
-          if (championHasTag(champ, 'anti_tank')) activatedTags.add('anti_tank');
+          if (championHasTag(champ, 'anti_tank')) tags.add('anti_tank');
+          if (championHasTag(champ, 'backline_access')) tags.add('backline_access');
           break;
-        case 'heavy_cc':
-          if (championHasTag(champ, 'anti_cc')) activatedTags.add('anti_cc');
-          if (championHasTag(champ, 'safe_pick')) activatedTags.add('safe_pick');
-          if (champ.hasShield) activatedAttrs.add('escudos');
+
+        case 'weak_frontline':
+        case 'no_frontline':
+          if (championHasTag(champ, 'backline_access')) tags.add('backline_access');
+          if (championHasTag(champ, 'pickoff')) tags.add('pickoff');
           break;
-        case 'high_mobility':
-          if (championHasTag(champ, 'anti_dash')) activatedTags.add('anti_dash');
-          if (championHasTag(champ, 'safe_pick')) activatedTags.add('safe_pick');
-          if (champ.hasCC) activatedAttrs.add('CC');
+
+        // ============ INSIGNIAS CRÍTICAS ============
+        case 'heavy_ad':
+          if (championHasTag(champ, 'anti_ad')) tags.add('anti_ad');
+          if (championHasTag(champ, 'anti_autoattack')) tags.add('anti_autoattack');
+          if (champ.isTank) attrs.add('tanque');
           break;
-        case 'autoattack_reliant':
-          if (championHasTag(champ, 'anti_autoattack')) activatedTags.add('anti_autoattack');
-          if (champ.hasShield) activatedAttrs.add('escudos');
+
+        case 'heavy_ap':
+        case 'heavy_ap_carries':
+          if (championHasTag(champ, 'anti_ap')) tags.add('anti_ap');
+          if (champ.isTank) attrs.add('tanque');
+          if (champ.hasShield) attrs.add('escudos');
           break;
+
         case 'healing':
-          if (championHasTag(champ, 'anti_heal')) activatedTags.add('anti_heal');
+          if (championHasTag(champ, 'anti_heal')) tags.add('anti_heal');
+          if (championHasTag(champ, 'pickoff')) tags.add('pickoff');
+          if (champ.hasCC) attrs.add('CC');
           break;
+
         case 'shielding':
-          if (championHasTag(champ, 'anti_shield')) activatedTags.add('anti_shield');
+          if (championHasTag(champ, 'anti_shield')) tags.add('anti_shield');
+          if (championHasTag(champ, 'backline_access')) tags.add('backline_access');
+          if (championHasTag(champ, 'pickoff')) tags.add('pickoff');
+          if (championHasTag(champ, 'burst')) tags.add('burst');
           break;
+
+        // ============ INSIGNIAS SECUNDARIAS ============
+        case 'heavy_cc':
+          if (championHasTag(champ, 'anti_cc')) tags.add('anti_cc');
+          if (championHasTag(champ, 'safe_pick')) tags.add('safe_pick');
+          if (championHasTag(champ, 'anti_engage')) tags.add('anti_engage');
+          break;
+
+        case 'high_mobility':
+          if (championHasTag(champ, 'anti_mobility')) tags.add('anti_mobility');
+          if (championHasTag(champ, 'safe_pick')) tags.add('safe_pick');
+          if (champ.hasCC) attrs.add('CC');
+          break;
+
+        case 'autoattack_reliant':
+          if (championHasTag(champ, 'anti_autoattack')) tags.add('anti_autoattack');
+          if (champ.hasShield) attrs.add('escudos');
+          break;
+
         case 'early_game':
-          if (championHasTag(champ, 'scaling')) activatedTags.add('scaling');
-          if (champ.scalesLateGame) activatedAttrs.add('late game');
+          if (championHasTag(champ, 'scaling')) tags.add('scaling');
+          if (champ.scalesLateGame) attrs.add('late game');
           break;
+
         case 'late_game':
-          if (championHasTag(champ, 'strong_early')) activatedTags.add('strong_early');
-          if (champ.isEarlyGame) activatedAttrs.add('early game');
+          if (championHasTag(champ, 'strong_early')) tags.add('strong_early');
+          if (champ.isEarlyGame) attrs.add('early game');
           break;
-        case 'engage':
-          if (championHasTag(champ, 'anti_engage')) activatedTags.add('anti_engage');
-          if (championHasTag(champ, 'safe_pick')) activatedTags.add('safe_pick');
-          break;
+
         case 'mixed_damage':
-          if (championHasTag(champ, 'frontline')) activatedTags.add('frontline');
-          if (champ.isTank) activatedAttrs.add('tanque');
-          if (champ.hasShield) activatedAttrs.add('escudos');
+          if (championHasTag(champ, 'frontline')) tags.add('frontline');
+          if (champ.isTank) attrs.add('tanque');
+          if (champ.hasShield) attrs.add('escudos');
           break;
       }
     }
 
-    // Construir razones naturales basadas en los tags activados
-    return _naturalReason(champ, activatedTags, activatedAttrs);
+    return {
+      'tags': tags.toList(),
+      'attrs': attrs.toList(),
+    };
   }
 
-  /// Convierte tags y atributos activados en una frase natural.
-  String _naturalReason(Champion champ, List<String> tags, List<String> attrs) {
-    // Frases específicas por combinación de tags
-    bool hasTag(String t) => tags.contains(t);
-    bool hasAttrs(String a) => attrs.contains(a);
+    /// Genera un perfil de tags activados para un campeón, para agrupar similares.
+  String _getChampionProfile(Champion champ, List<StrategicInsight> insights) {
+    final collected = _collectActivatedTags(champ, insights);
+    final rawTags = collected['tags']!;
 
-    // Anti Poke
-    if (hasTag('anti_poke')) {
-      return '${champ.name} reduce la efectividad del poke enemigo.';
+    // Traducción a versiones simplificadas para diversidad
+    final simplified = rawTags.map((tag) {
+      switch (tag) {
+        case 'backline_access': return 'backline';
+        case 'pickoff':        return 'pickoff';
+        case 'anti_tank':      return 'anti_tank';
+        case 'anti_ad':        return 'anti_ad';
+        case 'anti_ap':        return 'anti_ap';
+        case 'anti_cc':        return 'anti_cc';
+        case 'anti_heal':      return 'anti_heal';
+        case 'anti_shield':    return 'anti_shield';
+        case 'anti_mobility':  return 'anti_mobility';
+        case 'anti_autoattack':return 'anti_autoattack';
+        case 'anti_poke':      return 'anti_poke';
+        case 'anti_dive':      return 'anti_dive';
+        case 'anti_pickoff':   return 'anti_pickoff';
+        case 'anti_teamfight': return 'anti_teamfight';
+        case 'anti_engage':    return 'anti_engage';
+        case 'safe_pick':      return 'safe';
+        case 'frontline':      return 'frontline';
+        case 'strong_early':   return 'strong_early';
+        case 'splitpush':      return 'splitpush';
+        default:               return tag;
+      }
+    }).toList();
+
+    simplified.sort();
+    return simplified.join('|');
+  }
+
+    /// Genera una razón humana y estratégica para la recomendación.
+  String generateRecommendationReason(Champion champ, List<StrategicInsight> insights) {
+    final collected = _collectActivatedTags(champ, insights);
+    final activatedTags = collected['tags']!;
+    final activatedAttrs = collected['attrs']!;
+    return _buildCoachingReason(champ, activatedTags, activatedAttrs);
+  }
+   /// Versión mejorada: explicación natural jerarquizada, sin "tag dumping".
+  String _buildCoachingReason(
+    Champion champ,
+    List<String> tags,
+    List<String> attrs,
+  ) {
+    // --- 1. Clasificación de conceptos ---
+    final counters = <String>{};   // anti_* tags
+    final utility = <String>{};    // otros tags de utilidad
+    final traits = <String>{};     // atributos del campeón
+
+    for (final t in tags) {
+      if (t.startsWith('anti_')) {
+        counters.add(t);
+      } else {
+        utility.add(t);
+      }
+    }
+    traits.addAll(attrs);
+
+    // --- 2. Mapeo a frases humanas ---
+    String counterLabel(String tag) {
+      switch (tag) {
+        case 'anti_ad': return 'daño físico';
+        case 'anti_ap': return 'daño mágico';
+        case 'anti_tank': return 'tanques';
+        case 'anti_autoattack': return 'ataques básicos';
+        case 'anti_heal': return 'curación';
+        case 'anti_shield': return 'escudos';
+        case 'anti_cc': return 'control de masas';
+        case 'anti_mobility': return 'movilidad enemiga';
+        case 'anti_poke': return 'poke';
+        case 'anti_dive': return 'dive';
+        case 'anti_pickoff': return 'pickoffs';
+        case 'anti_teamfight': return 'teamfights';
+        case 'anti_engage': return 'iniciación enemiga';
+        default: return '';
+      }
     }
 
-    // Anti Dive 
-    if (hasTag('anti_dive')) {
-      return '${champ.name} protege bien a su equipo contra campeones que se lanzan agresivamente.';
+    String utilityLabel(String tag) {
+      switch (tag) {
+        case 'peel': return 'protege a tu equipo';
+        case 'safe_pick': return 'es un pick seguro';
+        case 'backline_access': return 'puede eliminar a los carries rivales';
+        case 'frontline': return 'aporta solidez en la línea frontal';
+        case 'splitpush': return 'presiona en líneas laterales';
+        case 'pickoff': return 'busca y castiga enemigos aislados';
+        case 'dive': return 'puede lanzarse sobre la backline';
+        case 'strong_early': return 'domina la fase temprana';
+        case 'waveclear': return 'limpia oleadas rápido';
+        case 'burst': return 'tiene alto daño explosivo';
+        default: return '';
+      }
     }
 
-    // Anti Pickoff
-    if (hasTag('anti_pickoff')) {
-      return '${champ.name} dificulta que el enemigo consiga picks aislados.';
+    String traitLabel(String attr) {
+      switch (attr) {
+        case 'tanque': return 'muy resistente';
+        case 'escudos': return 'con escudos para proteger aliados';
+        case 'CC': return 'con control de masas';
+        case 'late game': return 'fuerte en late game';
+        case 'early game': return 'dominante en early game';
+        default: return '';
+      }
     }
 
-    // Anti Teamfight
-    if (hasTag('anti_teamfight')) {
-      return '${champ.name} puede romper las peleas grupales que busca esta composición.';
+    // --- 3. Filtramos conceptos no vacíos ---
+    final counterPhrases = counters.map(counterLabel).where((e) => e.isNotEmpty).toList();
+    final utilityPhrases = utility.map(utilityLabel).where((e) => e.isNotEmpty).toList();
+    final traitPhrases = traits.map(traitLabel).where((e) => e.isNotEmpty).toList();
+
+    // --- 4. Construcción de la frase final con jerarquía ---
+
+    // Si no hay nada, fallback genérico
+    if (counterPhrases.isEmpty && utilityPhrases.isEmpty && traitPhrases.isEmpty) {
+      return '${champ.name} es una buena elección contra esta composición.';
     }
 
-    // Mixed damage
-    if (hasTag('frontline') && (hasAttrs('tanque') || hasAttrs('escudos'))) {
-      return '${champ.name} ofrece resistencia versátil contra daño mixto, ideal contra esta composición equilibrada.';
+    // Variamos la apertura para que no sea siempre igual
+    final openings = [
+      '${champ.name} es una excelente elección porque contrarresta',
+      '${champ.name} destaca aquí ya que frena',
+      '${champ.name} encaja perfecto porque anula',
+    ];
+    final opening = openings[champ.name.hashCode.abs() % openings.length];
+
+    final buffer = StringBuffer();
+
+    // --- COUNTERS (lo más importante primero) ---
+    if (counterPhrases.isNotEmpty) {
+      buffer.write('$opening ${counterPhrases.join(', ')}');
+      if (utilityPhrases.isNotEmpty || traitPhrases.isNotEmpty) {
+        buffer.write('. ');
+      } else {
+        buffer.write('.');
+      }
     }
-    // Anti-AD y anti-autoattack juntos
-    if (hasTag('anti_ad') && hasTag('anti_autoattack')) {
-      return '${champ.name} castiga equipos que dependen de daño físico y ataques básicos.';
+
+    // --- UTILIDAD (medio) ---
+    if (utilityPhrases.isNotEmpty) {
+      if (counterPhrases.isEmpty) {
+        buffer.write('${champ.name} es útil en esta partida: ${utilityPhrases.join(', ')}');
+      } else {
+        buffer.write('Además, ${utilityPhrases.join(', ')}');
+      }
+      if (traitPhrases.isNotEmpty) {
+        buffer.write('. ');
+      } else {
+        buffer.write('.');
+      }
     }
-    // Anti-AP prominente
-    if (hasTag('anti_ap') && hasTag('anti_cc')) {
-      return '${champ.name} destaca contra composiciones con mucho daño mágico gracias a su resistencia y capacidad de iniciación.';
+
+    // --- ATRIBUTOS (último, como bonus) ---
+    if (traitPhrases.isNotEmpty) {
+      if (counterPhrases.isEmpty && utilityPhrases.isEmpty) {
+        buffer.write('${champ.name} aporta ${traitPhrases.join(', ')}.');
+      } else {
+        buffer.write('También aporta ${traitPhrases.join(', ')}.');
+      }
     }
-    // Anti-CC con safe_pick
-    if (hasTag('anti_cc') && hasTag('safe_pick')) {
-      return '${champ.name} puede bloquear habilidades clave y reducir el impacto del control enemigo.';
-    }
-    // Anti-dash con CC
-    if (hasTag('anti_dash') && hasAttrs('CC')) {
-      return '${champ.name} su control dirigido dificulta que campeones móviles ejecuten sus planes.';
-    }
-    // Anti-tank
-    if (hasTag('anti_tank')) {
-      return '${champ.name} es una excelente respuesta contra tanques enemigos.';
-    }
-    // Backline_access o pickoff
-    if (hasTag('backline_access') || hasTag('pickoff')) {
-      return '${champ.name} puede acceder a los carries enemigos y castigar su falta de protección.';
-    }
-    // Anti-heal
-    if (hasTag('anti_heal')) {
-      return '${champ.name} reduce drásticamente la curación enemiga.';
-    }
-    // Anti-shield
-    if (hasTag('anti_shield')) {
-      return '${champ.name} puede romper o ignorar los escudos enemigos.';
-    }
-    // Scaling contra early game
-    if (hasTag('scaling')) {
-      return '${champ.name} escala muy bien a late game, sobreviviendo al early enemigo.';
-    }
-    // Strong early contra late game
-    if (hasTag('strong_early')) {
-      return '${champ.name} puede cerrar la partida antes de que el enemigo escale.';
-    }
-    // Anti-engage con safe_pick
-    if (hasTag('anti_engage') && hasTag('safe_pick')) {
-      return '${champ.name} es difícil de atrapar y contrarresta la iniciación enemiga.';
-    }
-    // Safe_pick genérico
-    if (hasTag('safe_pick')) {
-      return '${champ.name} es un pick seguro y versátil contra esta composición.';
-    }
-    // Solo anti_ad
-    if (hasTag('anti_ad')) {
-      return '${champ.name} resiste bien el daño físico enemigo.';
-    }
-    // Solo anti_ap
-    if (hasTag('anti_ap')) {
-      return '${champ.name} tiene alta resistencia mágica contra este equipo AP.';
-    }
-    // Solo anti_cc
-    if (hasTag('anti_cc')) {
-      return '${champ.name} puede mitigar el control de masas enemigo.';
-    }
-    // Solo anti_dash
-    if (hasTag('anti_dash')) {
-      return '${champ.name} detiene la movilidad enemiga.';
-    }
-    // Solo anti_autoattack
-    if (hasTag('anti_autoattack')) {
-      return '${champ.name} reduce el impacto de los ataques básicos enemigos.';
-    }
-    // Atributos genéricos
-    if (hasAttrs('tanque') && hasAttrs('escudos')) {
-      return '${champ.name} es un tanque con escudos, ideal contra este equipo.';
-    }
-    if (hasAttrs('tanque')) {
-      return '${champ.name} ofrece una sólida línea frontal contra el enemigo.';
-    }
-    if (hasAttrs('escudos')) {
-      return '${champ.name} puede proteger a su equipo con escudos oportunos.';
-    }
-    if (hasAttrs('CC')) {
-      return '${champ.name} contribuye con control para neutralizar amenazas.';
-    }
-    if (hasAttrs('late game')) {
-      return '${champ.name} escala a late game y sobrevive al early enemigo.';
-    }
-    if (hasAttrs('early game')) {
-      return '${champ.name} presiona mucho en early para cerrar la partida rápido.';
-    }
-    // Fallback
-    return '${champ.name} es una buena elección contra esta composición.';
+
+    // Limpieza final
+    String result = buffer.toString().trim();
+    result = result.replaceAll('..', '.');
+    if (!result.endsWith('.')) result += '.';
+    return result;
   }
 
   /// Método público principal: a partir de la lista de enemigos, genera insights
@@ -1062,14 +1101,16 @@ for (final champ in roleChampions) {
     final insights = generateStrategicInsights(enemies);
 
     // === AGREGAR ESTO PARA VER LOS INSIGHTS ===
+    if (kDebugMode) {
     debugPrint('=== INSIGHTS DETECTADOS ===');
     for (final insight in insights) {
       debugPrint('${insight.type}: ${insight.description}');
     }
     debugPrint('===========================');
+  }
 
     if (insights.isEmpty) return [];
 
-    return getBestRecommendations(insights, selectedRole, allChampions);
+    return getBestRecommendations(insights, selectedRole, allChampions, enemies);
   }
 }
