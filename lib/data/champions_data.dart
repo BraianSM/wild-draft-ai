@@ -95,7 +95,7 @@ class ChampionsData {
         isMidGame: true,
         hasCC: true,
         strategicTags: const [
-          'pickoff'
+          'pickoff',
           'backline_access',
         ], 
       ),
@@ -146,7 +146,7 @@ class ChampionsData {
         ],
       ),
       Champion(
-        name: 'Aurelion Sol',
+        name: "Aurelion'Sol",
         roles: ['MID'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/AurelionSol.png',
         isAP: true,
@@ -439,7 +439,7 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'anti_ap',
-          'teamfight'
+          'teamfight',
           'anti_engage',
           'safe_pick',
         ],
@@ -498,6 +498,12 @@ class ChampionsData {
         usesAutoAttacks: true,
         scalesLateGame: true,
         hasDash: true,
+        strategicTags: const [
+          'strong_early',
+          'high_mobility',
+          'pickoff',
+          'burst',
+        ],
       ),
       Champion(
         name: 'Gwen',
@@ -772,7 +778,7 @@ class ChampionsData {
           'high_mobility',
           'burst',
         ],
-        ),
+      ),
         Champion(
           name: 'Kindred', 
           roles: ['JG'], 
@@ -782,7 +788,13 @@ class ChampionsData {
           usesAutoAttacks: true,
           scalesLateGame: true,
           hasDash: true,
-          ),
+          strategicTags: const [
+            'high_mobility',
+            'pickoff',
+            'backline_access',
+            'dive',
+          ],
+        ),
       Champion(
         name: "Kog'Maw",
         roles: ['ADC'],
@@ -791,6 +803,10 @@ class ChampionsData {
         hasCC: true,
         usesAutoAttacks: true,
         scalesLateGame: true,
+        strategicTags: const [
+          'teamfight',
+          'anti_tank',
+        ],
       ),
       Champion(
         name: "K'Sante",
@@ -802,6 +818,11 @@ class ChampionsData {
         isMelee: true,
         scalesLateGame: true,
         hasDash: true,
+        strategicTags: const [
+          'frontline',
+          'teamfight',
+          'peel',
+        ],
       ),
       Champion(
         name: "Lee'Sin",
@@ -846,6 +867,12 @@ class ChampionsData {
         hasCC: true,
         scalesLateGame: true,
         isMelee: true,
+        strategicTags: const [
+          'high_mobility',
+          'teamfight',
+          'dive',
+          'pickoff',
+        ],
       ),
       Champion(
         name: 'Lissandra', 
@@ -944,6 +971,12 @@ class ChampionsData {
         usesAutoAttacks: true,
         scalesLateGame: true,
         hasHealing: true,
+        strategicTags: const [
+          'high_mobility',
+          'splitpush',
+          'backline_access',
+          'dive',
+        ],
       ),
       Champion(
         name: 'Mel', 
@@ -1010,7 +1043,7 @@ class ChampionsData {
         hasCC: true,
         isMidGame: true,
         strategicTags: const [
-          'anti_cc'
+          'anti_cc',
           'peel',
           'anti_engage',
         ],
@@ -1085,7 +1118,7 @@ class ChampionsData {
           'anti_autoattack',
           'teamfight',
         ],
-        ),
+      ),
       Champion(
         name: 'Nocturne', 
         roles: ['JG'], 
@@ -1100,7 +1133,7 @@ class ChampionsData {
           'backline_access',
           'dive',
         ],
-        ),
+      ),
         Champion(
           name: 'Norra', 
           roles: ['MID'], 
@@ -1112,7 +1145,7 @@ class ChampionsData {
             'poke',
             'teamfight',
           ],
-          ),
+        ),
       Champion(
         name: 'Nunu y Willump',
         roles: ['JG'],
@@ -1382,7 +1415,7 @@ class ChampionsData {
        hasDash: true,
        usesAutoAttacks: true,
        strategicTags: const [
-        'anti_ad'
+        'anti_ad',
         'anti_autoattack',
         'peel',
         'safe_pick',
@@ -1424,7 +1457,7 @@ class ChampionsData {
           'peel',
           'teamfight',
         ],
-        ),
+      ),
       Champion(
         name: 'Sett',
         roles: ['TOP'],
@@ -1624,7 +1657,7 @@ class ChampionsData {
         hasCC: true,
         isMidGame: true,
         strategicTags: const [
-          'anti_autoattack'
+          'anti_autoattack',
           'poke',
           'pickoff',
         ],
@@ -1766,7 +1799,7 @@ class ChampionsData {
         isMidGame: true,
         strategicTags: const [
           'poke',
-          'wavecelar',
+          'waveclear',
           'burst',
         ],
         ),
@@ -1819,7 +1852,7 @@ class ChampionsData {
           'waveclear',
           'teamfight',
         ],
-        ),
+      ),
       Champion(
         name: 'Viego', 
         roles: ['JG'], 
@@ -1877,7 +1910,7 @@ class ChampionsData {
         hasEngage: true,
         isEarlyGame: true,
         strategicTags: const [
-          'strong_early'
+          'strong_early',
           'pickoff',
           'dive',
         ],
@@ -1912,6 +1945,7 @@ class ChampionsData {
           'anti_cc',
           'anti_engage',
           'safe_pick',
+          'teamfight',
         ],
       ),
       Champion(
@@ -1978,7 +2012,9 @@ class ChampionsData {
         hasShield: true,
         scalesLateGame: true,
         strategicTags: const [
-          'peel'
+          'peel',
+          'anti_engage',
+          'anti_dive',
         ],
       ),
       Champion(
@@ -2009,6 +2045,19 @@ class ChampionsData {
           'anti_mobility',
          ],
         ),
+      Champion(
+        name: 'Zeri', 
+        roles: ['ADC'], 
+        imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Zeri.png',
+        isAD: true,
+        hasDash: true,
+        scalesLateGame: true,
+        strategicTags: const [
+          'backline',
+          'high_mobility',
+          'teamfight',
+        ],
+      ),
       Champion(
         name: 'Ziggs',
         roles: ['MID', 'ADC'],

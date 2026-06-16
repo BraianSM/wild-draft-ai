@@ -10,6 +10,7 @@ import '../services/composition_service.dart';
 import '../widgets/champion_card.dart';
 import '../widgets/team_panel_widget.dart';
 import '../theme/app_colors.dart';
+import '../services/role_inference_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -251,11 +252,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final championsByRole = _getChampionsByRole();
-    final recomendaciones = _counterService.obtenerCountersPorRol(_selectedRole);
+    final roleInference = RoleInferenceService();
+    final inferredEnemyRoles = roleInference.inferEnemyRoles(_draftService.enemyPicks);
+    final recomendaciones = _counterService.obtenerCountersPorRol(
+     _selectedRole,
+     inferredEnemyRoles: inferredEnemyRoles,
+    );
     final alliedAttributes = _compositionService.analyze(_draftService.alliedPicks);
     final enemyAttributes = _compositionService.analyze(_draftService.enemyPicks);
-
-    // Definiciones filtradas para los chips
     final alliedVisible = _compositionService.getDefinitionsForDisplay(extended: false);
     final enemyVisible = _compositionService.getDefinitionsForDisplay(extended: true);
 
@@ -595,6 +599,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       _draftService.enemyPicks,
       _selectedRole,
       _allChampions,
+      alliedPicks: _draftService.alliedPicks,
     );
 
     if (recommendations.isEmpty) return const SizedBox.shrink();

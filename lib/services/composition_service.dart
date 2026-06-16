@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../models/champion.dart';
 import '../theme/app_colors.dart';
 import 'package:flutter/foundation.dart';
+import 'role_inference_service.dart';
 
 /// Definición de un atributo de composición
 class AttributeDef {
@@ -278,8 +279,10 @@ class CompositionService {
   }
 
   /// FASE 1: Analiza la composición enemiga completa y genera insights estratégicos
-  List<StrategicInsight> generateStrategicInsights(List<Champion> enemies) {
-    if (enemies.isEmpty) return [];
+  List<StrategicInsight> generateStrategicInsights(
+    List<Champion> enemies, {
+    Map<String, Champion>? inferredEnemyRoles,
+  }) {
 
     final counts = analyze(enemies);
     final teamSize = enemies.length;
@@ -300,7 +303,7 @@ class CompositionService {
   );
 }
     // Composicion de Frontline 
-    if (frontline == 0 && teamSize >= 4 && teamSize >= 3) {
+    if (frontline == 0 && teamSize >= 4) {
     insights.add(const StrategicInsight(
     type: 'no_frontline',
     description: 'El enemigo carece de una línea frontal sólida.',
@@ -344,10 +347,26 @@ class CompositionService {
       ));
     }
 
-    // Composición con múltiples AP carries
-      final apCarryCount = enemies.where((c) =>
-      (c.roles.contains('MID') || c.roles.contains('ADC')) && c.isAP).length;
-      if (apCarryCount >= 2) {
+            // Composición con múltiples AP carries
+    final apCarryCount = enemies.where((c) {
+      // Si tenemos roles inferidos, usar el rol asignado.
+      if (inferredEnemyRoles != null && inferredEnemyRoles.isNotEmpty) {
+        // Buscar el rol asignado a este campeón en el mapa inferido.
+        String? assignedRole;
+        for (final entry in inferredEnemyRoles.entries) {
+          if (entry.value == c) {
+            assignedRole = entry.key;
+            break;
+          }
+        }
+        // Solo cuenta como carry si el rol inferido es MID o ADC.
+        return (assignedRole == 'MID' || assignedRole == 'ADC') && c.isAP;
+      }
+      // Fallback: usar los roles posibles del campeón.
+      return (c.roles.contains('MID') || c.roles.contains('ADC')) && c.isAP;
+    }).length;
+
+        if (apCarryCount >= 2) {
       insights.add(StrategicInsight(
         type: 'heavy_ap_carries',
         description: 'El enemigo tiene múltiples carries de daño mágico.',
@@ -716,21 +735,37 @@ class CompositionService {
     List<StrategicInsight> insights,
     String selectedRole,
     List<Champion> allChampions,
-    List<Champion> enemies,
-  ) {
+    List<Champion> enemies, {
+    List<Champion> alliedPicks = const [],
+  }) {
     // Filtrar campeones del rol
-    final roleChampions = allChampions
+    var roleChampions = allChampions
         .where((c) => c.roles.contains(selectedRole))
         .toList();
 
     if (roleChampions.isEmpty) return [];
 
+    // --- EXCLUIR CAMPEONES YA PICKEADOS ---
+    final pickedNames = <String>{
+      ...alliedPicks.map((c) => c.name),
+      ...enemies.map((c) => c.name),
+    };
+
+    roleChampions = roleChampions
+        .where((c) => !pickedNames.contains(c.name))
+        .toList();
+
+    // Si el filtro deja la lista vacía, se usan todos (sin filtrar)
+    if (roleChampions.isEmpty) {
+      roleChampions = allChampions
+          .where((c) => c.roles.contains(selectedRole))
+          .toList();
+    }
+
     // Puntuar cada campeón
 final scored = <MapEntry<Champion, int>>[];
-
 for (final champ in roleChampions) {
   final score = scoreChampionAgainstComposition(champ, insights);
-
   if (score > 0) {
     scored.add(MapEntry(champ, score));
   }
@@ -740,12 +775,13 @@ for (final champ in roleChampions) {
 scored.sort((a, b) => b.value.compareTo(a.value));
 
 // Mostrar solo TOP 5 con perfiles
-for (final entry in scored.take(10)) {
-  final profile = _getChampionProfile(entry.key, insights);
-
-  debugPrint(
-    '${entry.key.name} -> $profile -> ${entry.value}',
-  );
+if (kDebugMode) {
+  for (final entry in scored.take(10)) {
+    final profile = _getChampionProfile(entry.key, insights);
+    debugPrint(
+      '${entry.key.name} -> $profile -> ${entry.value}',
+    );
+  }
 }
 
         // Aplicar diversidad: máximo 2 campeones por perfil si el score es >=30% mayor
@@ -1094,11 +1130,18 @@ for (final entry in scored.take(10)) {
   List<StrategicRecommendation> getStrategicRecommendations(
     List<Champion> enemies,
     String selectedRole,
-    List<Champion> allChampions,
-  ) {
+    List<Champion> allChampions, {
+    List<Champion> alliedPicks = const [],
+    }) {
     if (enemies.isEmpty) return [];
 
-    final insights = generateStrategicInsights(enemies);
+    // Inferir roles enemigos para picks flexibles.
+    final roleInference = RoleInferenceService();
+    final inferredEnemyRoles = roleInference.inferEnemyRoles(enemies);
+
+    final insights = generateStrategicInsights(enemies,
+    inferredEnemyRoles: inferredEnemyRoles,
+    );
 
     // === AGREGAR ESTO PARA VER LOS INSIGHTS ===
     if (kDebugMode) {
@@ -1111,6 +1154,12 @@ for (final entry in scored.take(10)) {
 
     if (insights.isEmpty) return [];
 
-    return getBestRecommendations(insights, selectedRole, allChampions, enemies);
+    return getBestRecommendations(
+      insights, 
+      selectedRole, 
+      allChampions, 
+      enemies,
+      alliedPicks: alliedPicks,
+      );
   }
 }

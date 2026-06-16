@@ -41,7 +41,7 @@ class CounterService {
     'Nasus_TOP': ['Garen', 'Renekton', "K'Sante", 'Fiora'],
     'Ornn_TOP': ['Singed', 'Garen', 'Darius', 'Olaf'],
     'Poppy_TOP': ['Darius', 'Renekton', 'Sett', 'Fiora'],
-    'Renekton_TOP': ['Shen', 'Garen', "k'Sante", 'Pantheon'],
+    'Renekton_TOP': ['Shen', 'Garen', "K'Sante", 'Pantheon'],
     'Riven_TOP': ['Renekton', 'Poppy', 'Kennen', 'Garen'],
     'Rumble_TOP':['Galio', 'Ryze', 'Aurora', 'Kayle'],
     'Sett_TOP': ['Pantheon', 'Darius', 'Vayne', 'Singed'],
@@ -58,7 +58,7 @@ class CounterService {
     'Wukong_TOP': ['Mordekaiser', 'Ornn', 'Poppy', 'Sett'],
 
     // JG
-    'Ambessa_JG': ["kha'Zix", 'Zed', 'Shyvana', 'Evelynn'],
+    'Ambessa_JG': ["Kha'Zix", 'Zed', 'Shyvana', 'Evelynn'],
     'Amumu_JG': ["Lee'Sin", "Xin'Zhao", 'Graves', 'Olaf'],
     'Diana_JG': ["Lee'Sin", "Xin'Zhao", 'Graves', 'Olaf'],
     'Ekko_JG': ["Lee'Sin", "Xin'Zhao", "Jarvan'IV", 'Graves'],
@@ -68,13 +68,13 @@ class CounterService {
     'Graves_JG': ["Xin'Zhao", "Lee'Sin", "Jarvan'IV", 'Vi'],
     'Hecarim_JG': ['Amumu', "Kha'Zix", 'Talon', 'Zed'],
     "Jarvan'IV_JG": ["Lee'Sin", "Xin'Zhao", 'Vi', 'Graves'],
-    'Kindred_JG': ["Lee'Sin", 'Rammus', "kha'Zix", 'Nidalee'],
+    'Kindred_JG': ["Lee'Sin", 'Rammus', "Kha'Zix", 'Nidalee'],
     "Kha'Zix_JG": ["Lee'Sin", 'Rengar', "Xin'Zhao", 'Warwick'],
     "Lee'Sin_JG": ["Xin'Zhao", "Jarvan'IV", 'Vi', 'Graves'],
     'Lillia_JG': ["Lee'Sin", "Xin'Zhao", 'Graves', 'Olaf'],
     'Maokai_JG': ["Lee'Sin", "Xin'Zhao", 'Graves', 'Olaf'],
     'Master Yi_JG': ['Rammus', 'Amumu', 'Jax', 'Warwick'],
-    'Nidalee_JG': ['Diana', 'Evelynn', "kha'Zix", 'Warwick'],
+    'Nidalee_JG': ['Diana', 'Evelynn', "Kha'Zix", 'Warwick'],
     'Nocturne_JG': ['Rammus', 'Warwick', 'Evelynn', 'Lillia'],
     'Nunu y Willump_JG': ["Lee'Sin", "Xin'Zhao", 'Graves', 'Olaf'],
     'Olaf_JG': ["Lee'Sin", "Xin'Zhao", "Jarvan'IV", 'Graves'],
@@ -90,69 +90,71 @@ class CounterService {
     'Vi_JG': ["Lee'Sin", "Xin'Zhao", "Jarvan'IV", 'Graves'],
     'Viego_JG': ['Rammus', 'Olaf', 'Taliyah', 'Amumu'],
     'Warwick_JG': ["Lee'Sin", "Xin'Zhao", 'Graves', 'Olaf'],
-    'Xin Zhao_JG': ["Lee'Sin", "Jarvan'IV", 'Vi', 'Graves'],
+    "Xin'Zhao_JG": ["Lee'Sin", "Jarvan'IV", 'Vi', 'Graves'],
     'Zed_JG': ["Lee'Sin", "Xin'Zhao", 'Warwick', 'Graves'],
 
     // MID
     'Ahri_MID': ['Mel', 'Galio', 'Zed', 'Brand'],
-    'Aurora_MID': ['Fizz', 'Diana', 'Galio', 'Irelia'],
-    'Akali_MID': ['Vel Koz', "Twisted'Fate", 'Jayce', 'Pantheon'],
-    'Akshan_MID': ['Annie', 'Malphite', 'Pantheon', 'Irelia'],
-    'Annie_MID': ['Orianna', 'Brand', 'Diana', 'Irelia'],
-    'Aurelion Sol_MID': ['Yone', 'Irelia', 'Akshan', 'Zed'],
-    'Brand_MID': ['Aurelion Sol', 'Ziggs', 'Orianna', 'Veigar'],
+    'Aurora_MID': ['Diana', 'Katarina', 'Galio', 'Syndra'],
+    'Akali_MID': ["Vex", 'Galio', "Twisted'Fate", 'Lissandra'],
+    'Akshan_MID': ['Annie', 'Diana', 'Vladimir', 'Irelia'],
+    'Annie_MID': ["Aurelion'Sol", 'Veigar', 'Syndra', 'Diana'],
+    "Aurelion'Sol_MID": ['Yone', 'Irelia', 'Akshan', 'Zed'],
+    'Brand_MID': ["Zed", 'Fizz', 'Syndra', 'Katarina'],
     'Ekko_MID': ['Talon', 'Vex', 'Lissandra', 'Zoe'],
-    'Fizz_MID': ['Vex', 'Talon', 'Viktor', 'Diana'],
-    'Galio_MID': ['Aurelion Sol', 'Kassadin', 'Zoe', 'Zed'],
+    'Fizz_MID': ['Vladimir', 'Lissandra', 'Vex', 'Kassadin'],
+    'Galio_MID': ['Swain', 'Zed', 'Ahri', 'Talon'],
     'Heimerdinger_MID': ['Lissandra', 'Ryze', 'Orianna', "Twisted'Fate"],
     'Irelia_MID': ['Vex', 'Talon', 'Ekko', 'Zoe'],
-    'Karma_MID': ['Ryze', 'Annie', 'Veigar', "Twisted'Fate"],
+    'Karma_MID': ['Ryze', 'Brand', 'Viktor', 'Akali'],
     'Kassadin_MID': ['Zed', 'Talon', 'Yasuo', 'Yone'],
-    'Lissandra_MID': ['Aurora', 'Vel Koz', 'Syndra', 'Lux'],
-    'Lucian_MID': ['Irelia', 'Veigar', 'Talon', 'Ryze'],
+    'Lissandra_MID': ['Aurora', "Vel'Koz", 'Syndra', 'Lux'],
+    'Lucian_MID': ['Annie', 'Zoe', 'Akshan', 'Zed'],
     'Lux_MID': ['Taliyah', 'Zed', 'Katarina', 'Fizz'],
-    'Mel_MID': ['Irelia', 'Zed', 'Diana', 'Ryze'],
-    'Morgana_MID': ['Taliyah', 'Zed', 'Jayce', 'Mel'],
+    'Mel_MID': ['Akali', 'Zed', 'Diana', 'Ryze'],
+    'Morgana_MID': ['Akshan', 'Zed', "Aurelion'Sol", 'Mel'],
     'Norra_MID': ['Ekko', 'Zoe', 'Ahri', 'Kassadin'],
-    'Orianna_MID': ['Talon', 'Vel Koz', 'Zoe', 'Diana'],
-    'Syndra_MID': ['Vel Koz', 'Zed', 'Katarina', 'Diana'],
-    'Swain_MID': ['Katarina', 'Aurelion Sol', 'Syndra', 'Vel\'Koz'],
-    'Taliyah_MID': ['Fizz', 'Brand', 'Ahri', 'Galio'],
-    'Talon_MID': ['Akshan', 'Mel', 'Ryze', 'Zed'],
+    'Orianna_MID': ['Ekko', "Vel'Koz", 'Zoe', 'Diana'],
+    'Syndra_MID': ["Vel'Koz", 'Zed', 'Katarina', 'Diana'],
+    'Swain_MID': ['Katarina', "Aurelion'Sol", 'Syndra', "Vel'Koz"],
+    'Taliyah_MID': ['Katarina', 'Kassadin', 'Brand', "Twisted'Fate"],
+    'Talon_MID': ['Akshan', 'Taliyah', 'Diana', 'Akali'],
     "Twisted'Fate_MID": ['Fizz', 'Zed', 'Irelia', 'Veigar'],
     'Veigar_MID': ['Zed', 'Vladimir', 'Lux', 'Katarina'],
-    'Vel\'Koz_MID': ['Talon', 'Zoe', 'Mel', 'Diana'],
-    'Vex_MID': ['Mel', 'Diana', "Twisted'Fate", 'Taliyah'],
-    'Vladimir_MID': ['Orianna', 'Zoe', 'Vel Koz', 'Irelia'],
-    'Yasuo_MID': ['Renekton', 'Pantheon', 'Irelia', 'Riven'],
-    'Yone_MID': ['Taliyah', 'Aurora', 'Vex', 'Annie'],
+    "Vel'Koz_MID": ['Kassadin', 'Ekko', 'Fizz', 'Akali'],
+    'Vex_MID': ['Mel', 'Brand', 'Annie', 'Kassadin'],
+    'Viktor_MID': ['Talon', 'Ekko', 'Zoe', 'Syndra'],
+    'Vladimir_MID': ['Orianna', 'Zoe', "Vel'Koz", 'Irelia'],
+    'Yasuo_MID': ['Lissandra', 'Vex', 'Irelia', "Aurelion'Sol"],
+    'Yone_MID': ['Annie', 'Vex', 'Lissandra', 'Akshan'],
     'Zed_MID': ['Lissandra', 'Ekko', 'Diana', 'Irelia'],
-    'Ziggs_MID': ['Akshan', 'Aurelion Sol', 'Irelia', 'Diana'],
-    'Zoe_MID': ['Mel', 'Diana', 'Annie', "Twisted'Fate"],
+    'Ziggs_MID': ['Aurora', 'Annie', 'Brand', 'Vex'],
+    'Zoe_MID': ['Akshan', 'Katarina', 'Talon', 'Taliyah'],
 
     // ADC
     'Ashe_ADC': ['Tristana', 'Draven', 'Jhin', 'Samira'],
     'Caitlyn_ADC': ['Draven', 'Samira', 'Xayah', 'Varus'],
     'Corki_ADC': ['Nilah', 'Varus', 'Caitlyn', 'Tristana'],
     'Draven_ADC': ['Vel Koz', 'Swain', 'Varus', 'Xayah'],
-    'Ezreal_ADC': ['Kog Maw', 'Draven', 'Zeri', 'Varus'],
+    'Ezreal_ADC': ["Kog'Maw", 'Draven', 'Zeri', 'Varus'],
     'Jhin_ADC': ['Draven', 'Samira', 'Tristana', 'Kalista'],
     'Jinx_ADC': ['Nilah', 'Draven', 'Kalista', 'Corki'],
     'Kalista_ADC': ['Varus', 'Mel', 'Corki', 'Sivir'],
-    'Kai\'Sa_ADC': ['Nilah', 'Draven', 'Varus', 'Samira'],
-    'Kog\'Maw_ADC': ['Corki', 'Draven', 'Nilah', 'Kalista'],
+    "Kai'Sa_ADC": ['Nilah', 'Draven', 'Varus', 'Samira'],
+    "Kog'Maw_ADC": ['Corki', 'Draven', 'Nilah', 'Kalista'],
     'Lucian_ADC': ['Corki', 'Draven', 'Lux', 'Samira'],
-    'Miss Fortune_ADC': ['Kog Maw', 'Samira', 'Draven', 'Zeri'],
+    'Miss Fortune_ADC': ["Kog'Maw", 'Samira', 'Draven', 'Zeri'],
     'Nilah_ADC': ['Kalista', 'Xayah', 'Swain', 'Varus'],
     'Samira_ADC': ['Caitlyn', 'Ashe', 'Lucian', 'Jinx'],
     'Smolder_ADC': ["kog'Maw", 'Draven', 'Kalista', 'Tristana'],
     'Sivir_ADC': ['Tristana', 'Twitch', 'Draven', 'Mel'],
     'Tristana_ADC': ['Draven', 'Lucian', 'Mel', 'Samira'],
     'Twitch_ADC': ['Nilah', 'Zeri', 'Draven', 'Kalista'],
-    'Varus_ADC': ['Kog Maw', 'Draven', 'Mel', 'Samira'],
+    'Varus_ADC': ["Kog'Maw", 'Draven', 'Mel', 'Samira'],
     'Vayne_ADC': ['Caitlyn', 'Senna', 'Zeri', 'Draven'],
     'Xayah_ADC': ['Ashe', 'Draven', 'Kalista', 'Tristana'],
-    'Ziggs_ADC': ['Lucian', 'Kog Maw', 'Draven', 'Nilah'],
+    'Zeri_ADC': ['Lucian', 'Draven', "Kog'Maw", 'Ashe'],
+    'Ziggs_ADC': ['Lucian', "Kog'Maw", 'Draven', 'Nilah'],
 
     // SUPP
     'Alistar_SUPP': ['Galio', 'Janna', 'Morgana', 'Soraka'],
@@ -196,16 +198,29 @@ class CounterService {
     return isAlly || isEnemy;
   }
 
-  /// Obtiene recomendaciones de counter para los enemigos seleccionados
-  List<Champion> obtenerCountersPorRol(String rolJugador) {
+    /// Obtiene recomendaciones de counter para los enemigos seleccionados
+  List<Champion> obtenerCountersPorRol(
+    String rolJugador, {
+    Map<String, Champion>? inferredEnemyRoles,
+  }) {
     if (enemyPicks.isEmpty) return [];
-    
+
     Set<String> nombresCounters = {};
-    
+
     for (var enemigo in enemyPicks) {
-      String rolEnemigo = enemigo.primaryRole;
+      // Determinar el rol real: usar inferencia si está disponible
+            String rolEnemigo = enemigo.primaryRole; // fallback
+      if (inferredEnemyRoles != null && inferredEnemyRoles.isNotEmpty) {
+        for (final entry in inferredEnemyRoles.entries) {
+          if (entry.value.name == enemigo.name) {
+            rolEnemigo = entry.key;
+            break;
+          }
+        }
+      }
+      // Construir la clave con el rol correcto
       String claveConRol = '${enemigo.name}_$rolEnemigo';
-      
+
       if (_countersMap.containsKey(claveConRol)) {
         for (var counterNombre in _countersMap[claveConRol]!) {
           if (!isChampionSelectedByName(counterNombre)) {
@@ -213,6 +228,8 @@ class CounterService {
           }
         }
       } else if (_countersMap.containsKey(enemigo.name)) {
+
+        // Fallback: clave sin rol (por si algún campeón no tiene variante por rol)
         for (var counterNombre in _countersMap[enemigo.name]!) {
           if (!isChampionSelectedByName(counterNombre)) {
             nombresCounters.add(counterNombre);
@@ -220,6 +237,7 @@ class CounterService {
         }
       }
     }
+  
     
     List<Champion> recomendaciones = [];
     
