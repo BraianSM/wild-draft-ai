@@ -42,7 +42,7 @@ class ChampionsData {
       ),
       Champion(
         name: 'Akali',
-        roles: ['MID'],
+        roles: ['MID', 'TOP'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Akali.png',
         isAP: true,
         isMidGame: true,

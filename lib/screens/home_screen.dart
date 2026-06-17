@@ -11,6 +11,7 @@ import '../widgets/champion_card.dart';
 import '../widgets/team_panel_widget.dart';
 import '../theme/app_colors.dart';
 import '../services/role_inference_service.dart';
+import '../services/favorites_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -34,8 +35,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   String _modoActual = 'aliado';
   String _selectedRole = 'TOP';
   String? _roleFilter;
+  bool _showFavoritesOnly = false;
 
   late AnimationController _glowController;
+  final FavoritesService _favoritesService = FavoritesService();
 
   void _actualizarCounterService() {
     _counterService = CounterService(
@@ -51,6 +54,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _applyFilters();
     _searchController.addListener(_onSearchChanged);
     _actualizarCounterService();
+
+    _favoritesService.init().then((_) {
+    if (mounted) setState(() {});
+    });
 
     _glowController = AnimationController(
       vsync: this,
@@ -74,11 +81,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     setState(() {
       _filteredChampions = _allChampions.where((champion) {
-        bool matchesSearch = query.isEmpty ||
-            champion.name.toLowerCase().contains(query);
-        bool matchesRole = _roleFilter == null ||
-            champion.roles.contains(_roleFilter);
-        return matchesSearch && matchesRole;
+        bool matchesSearch = query.isEmpty || champion.name.toLowerCase().contains(query);
+        bool matchesRole = _roleFilter == null || champion.roles.contains(_roleFilter);
+        bool matchesFavorites = !_showFavoritesOnly || _favoritesService.isFavorite(champion.name);
+        return matchesSearch && matchesRole && matchesFavorites;
       }).toList();
     });
   }
@@ -708,52 +714,106 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
 
-  /// Filtro rápido por rol (botones pequeños arriba de la lista de campeones)
+    /// Filtro rápido por rol (botones pequeños arriba de la lista de campeones)
   Widget _buildRoleQuickFilter() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Row(
-        children: _roleOrder.map((rol) {
-          bool isSelected = _roleFilter == rol;
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                if (_roleFilter == rol) {
-                  _roleFilter = null;
-                } else {
-                  _roleFilter = rol;
-                }
-              });
-              _applyFilters();
-            },
-            child: Container(
-              margin: const EdgeInsets.only(right: 6),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? AppColors.getRoleColor(rol).withValues(alpha: 0.2)
-                    : AppColors.cardDark,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: isSelected
-                      ? AppColors.getRoleColor(rol)
-                      : AppColors.borderDark.withValues(alpha: 0.5),
-                  width: 1,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            // Botones de rol existentes
+            ..._roleOrder.map((rol) {
+              bool isSelected = _roleFilter == rol;
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    if (_roleFilter == rol) {
+                      _roleFilter = null;
+                    } else {
+                      _roleFilter = rol;
+                    }
+                  });
+                  _applyFilters();
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(right: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.getRoleColor(rol).withValues(alpha: 0.2)
+                        : AppColors.cardDark,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.getRoleColor(rol)
+                          : AppColors.borderDark.withValues(alpha: 0.5),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    rol,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      color: isSelected
+                          ? AppColors.getRoleColor(rol)
+                          : AppColors.textSecondary,
+                    ),
+                  ),
                 ),
-              ),
-              child: Text(
-                rol,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected
-                      ? AppColors.getRoleColor(rol)
-                      : AppColors.textSecondary,
+              );
+            }),
+            // Botón de Favoritos ⭐
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _showFavoritesOnly = !_showFavoritesOnly;
+                });
+                _applyFilters();
+              },
+              child: Container(
+                margin: const EdgeInsets.only(right: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: _showFavoritesOnly
+                      ? AppColors.accentGold.withValues(alpha: 0.2)
+                      : AppColors.cardDark,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: _showFavoritesOnly
+                        ? AppColors.accentGold
+                        : AppColors.borderDark.withValues(alpha: 0.5),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      _showFavoritesOnly ? Icons.star : Icons.star_border,
+                      size: 12,
+                      color: _showFavoritesOnly
+                          ? AppColors.accentGold
+                          : AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Favoritos',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: _showFavoritesOnly ? FontWeight.bold : FontWeight.w500,
+                        color: _showFavoritesOnly
+                            ? AppColors.accentGold
+                            : AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          );
-        }).toList(),
+          ],
+        ),
       ),
     );
   }
@@ -781,8 +841,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ? AppColors.allyBlue.withValues(alpha: 0.6)
               : AppColors.enemyRed.withValues(alpha: 0.6),
           onTap: () => _seleccionarCampeon(champion),
+          isFavorite: _favoritesService.isFavorite(champion.name),
+          onDoubleTap: () {
+            _favoritesService.toggleFavorite(champion.name).then((_) {
+              setState(() {});
+            });
+          },
         );
-      },
+      }
     );
   }
 
@@ -1232,6 +1298,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   ? AppColors.allyBlue.withValues(alpha: 0.6)
                   : AppColors.enemyRed.withValues(alpha: 0.6),
               onTap: () => _seleccionarCampeon(champion),
+              isFavorite: _favoritesService.isFavorite(champion.name),
+              onDoubleTap: () {
+                _favoritesService.toggleFavorite(champion.name).then((_) {
+                  setState(() {});
+                });
+              }
             );
           },
         ),
