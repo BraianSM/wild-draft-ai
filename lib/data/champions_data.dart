@@ -66,6 +66,9 @@ class ChampionsData {
         strategicTags: const [
           'pickoff',
           'strong_early',
+          'high_mobility',
+          'backline_access',
+          'splitpush',
         ],
       ),
       Champion(
@@ -97,6 +100,10 @@ class ChampionsData {
         strategicTags: const [
           'pickoff',
           'backline_access',
+          'strong_early',
+          'burst',
+          'high_mobility',
+          'dive',
         ], 
       ),
       Champion(
@@ -112,6 +119,7 @@ class ChampionsData {
         strategicTags: const [
           'teamfight',
           'frontline',
+          'anti_dive',
         ],
       ),
       Champion(
@@ -155,8 +163,9 @@ class ChampionsData {
         strategicTags: const [
           'waveclear',
           'teamfight',
+          'poke',
         ],
-        ),
+      ),
       Champion(
         name: 'Aurora', 
         roles: ['MID', 'TOP'], 
@@ -213,8 +222,11 @@ class ChampionsData {
         strategicTags: const [
           'anti_tank',
           'teamfight',
+          'poke',
+          'burst',
+          'waveclear',
         ],
-        ),
+      ),
       Champion(
         name: 'Braum',
         roles: ['SUPP'],
@@ -337,6 +349,7 @@ class ChampionsData {
         hasCC: true,
         strategicTags: const [
           'strong_early',
+          'burst',
         ],
       ),
       Champion(
@@ -411,6 +424,9 @@ class ChampionsData {
         strategicTags: const [
           'backline_access',
           'burst',
+          'pickoff',
+          'dive',
+          'high_mobility',
         ],
       ),
       Champion(
@@ -426,7 +442,7 @@ class ChampionsData {
           'teamfight',
           'pickoff',
         ],
-        ),
+      ),
       Champion(
         name: 'Galio',
         roles: ['MID', 'SUPP', 'TOP'],
@@ -456,6 +472,10 @@ class ChampionsData {
         isMidGame: true,
         strategicTags: const [
           'anti_cc'
+          'safe_pick',
+          'frontline',
+          'strong_early',
+          'splitpush',
         ],
       ),
       Champion(
@@ -488,6 +508,7 @@ class ChampionsData {
           'anti_engage',
           'teamfight',
           'waveclear',
+          'anti_poke',
         ],
       ),
       Champion(
@@ -518,7 +539,7 @@ class ChampionsData {
         strategicTags: const [
           'anti_tank',
           'splitpush',
-          
+          'teamfight',
         ],
       ),
 
@@ -536,8 +557,7 @@ class ChampionsData {
           'anti_poke',
           ],
         ),
-
-        Champion(
+      Champion(
             name: 'Heimerdinger', 
             roles: ['MID', 'TOP'], 
             imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Heimerdinger.png',
@@ -548,7 +568,7 @@ class ChampionsData {
               'splitpush',
               'teamfight',
             ],
-            ),
+          ),
       Champion(
         name: 'Irelia',
         roles: ['TOP', 'MID'],
@@ -629,6 +649,8 @@ class ChampionsData {
         strategicTags: const [
           'strong_early',
           'poke',
+          'burst',
+          'splitpush',
         ],
       ),
       Champion(
@@ -730,8 +752,6 @@ class ChampionsData {
         hasHealing: true,
         strategicTags: const [
           'peel',
-          'anti_dive',
-          'anti_cc',
           'teamfight',
           'safe_pick',
         ],
@@ -750,7 +770,7 @@ class ChampionsData {
           'strong_early',
           'pickoff',
         ],
-        ),
+      ),
       Champion(
         name: 'Kennen',
         roles: ['TOP'],
@@ -899,6 +919,9 @@ class ChampionsData {
         hasDash: true,
         strategicTags: const [
           'strong_early',
+          'burst',
+          'high_mobility',
+          'pickoff',
         ],
       ),
       Champion(
@@ -926,8 +949,10 @@ class ChampionsData {
         strategicTags: const [
           'poke',
           'burst',
+          'waveclear',
+          'pickoff',
         ],
-        ),
+      ),
       Champion(
         name: 'Malphite',
         roles: ['TOP'],
@@ -1017,7 +1042,7 @@ class ChampionsData {
           'anti_cc',
           'peel',
         ],
-        ),
+      ),
       Champion(
         name: 'Mordekaiser',
         roles: ['TOP'],
@@ -1144,6 +1169,7 @@ class ChampionsData {
           strategicTags: const [
             'poke',
             'teamfight',
+            'burst',
           ],
         ),
       Champion(
@@ -1177,6 +1203,8 @@ class ChampionsData {
         strategicTags: const [
           'anti_cc',
           'strong_early',
+          'dive',
+          'splitpush',
         ],
       ),
       Champion(
@@ -1190,6 +1218,7 @@ class ChampionsData {
         strategicTags: const [
           'teamfight',
           'safe_pick',
+          'waveclear',
         ],
       ),
       Champion(
@@ -1220,6 +1249,7 @@ class ChampionsData {
         strategicTags: const [
           'strong_early',
           'burst',
+          'pickoff',
         ],
       ),
       Champion(
@@ -1371,7 +1401,7 @@ class ChampionsData {
           'anti_engage',
           'frontline',
         ],
-        ),
+      ),
       Champion(
         name: 'Rumble', 
         roles: ['TOP'], 
@@ -1617,7 +1647,7 @@ class ChampionsData {
           'teamfight',
           'burst',
         ],
-        ),
+      ),
       Champion(
         name: 'Taliyah',
         roles: ['MID', 'JG'],
@@ -1647,7 +1677,7 @@ class ChampionsData {
           'strong_early',
           'burst',
         ],
-        ),
+      ),
       Champion(
         name: 'Teemo',
         roles: ['TOP'],
@@ -1661,7 +1691,7 @@ class ChampionsData {
           'poke',
           'pickoff',
         ],
-        ),
+      ),
       Champion(
         name: 'Thresh',
         roles: ['SUPP'],
@@ -1692,7 +1722,7 @@ class ChampionsData {
           'safe_pick',
           'backline_access',
         ],
-        ),
+      ),
       Champion(
         name: 'Tryndamere',
         roles: ['TOP'],
@@ -1707,7 +1737,7 @@ class ChampionsData {
           'splitpush',
           'high_mobility',
         ],
-        ),
+      ),
       Champion(
         name: "Twisted'Fate",
         roles: ['MID'],
@@ -1734,7 +1764,7 @@ class ChampionsData {
           'teamfight',
           'pickoff',
         ],
-        ),
+      ),
       Champion(
         name: 'Urgot',
         roles: ['TOP'],
@@ -1748,8 +1778,11 @@ class ChampionsData {
         strategicTags: const [
           'anti_tank',
           'frontline',
+          'teamfight',
+          'burst',
+          'pickoff',
         ],
-        ),
+      ),
       Champion(
         name: 'Varus',
         roles: ['ADC', 'TOP', 'MID'],
@@ -1763,7 +1796,7 @@ class ChampionsData {
           'anti_heal',
           'poke',
         ],
-        ),
+      ),
       Champion(
         name: 'Vayne',
         roles: ['ADC', 'TOP'],
@@ -1776,8 +1809,9 @@ class ChampionsData {
         strategicTags: const [
           'anti_tank',
           'backline_access',
+          'high_mobility',
         ],
-        ),
+      ),
       Champion(
         name: 'Veigar',
         roles: ['MID'],
@@ -1789,7 +1823,7 @@ class ChampionsData {
           'anti_engage',
           'burst',
         ],
-        ),
+      ),
       Champion(
         name: "Vel'Koz", 
         roles: ['MID', 'SUPP'], 
@@ -1802,7 +1836,7 @@ class ChampionsData {
           'waveclear',
           'burst',
         ],
-        ),
+      ),
       Champion(
         name: 'Vex', 
         roles: ['MID'], 
@@ -1814,12 +1848,11 @@ class ChampionsData {
         isMidGame: true,
         strategicTags: const [
           'anti_mobility',
-          'anti_dash',
           'teamfight',
           'pickoff',
           'burst',
         ],
-        ),
+      ),
       Champion(
         name: 'Vi',
         roles: ['JG'],
@@ -1970,7 +2003,7 @@ class ChampionsData {
       ),
       Champion(
         name: 'Yasuo',
-        roles: ['MID'],
+        roles: ['MID', 'TOP'],
         imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Yasuo.png',
         isMidGame: true,
         isAD: true,
@@ -1980,6 +2013,7 @@ class ChampionsData {
         strategicTags: const [
           'strong_early',
           'high_mobility',
+          'anti_poke',
         ],
       ),
       Champion(

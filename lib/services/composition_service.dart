@@ -658,8 +658,6 @@ class CompositionService {
     final peelRatio = peelCount / teamSize;
     final diveRatio = diveCount / teamSize;
     final pokeRatio = pokeCount / teamSize;
-  
-
 
     // engage_comp
     if (engageRatio >= 0.6 && teamSize >= 3) {
@@ -727,7 +725,31 @@ class CompositionService {
     ),
   );
 }
-    return insights;
+    // =========================================================
+    // NUEVO: CONSERVAR SOLO EL ARQUETIPO DE MAYOR PRIORIDAD
+    // =========================================================
+    if (insights.isEmpty) return insights;
+
+    const priority = {
+      'teamfight_comp':     0,
+      'front_to_back_comp': 1,
+      'dive_comp':          2,
+      'engage_comp':        3,
+      'poke_comp':          4,
+      'pickoff_comp':       5,
+    };
+
+    StrategicInsight? best;
+    int bestPriority = 999;
+    for (final insight in insights) {
+      final p = priority[insight.type] ?? 999;
+      if (p < bestPriority) {
+        bestPriority = p;
+        best = insight;
+      }
+    }
+
+    return best != null ? [best] : [];
   }
 
   /// FASE 3: Obtiene los mejores campeones para el rol contra la composición enemiga
