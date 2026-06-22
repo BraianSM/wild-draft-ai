@@ -538,7 +538,8 @@ class CompositionService {
           break;
         case 'teamfight_comp':
           if (championHasTag(champion, 'splitpush')) score += 15;
-          if (championHasTag(champion, 'pickoff')) score += 8;
+          if (championHasTag(champion, 'anti_engage')) score += 8;
+          if (championHasTag(champion, 'pickoff')) score += 3;
           break;
 
         // ============ INSIGNIAS CRÍTICAS (peso medio, factor hasta 1.5) ============

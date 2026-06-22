@@ -12,6 +12,7 @@ import '../widgets/team_panel_widget.dart';
 import '../theme/app_colors.dart';
 import '../services/role_inference_service.dart';
 import '../services/favorites_service.dart';
+import '../services/flash_tracker_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -39,6 +40,47 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   late AnimationController _glowController;
   final FavoritesService _favoritesService = FavoritesService();
+
+  void _startFlashTracker() async {
+  final shouldProceed = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      backgroundColor: const Color(0xFF1A1A2E),
+      title: const Row(
+        children: [
+          Icon(Icons.timer, color: Colors.amberAccent, size: 24),
+          SizedBox(width: 8),
+          Text('Tracker de Hechizos', style: TextStyle(color: Colors.white, fontSize: 18)),
+        ],
+      ),
+      content: const Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('WildDraft necesita notificaciones para:', style: TextStyle(color: Colors.white70, fontSize: 14)),
+          SizedBox(height: 12),
+          Row(children: [Text('⚡', style: TextStyle(fontSize: 16)), SizedBox(width: 8), Expanded(child: Text('Rastrear Flash e Ignite enemigos', style: TextStyle(color: Colors.white70, fontSize: 13)))]),
+          SizedBox(height: 8),
+          Row(children: [Text('🟢', style: TextStyle(fontSize: 16)), SizedBox(width: 8), Expanded(child: Text('Mostrar cuando están disponibles', style: TextStyle(color: Colors.white70, fontSize: 13)))]),
+          SizedBox(height: 8),
+          Row(children: [Text('🔴', style: TextStyle(fontSize: 16)), SizedBox(width: 8), Expanded(child: Text('Indicar tiempo de cooldown', style: TextStyle(color: Colors.white70, fontSize: 13)))]),
+          SizedBox(height: 8),
+          Row(children: [Text('📳', style: TextStyle(fontSize: 16)), SizedBox(width: 8), Expanded(child: Text('Vibrar al recargarse', style: TextStyle(color: Colors.white70, fontSize: 13)))]),
+          SizedBox(height: 16),
+          Text('¿Permitir notificaciones?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        ],
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('No ahora', style: TextStyle(color: Colors.grey))),
+        ElevatedButton(onPressed: () => Navigator.pop(ctx, true), style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent), child: const Text('Permitir', style: TextStyle(color: Colors.white))),
+      ],
+    ),
+  );
+
+  if (shouldProceed == true) {
+    await FlashTrackerService().initialize();
+  }
+}
 
   void _actualizarCounterService() {
     _counterService = CounterService(
@@ -297,6 +339,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         backgroundColor: AppColors.surfaceDark.withValues(alpha: 0.9),
         elevation: 0,
         actions: [
+          // 👇 Botón del Tracker de Hechizos (NUEVO)
+          Container(
+            margin: const EdgeInsets.only(right: 4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.accentGold.withValues(alpha: 0.3),
+                  blurRadius: 6,
+                ),
+              ],
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.timer, color: AppColors.accentGold, size: 20),
+              tooltip: 'Tracker de Hechizos',
+              onPressed: _startFlashTracker,
+            ),
+          ),
+          // Botón de refresh (ya existente)
           Container(
             margin: const EdgeInsets.only(right: 8),
             decoration: BoxDecoration(
