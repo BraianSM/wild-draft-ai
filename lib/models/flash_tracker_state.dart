@@ -1,8 +1,8 @@
 // lib/models/flash_tracker_state.dart
 
 class SpellState {
-  static const int flashDurationSeconds = 300;
-  static const int igniteDurationSeconds = 180;
+  static const int flashDurationSeconds = 150;
+  static const int igniteDurationSeconds = 100;
 
   final bool flashAvailable;
   final DateTime? flashReadyAt;

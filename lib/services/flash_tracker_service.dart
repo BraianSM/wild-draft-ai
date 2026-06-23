@@ -3,6 +3,14 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:vibration/vibration.dart';
 import '../models/flash_tracker_state.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+
+// Manejador global para acciones en segundo plano
+@pragma('vm:entry-point')
+void notificationTapBackground(NotificationResponse notificationResponse) {
+  debugPrint('🔔 BACKGROUND NOTIFICATION TAP: ${notificationResponse.actionId}');
+  FlashTrackerService()._onNotificationResponse(notificationResponse);
+}
 
 class FlashTrackerService {
   static final FlashTrackerService _instance = FlashTrackerService._internal();
@@ -11,7 +19,6 @@ class FlashTrackerService {
 
   final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
 
-  // Estado interno
   bool _flashAvailable = true;
   DateTime? _flashReadyAt;
   bool _igniteAvailable = true;
@@ -26,24 +33,41 @@ class FlashTrackerService {
 
     debugPrint('⚙️ Inicializando Tracker de Hechizos');
 
-    // Android 13+ requiere permiso POST_NOTIFICATIONS
     if (defaultTargetPlatform == TargetPlatform.android) {
       final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin>();
       if (androidPlugin != null) {
-        final granted = await androidPlugin.requestNotificationsPermission();
-        debugPrint('🔔 Permiso de notificaciones: $granted');
+        final areEnabled = await androidPlugin.areNotificationsEnabled();
+        if (areEnabled == true) {
+          debugPrint('🔔 Notificaciones deshabilitadas. Solicitando permiso...');
+
+          // Forzar vertical para mostrar correctamente el diálogo nativo
+          await SystemChrome.setPreferredOrientations([
+            DeviceOrientation.portraitUp,
+          ]);
+
+          final granted = await androidPlugin.requestNotificationsPermission();
+          debugPrint('🔔 Permiso concedido: $granted');
+
+          // Restaurar orientaciones (incluyendo horizontal si la app lo permite)
+          await SystemChrome.setPreferredOrientations([
+            DeviceOrientation.portraitUp,
+            DeviceOrientation.landscapeLeft,
+            DeviceOrientation.landscapeRight,
+          ]);
+        } else {
+          debugPrint('🔔 Notificaciones ya habilitadas');
+        }
       }
     }
 
-    // 1. Configurar canal de notificación
     const androidChannel = AndroidNotificationChannel(
       'spell_tracker',
       'Tracker de Hechizos',
       description: 'Controla el enfriamiento de Flash e Ignite',
-      importance: Importance.high,
+      importance: Importance.max,
       playSound: false,
-      enableVibration: false, // manejamos la vibración aparte
+      enableVibration: false,
     );
 
     await _notifications.initialize(
@@ -51,13 +75,13 @@ class FlashTrackerService {
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
       ),
       onDidReceiveNotificationResponse: _onNotificationResponse,
+      onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     );
 
     await _notifications
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(androidChannel);
 
-    // 2. Mostrar notificación inicial
     debugPrint('📱 Mostrando notificación inicial...');
     await _updateNotification();
 
@@ -81,7 +105,7 @@ class FlashTrackerService {
     }
 
     _startTimer();
-    _updateNotification(); // actualizar inmediatamente
+    _updateNotification();
   }
 
   // ──────────────────────── Temporizador ─────────────────────────
@@ -93,27 +117,23 @@ class FlashTrackerService {
   void _tick() {
     bool anyPending = false;
 
-    // Verificar Flash
     if (!_flashAvailable && _flashReadyAt != null) {
       if (_flashReadyAt!.isBefore(DateTime.now())) {
         _flashAvailable = true;
         _flashReadyAt = null;
-        // Dos vibraciones cortas para Flash
         Vibration.vibrate(pattern: [0, 200, 200, 200]);
-        debugPrint('🔔 Flash disponible');
+        debugPrint('🔔 Flash disponible (150s)');
       } else {
         anyPending = true;
       }
     }
 
-    // Verificar Ignite
     if (!_igniteAvailable && _igniteReadyAt != null) {
       if (_igniteReadyAt!.isBefore(DateTime.now())) {
         _igniteAvailable = true;
         _igniteReadyAt = null;
-        // Una vibración normal para Ignite
         Vibration.vibrate(duration: 400);
-        debugPrint('🔔 Ignite disponible');
+        debugPrint('🔔 Ignite disponible (100s)');
       } else {
         anyPending = true;
       }
@@ -129,23 +149,25 @@ class FlashTrackerService {
 
   // ────────────────── Notificación persistente ──────────────────
   Future<void> _updateNotification() async {
-    // Línea de Flash
     String flashLine;
     if (_flashAvailable) {
       flashLine = 'Flash 🟢';
     } else {
-      final min = (SpellState.flashDurationSeconds - _flashReadyAt!.difference(DateTime.now()).inSeconds) ~/ 60;
-      final sec = (_flashReadyAt!.difference(DateTime.now()).inSeconds % 60).toString().padLeft(2, '0');
+      final remainingSeconds = _flashReadyAt!.difference(DateTime.now()).inSeconds;
+      final clampedSeconds = remainingSeconds.clamp(0, SpellState.flashDurationSeconds);
+      final min = clampedSeconds ~/ 60;
+      final sec = (clampedSeconds % 60).toString().padLeft(2, '0');
       flashLine = 'Flash 🔴 $min:$sec';
     }
 
-    // Línea de Ignite
     String igniteLine;
     if (_igniteAvailable) {
       igniteLine = 'Ignite 🟢';
     } else {
-      final min = (SpellState.igniteDurationSeconds - _igniteReadyAt!.difference(DateTime.now()).inSeconds) ~/ 60;
-      final sec = (_igniteReadyAt!.difference(DateTime.now()).inSeconds % 60).toString().padLeft(2, '0');
+      final remainingSeconds = _igniteReadyAt!.difference(DateTime.now()).inSeconds;
+      final clampedSeconds = remainingSeconds.clamp(0, SpellState.igniteDurationSeconds);
+      final min = clampedSeconds ~/ 60;
+      final sec = (clampedSeconds % 60).toString().padLeft(2, '0');
       igniteLine = 'Ignite 🔴 $min:$sec';
     }
 
@@ -156,8 +178,8 @@ class FlashTrackerService {
       'spell_tracker',
       'Tracker de Hechizos',
       channelDescription: 'Estado de Flash e Ignite',
-      importance: Importance.high,
-      priority: Priority.high,
+      importance: Importance.max,
+      priority: Priority.max,
       ongoing: true,
       autoCancel: false,
       showWhen: false,
@@ -165,13 +187,13 @@ class FlashTrackerService {
         AndroidNotificationAction(
           'spell_FLASH',
           'FLASH',
-          showsUserInterface: true,
+          showsUserInterface: false,
           cancelNotification: false,
         ),
         AndroidNotificationAction(
           'spell_IGNITE',
           'IGNITE',
-          showsUserInterface: true,
+          showsUserInterface: false,
           cancelNotification: false,
         ),
       ],

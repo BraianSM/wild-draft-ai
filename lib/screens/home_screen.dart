@@ -53,22 +53,24 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           Text('Tracker de Hechizos', style: TextStyle(color: Colors.white, fontSize: 18)),
         ],
       ),
-      content: const Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('WildDraft necesita notificaciones para:', style: TextStyle(color: Colors.white70, fontSize: 14)),
-          SizedBox(height: 12),
-          Row(children: [Text('⚡', style: TextStyle(fontSize: 16)), SizedBox(width: 8), Expanded(child: Text('Rastrear Flash e Ignite enemigos', style: TextStyle(color: Colors.white70, fontSize: 13)))]),
-          SizedBox(height: 8),
-          Row(children: [Text('🟢', style: TextStyle(fontSize: 16)), SizedBox(width: 8), Expanded(child: Text('Mostrar cuando están disponibles', style: TextStyle(color: Colors.white70, fontSize: 13)))]),
-          SizedBox(height: 8),
-          Row(children: [Text('🔴', style: TextStyle(fontSize: 16)), SizedBox(width: 8), Expanded(child: Text('Indicar tiempo de cooldown', style: TextStyle(color: Colors.white70, fontSize: 13)))]),
-          SizedBox(height: 8),
-          Row(children: [Text('📳', style: TextStyle(fontSize: 16)), SizedBox(width: 8), Expanded(child: Text('Vibrar al recargarse', style: TextStyle(color: Colors.white70, fontSize: 13)))]),
-          SizedBox(height: 16),
-          Text('¿Permitir notificaciones?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        ],
+      content: SingleChildScrollView(          
+        child: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('WildDraft necesita notificaciones para:', style: TextStyle(color: Colors.white70, fontSize: 14)),
+            SizedBox(height: 12),
+            Row(children: [Text('⚡', style: TextStyle(fontSize: 16)), SizedBox(width: 8), Expanded(child: Text('Rastrear Flash e Ignite enemigos', style: TextStyle(color: Colors.white70, fontSize: 13)))]),
+            SizedBox(height: 8),
+            Row(children: [Text('🟢', style: TextStyle(fontSize: 16)), SizedBox(width: 8), Expanded(child: Text('Mostrar cuando están disponibles', style: TextStyle(color: Colors.white70, fontSize: 13)))]),
+            SizedBox(height: 8),
+            Row(children: [Text('🔴', style: TextStyle(fontSize: 16)), SizedBox(width: 8), Expanded(child: Text('Indicar tiempo de cooldown', style: TextStyle(color: Colors.white70, fontSize: 13)))]),
+            SizedBox(height: 8),
+            Row(children: [Text('📳', style: TextStyle(fontSize: 16)), SizedBox(width: 8), Expanded(child: Text('Vibrar al recargarse', style: TextStyle(color: Colors.white70, fontSize: 13)))]),
+            SizedBox(height: 16),
+            Text('¿Permitir notificaciones?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ],
+        ),
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('No ahora', style: TextStyle(color: Colors.grey))),
@@ -881,13 +883,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   /// Grid simple sin título para cuando se filtra por rol
   Widget _buildRoleGrid(List<Champion> champions) {
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final crossAxisCount = isLandscape ? 6 : 4;
+    final childAspectRatio = isLandscape ? 1.0 : 0.8;
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       padding: EdgeInsets.zero,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        childAspectRatio: 0.8,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        childAspectRatio: childAspectRatio,
         crossAxisSpacing: 6,
         mainAxisSpacing: 6,
       ),
@@ -911,7 +917,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         );
       }
     );
-  }
+}
 
   /// Construye el selector de rol del jugador
   Widget _buildRoleSelector() {
@@ -1341,9 +1347,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           padding: EdgeInsets.zero,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            childAspectRatio: 0.8,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: MediaQuery.of(context).orientation == Orientation.landscape ? 6 : 4,
+            childAspectRatio: MediaQuery.of(context).orientation == Orientation.landscape ? 1.0 : 0.8,
             crossAxisSpacing: 6,
             mainAxisSpacing: 6,
           ),
@@ -1351,7 +1357,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           itemBuilder: (context, index) {
             final champion = champions[index];
             final isSelected = _draftService.isChampionSelected(champion);
-
             return ChampionCard(
               champion: champion,
               isSelected: isSelected,
@@ -1367,9 +1372,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               }
             );
           },
-        ),
-        const SizedBox(height: 1),
+        )
       ],
-    );
-  }
+    ); 
+ }
 }
