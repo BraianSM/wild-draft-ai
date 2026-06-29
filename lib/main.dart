@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // <-- Agrega este import
 import 'screens/home_screen.dart';
 import 'theme/app_theme.dart';
-import 'overlay/overlay_widget.dart';
-import 'overlay/overlay_service.dart';
+
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
   runApp(const WildDraftAIApp());
 }
-
 class WildDraftAIApp extends StatefulWidget {
   const WildDraftAIApp({super.key});
 
@@ -30,9 +36,6 @@ class _WildDraftAIAppState extends State<WildDraftAIApp> with WidgetsBindingObse
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.detached) {
-      OverlayService().hide(); // cierra el overlay al matar la app
-    }
   }
 
   @override
@@ -44,14 +47,4 @@ class _WildDraftAIAppState extends State<WildDraftAIApp> with WidgetsBindingObse
       home: const HomeScreen(),
     );
   }
-}
-
-@pragma('vm:entry-point')
-void overlayMain() {
-  runApp(
-    const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: OverlayCircleWidget(),
-    ),
-  );
 }

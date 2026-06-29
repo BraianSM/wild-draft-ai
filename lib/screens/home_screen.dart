@@ -13,7 +13,7 @@ import '../theme/app_colors.dart';
 import '../services/role_inference_service.dart';
 import '../services/favorites_service.dart';
 import '../services/flash_tracker_service.dart';
-import '../overlay/overlay_test_screen.dart';
+import 'package:flutter/services.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,6 +23,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+  FlashTrackerService? _flashTrackerService;
+  static const platform = MethodChannel('overlay_control');
+  static const eventsChannel = MethodChannel('overlay_events');
   final DraftService _draftService = DraftService();
   final List<Champion> _allChampions = ChampionsData.getAll();
   late CounterService _counterService;
@@ -42,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late AnimationController _glowController;
   final FavoritesService _favoritesService = FavoritesService();
 
-  void _startFlashTracker() async {
+  Future<void> _startFlashTracker() async {
   final shouldProceed = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
@@ -81,7 +84,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   );
 
   if (shouldProceed == true) {
-    await FlashTrackerService().initialize();
+  _flashTrackerService = FlashTrackerService(); // ← Guardar la instancia
+  await _flashTrackerService!.initialize();     // ← Usarla para inicializar
   }
 }
 
@@ -108,7 +112,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(seconds: 4),
     )..repeat(reverse: true);
+
+     eventsChannel.setMethodCallHandler((call) {
+  switch (call.method) {
+    case 'flash':
+      _flashTrackerService?.markFlashUsed();
+      break;
+    case 'ignite':
+      _flashTrackerService?.markIgniteUsed();
+      break;
+    case 'long_press':
+      // Por ahora sin acción
+      break;
+    default:
+      break;
   }
+  return Future.value();
+  });
+}
+  
 
   @override
   void dispose() {
@@ -138,6 +160,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _actualizarCounterService();
     setState(() {});
   }
+  Future<void> _startOverlay() async {
+  final result = await platform.invokeMethod('startOverlay');
+  if (!mounted) return;
+  if (result == false) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Concede el permiso de superposición desde Ajustes'),
+      ),
+    );
+  } else {
+    // Si el overlay se inició correctamente, iniciamos también el tracker
+    await _startFlashTracker();
+  }
+}
 
   void _seleccionarCampeon(Champion champion) {
     if (_draftService.isChampionSelected(champion)) return;
@@ -342,22 +378,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         backgroundColor: AppColors.surfaceDark.withValues(alpha: 0.9),
         elevation: 0,
         actions: [
-          // 👇 Botón del Tracker de Hechizos (NUEVO)
           Container(
             margin: const EdgeInsets.only(right: 4),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.accentGold.withValues(alpha: 0.3),
+                  color: Colors.cyanAccent.withValues(alpha: 0.7),
                   blurRadius: 6,
                 ),
               ],
             ),
             child: IconButton(
-              icon: const Icon(Icons.timer, color: AppColors.accentGold, size: 20),
-              tooltip: 'Tracker de Hechizos',
-              onPressed: _startFlashTracker,
+              icon: const Icon(Icons.circle, color: Colors.cyanAccent, size: 20),
+              tooltip: 'Mostrar overlay',
+              onPressed: _startOverlay,
             ),
           ),
           // Botón de refresh (ya existente)
@@ -378,29 +413,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               onPressed: () {
                 _draftService.resetDraft();
                 _updateUI();
-              },
-            ),
-          ),
-                    // 👇 Botón de prueba del Overlay (TEMPORAL)
-          Container(
-            margin: const EdgeInsets.only(right: 4),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: const Color.fromRGBO(0, 255, 255, 0.7),
-                  blurRadius: 6,
-                ),
-              ],
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.circle_outlined, color: Colors.cyanAccent, size: 20),
-              tooltip: 'Probar Overlay',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const OverlayTestScreen()),
-                );
               },
             ),
           ),

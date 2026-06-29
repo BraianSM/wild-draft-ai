@@ -33,34 +33,40 @@ class FlashTrackerService {
 
     debugPrint('⚙️ Inicializando Tracker de Hechizos');
 
+    // ─── Gestión de permisos de notificaciones ─────
     if (defaultTargetPlatform == TargetPlatform.android) {
       final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin>();
       if (androidPlugin != null) {
-        final areEnabled = await androidPlugin.areNotificationsEnabled();
-        if (areEnabled == true) {
-          debugPrint('🔔 Notificaciones deshabilitadas. Solicitando permiso...');
+        final sdkInt = await _getAndroidSdkVersion();
 
-          // Forzar vertical para mostrar correctamente el diálogo nativo
-          await SystemChrome.setPreferredOrientations([
-            DeviceOrientation.portraitUp,
-          ]);
-
+        if (sdkInt >= 33) {
+          // Android 13+ requiere permiso explícito POST_NOTIFICATIONS
           final granted = await androidPlugin.requestNotificationsPermission();
-          debugPrint('🔔 Permiso concedido: $granted');
-
-          // Restaurar orientaciones (incluyendo horizontal si la app lo permite)
-          await SystemChrome.setPreferredOrientations([
-            DeviceOrientation.portraitUp,
-            DeviceOrientation.landscapeLeft,
-            DeviceOrientation.landscapeRight,
-          ]);
+          debugPrint('🔔 Permiso de notificaciones (Android 13+) concedido: $granted');
+          if (granted == false) {
+            debugPrint('❌ Permiso de notificaciones denegado. No se puede mostrar la notificación persistente.');
+            return; // Detenemos la inicialización si no hay permiso
+          }
         } else {
-          debugPrint('🔔 Notificaciones ya habilitadas');
+          // Android 12 o inferior: verificar si están habilitadas
+          final areEnabled = await androidPlugin.areNotificationsEnabled();
+          if (areEnabled == false) {
+            debugPrint('🔔 Notificaciones deshabilitadas. Solicitando permiso...');
+            final granted = await androidPlugin.requestNotificationsPermission();
+            debugPrint('🔔 Permiso concedido: $granted');
+            if (granted == false) {
+              debugPrint('❌ Permiso denegado.');
+              return;
+            }
+          } else {
+            debugPrint('🔔 Notificaciones ya habilitadas');
+          }
         }
       }
     }
 
+    // Crear canal de notificación
     const androidChannel = AndroidNotificationChannel(
       'spell_tracker',
       'Tracker de Hechizos',
@@ -89,6 +95,18 @@ class FlashTrackerService {
     _initialized = true;
   }
 
+  /// Obtiene la versión del SDK de Android de manera nativa (evita error si no está disponible).
+  static Future<int> _getAndroidSdkVersion() async {
+    try {
+      final int? sdkInt = await const MethodChannel('com.example.wildrift_draft_ai/sdk')
+          .invokeMethod<int>('getSdkVersion');
+      return sdkInt ?? 0;
+    } catch (e) {
+      debugPrint('⚠️ No se pudo obtener el SDK, asumiendo Android 13+');
+      return 33; // Asumimos versión reciente por seguridad
+    }
+  }
+
   // ──────────────────── Marcar Hechizo usado ────────────────────
   void markSpellUsed(String spell) {
     spell = spell.toUpperCase();
@@ -106,6 +124,16 @@ class FlashTrackerService {
 
     _startTimer();
     _updateNotification();
+  }
+
+  /// Marca que se usó Flash
+  void markFlashUsed() {
+    markSpellUsed('FLASH');
+  }
+
+  /// Marca que se usó Ignite
+  void markIgniteUsed() {
+    markSpellUsed('IGNITE');
   }
 
   // ──────────────────────── Temporizador ─────────────────────────

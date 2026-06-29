@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Permisos para el overlay -->
+    <!-- Permisos para el overlay nativo -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
@@ -28,15 +28,22 @@
             </intent-filter>
         </activity>
 
-        <!-- Servicio para el overlay -->
-        <service android:name="flutter.overlay.window.flutter_overlay_window.OverlayService" 
+        <!-- NUEVO: Servicio nativo para el overlay -->
+        <service
+            android:name=".OverlayService"
             android:exported="false"
             android:foregroundServiceType="specialUse">
-            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="This app uses a foreground service to display overlay timer tracker during gameplay"/>
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="overlay_circle_draggable" />
         </service>
 
-        <!-- Aquí van los receivers para las acciones de notificación -->
+        <!-- NUEVO: Receptor explícito para eventos del overlay -->
+        <receiver
+            android:name=".OverlayEventReceiver"
+            android:exported="false" />
+
+        <!-- Receivers para las acciones de notificación -->
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
             android:exported="false"/>
         <receiver android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver"
