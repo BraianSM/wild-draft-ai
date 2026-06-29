@@ -1,4 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Permisos para el overlay -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
     <application
         android:label="wildrift_draft_ai"
         android:name="${applicationName}"
@@ -21,6 +27,14 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <!-- Servicio para el overlay -->
+        <service android:name="flutter.overlay.window.flutter_overlay_window.OverlayService" 
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="This app uses a foreground service to display overlay timer tracker during gameplay"/>
+        </service>
 
         <!-- Aquí van los receivers para las acciones de notificación -->
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"

@@ -13,6 +13,7 @@ import '../theme/app_colors.dart';
 import '../services/role_inference_service.dart';
 import '../services/favorites_service.dart';
 import '../services/flash_tracker_service.dart';
+import '../overlay/overlay_test_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -377,6 +378,29 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               onPressed: () {
                 _draftService.resetDraft();
                 _updateUI();
+              },
+            ),
+          ),
+                    // 👇 Botón de prueba del Overlay (TEMPORAL)
+          Container(
+            margin: const EdgeInsets.only(right: 4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: const Color.fromRGBO(0, 255, 255, 0.7),
+                  blurRadius: 6,
+                ),
+              ],
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.circle_outlined, color: Colors.cyanAccent, size: 20),
+              tooltip: 'Probar Overlay',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const OverlayTestScreen()),
+                );
               },
             ),
           ),
